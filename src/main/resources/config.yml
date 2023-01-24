@@ -1,0 +1,53 @@
+#################################################################################################
+#
+#    ██╗████████╗███████╗███╗   ███╗██╗   ██╗ ██████╗ ██████╗ ███╗   ██╗███████╗██╗ ██████╗
+#    ██║╚══██╔══╝██╔════╝████╗ ████║╚██╗ ██╔╝██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔════╝
+#    ██║   ██║   ███████╗██╔████╔██║ ╚████╔╝ ██║     ██║   ██║██╔██╗ ██║█████╗  ██║██║  ███╗
+#    ██║   ██║   ╚════██║██║╚██╔╝██║  ╚██╔╝  ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║██║   ██║
+#    ██║   ██║   ███████║██║ ╚═╝ ██║   ██║   ╚██████╗╚██████╔╝██║ ╚████║██║     ██║╚██████╔╝
+#    ╚═╝   ╚═╝   ╚══════╝╚═╝     ╚═╝   ╚═╝    ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝ ╚═════╝
+#
+#      Developer: _RealAlpha_#1910
+#      Designer & Projet: Théo#0001
+#      Support: https://itsme.to/discord
+#      Documentation: https://itsme.to/itsmyconfig
+#
+#    PLACEHOLDER
+#      %itsme_latin_{placeholder}% - Change to number in latin number: 5 = V
+#      %itsme_progress_<name>_{placeholder}_<maxvalue>% - Create custom progress bar with complex style
+#      %itsme_placeholder_<name>% - Create custom placeholder and easly change it
+#
+#################################################################################################
+
+symbol-prefix: "$"
+
+custom-placeholder:
+  example: "Example placeholder"
+
+custom-progress:
+  basic:
+    symbol: "⦁●⚫●⚫●⚫●⚫●⚫●⚫●⚫●⚫●⚫●⚫●⦁"
+    completed-color: "&a"
+    progress-color: "&e"
+    remaining-color: "&7"
+
+messages:
+  invalidUse:
+    - "&c&lERROR &f┃ Invalid use"
+    - "  &e/{usage}"
+  reload:
+    - "&a&lSUCCES &f┃ ItsmyConfig &freloaded !"
+  nopermission:
+    - "&a&lERROR &f┃ You don't have permission"
+  messageSend:
+    - "&a&lSUCCES &f┃ Message Send !"
+  commandAdded:
+    - "&a&lSUCCESS &f┃ The command has been added to &b{player}"
+
+commands:
+  reload: #Permission: itsmyconfig.reload
+    usage: "itsmyconfig reload"
+  message:  #Permission: itsmyconfig.message
+    usage: "message <player> [message]"
+  offline:  #Permission: itsmyconfig.offline
+    usage: "offline <console/player> <player-name> <delay> [command]"

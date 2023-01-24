@@ -1,0 +1,15 @@
+name: ItsMyConfig
+version: ${project.version}
+author: RealAlphaUA
+main: ua.realalpha.itsmyconfig.ItsMyConfig
+api-version: 1.13
+depend:
+  - ProtocolLib
+
+commands:
+  message:
+    permission: "itsmyconfig.message"
+  offline:
+    permission: "itsmyconfig.offline"
+  itsmyconfig:
+    permission: "itsmyconfig.reload"
