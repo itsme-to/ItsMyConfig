@@ -61,7 +61,7 @@ public class MessageCommandExecutor implements CommandExecutor {
 
             String[] strings = message.split("\\\\r?\\\\n|\\\\r");
             for (String string : strings) {
-                player.sendMessage(string);
+                player.sendMessage(this.itsMyConfig.getSymbolPrefix() + string);
             }
         });
 
