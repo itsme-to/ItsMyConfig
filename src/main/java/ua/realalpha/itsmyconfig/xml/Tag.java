@@ -8,6 +8,9 @@ import java.util.regex.Pattern;
 
 public class Tag {
 
+    private static final Pattern TAG_PATTERN = Pattern.compile("<([^/][^>\\s]+)[^>]*>");
+    private static final Pattern FULL_TAG_PATTERN = Pattern.compile("<[^/^<.]+>[^<.]+(</[^>.]+>)*");
+
     public static String getContent(String tag, String message) {
         String tagStart = "<" + tag;
         String tagEnd = "</" + tag + ">";
@@ -38,8 +41,7 @@ public class Tag {
 
     public static List<String> getTags(String message) {
         List<String> tokens = new ArrayList<>();
-        Pattern pattern = Pattern.compile("<([^/][^>\\s]+)[^>]*>");
-        Matcher matcher = pattern.matcher(message);
+        Matcher matcher = TAG_PATTERN.matcher(message);
         while (matcher.find()) {
             String token = matcher.group(1);
             int i = token.indexOf(":");
@@ -52,14 +54,12 @@ public class Tag {
     }
 
     public static boolean hasTagPresent(String message) {
-        Pattern pattern = Pattern.compile("<([^/][^>\\s]+)[^>]*>");
-        return pattern.matcher(message).find();
+        return TAG_PATTERN.matcher(message).find();
     }
 
     public static List<String> textsWithoutTags(String message) {
         List<String> texts = new ArrayList<>();
-        Pattern pattern = Pattern.compile("<[^/^<.]+>[^<.]+(</[^>.]+>)*");
-        Matcher matcher = pattern.matcher(message);
+        Matcher matcher = FULL_TAG_PATTERN.matcher(message);
         int lastIndex = 0;
         while (matcher.find()) {
             addBorderWhiteSpaceStrippedText(message.substring(lastIndex, matcher.start()), texts);
@@ -77,10 +77,6 @@ public class Tag {
     //remove all tags from message
     public static String messageWithoutTag(String tag, String message) {
         return message.substring(getFirstIndex(message), getLastIndex(tag, message));
-    }
-
-    public static String remainingTextWithoutTags(String message) {
-        return message.substring(message.lastIndexOf(">") + 1);
     }
 
     private static int getLastIndex(String tag, String message){
