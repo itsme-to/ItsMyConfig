@@ -27,8 +27,7 @@ public class SubTitle extends Model {
         Audience audience = itsMyConfig.adventure().player(player);
         ItsMyConfig.applyingChatColor(parsed);
 
-        long count = tags.stream().filter(tokenKey -> tokenKey.equalsIgnoreCase("title")).count();
-        if (count == 0){
+        if (tags.stream().noneMatch(tokenKey -> tokenKey.equalsIgnoreCase("title"))) {
             String[] parameters = Tag.getParameters(message);
             Title title = Title.title(Component.empty(), parsed, TitleModel.createTimes(parameters));
             audience.showTitle(title);
