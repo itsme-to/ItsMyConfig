@@ -13,6 +13,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
+import org.apache.commons.lang.StringUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import ua.realalpha.itsmyconfig.model.ModelType;
 import ua.realalpha.itsmyconfig.xml.Tag;
@@ -63,7 +65,20 @@ public class PacketChatListener extends PacketAdapter {
 
             if (!plainTextWithOutSymbolPrefix.isEmpty()) {
                 List<String> tags = Tag.getTags(plainTextWithOutSymbolPrefix);
-                List<ModelType> modelTypes = tags.stream().map(ModelType::getModelType).filter(modelType -> modelType != ModelType.UNKNOWN && modelRepository.hasModel(modelType)).collect(Collectors.toList());
+                if (!tags.isEmpty()) {
+                    List<String> texts = Tag.textsWithoutTags(plainTextWithOutSymbolPrefix);
+                    if (!texts.isEmpty()) {
+                        Audience audience = itsMyConfig.adventure().player(player);
+                        MiniMessage miniMessage = MiniMessage.miniMessage();
+                        texts.forEach(text -> {
+                            Component parsed = miniMessage.deserialize(text);
+                            ItsMyConfig.applyingChatColor(parsed);
+                            audience.sendMessage(parsed);
+                        });
+                    }
+
+                }
+                List<ModelType> modelTypes = tags.stream().map(ModelType::getModelType).filter(modelRepository::hasModel).collect(Collectors.toList());
                 for (ModelType modelType : modelTypes) {
                     modelRepository.getModel(modelType).apply(player, Tag.getContent(modelType.getTagName(), plainTextWithOutSymbolPrefix), tags);
                 }
@@ -76,10 +91,10 @@ public class PacketChatListener extends PacketAdapter {
                     audience.sendMessage(parsed);
                 }
 
+
             }
 
             event.setCancelled(true);
-
         }
     }
 

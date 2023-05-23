@@ -3,10 +3,8 @@ package ua.realalpha.itsmyconfig.xml;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class Tag {
 
@@ -53,9 +51,36 @@ public class Tag {
         return tokens;
     }
 
+    public static boolean hasTagPresent(String message) {
+        Pattern pattern = Pattern.compile("<([^/][^>\\s]+)[^>]*>");
+        return pattern.matcher(message).find();
+    }
+
+    public static List<String> textsWithoutTags(String message) {
+        List<String> texts = new ArrayList<>();
+        Pattern pattern = Pattern.compile("<[^/^<.]+>[^<.]+(</[^>.]+>)*");
+        Matcher matcher = pattern.matcher(message);
+        int lastIndex = 0;
+        while (matcher.find()) {
+            addBorderWhiteSpaceStrippedText(message.substring(lastIndex, matcher.start()), texts);
+            lastIndex = matcher.end();
+        }
+        if (lastIndex < message.length()) {
+            String lastText = message.substring(lastIndex);
+            if (!lastText.matches("^\\s+$")) {
+                addBorderWhiteSpaceStrippedText(lastText, texts);
+            }
+        }
+        return texts;
+    }
+
     //remove all tags from message
     public static String messageWithoutTag(String tag, String message) {
         return message.substring(getFirstIndex(message), getLastIndex(tag, message));
+    }
+
+    public static String remainingTextWithoutTags(String message) {
+        return message.substring(message.lastIndexOf(">") + 1);
     }
 
     private static int getLastIndex(String tag, String message){
@@ -69,6 +94,13 @@ public class Tag {
         return message.indexOf(">")+1;
     }
 
+    private static void addBorderWhiteSpaceStrippedText(String message, List<String> texts) {
+        String text = message;
+        if (text.startsWith(" ")) text = text.substring(1);
+        if (text.endsWith(" ")) text = text.substring(0, text.length() - 1);
+        if (text.isEmpty()) return;
+        texts.add(text);
+    }
 
 }
 

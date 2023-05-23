@@ -9,6 +9,7 @@ public class Test {
     private static final Pattern END_PATTERN = Pattern.compile("<+/+\\w+>");
 
     public static void main(String[] args) {
+        System.out.println(Tag.textsWithoutTags("Hi ! <actionbar>Might be ignored in output list <actionbar>Here also</actionbar> Final text :) !"));
 
         System.out.println(Tag.getContent("actionbar", "<actionbar>%itsme_placeholder_essentialsPrefix% %itsme_placeholder_textColor%Essentials <yellow>{0}</yellow> a été rechargé"));
         System.out.println(Tag.messageWithoutTag("actionbar", Tag.getContent("actionbar", "<actionbar>%itsme_placeholder_essentialsPrefix% %itsme_placeholder_textColor%Essentials <yellow>{0}</yellow> a été rechargé")));

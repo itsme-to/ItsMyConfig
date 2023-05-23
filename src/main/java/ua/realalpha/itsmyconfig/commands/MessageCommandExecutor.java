@@ -11,6 +11,7 @@ import ua.realalpha.itsmyconfig.ItsMyConfig;
 import ua.realalpha.itsmyconfig.config.message.CommandUsage;
 import ua.realalpha.itsmyconfig.config.message.Message;
 import ua.realalpha.itsmyconfig.config.message.MessageKey;
+import ua.realalpha.itsmyconfig.xml.Tag;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -61,7 +62,8 @@ public class MessageCommandExecutor implements CommandExecutor {
 
             String[] strings = message.split("\\\\r?\\\\n|\\\\r");
             for (String string : strings) {
-                player.sendMessage(this.itsMyConfig.getSymbolPrefix() + string);
+                String symbol = Tag.hasTagPresent(string) ? this.itsMyConfig.getSymbolPrefix() : "";
+                player.sendMessage(symbol + string);
             }
         });
 
