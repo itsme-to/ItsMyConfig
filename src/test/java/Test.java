@@ -7,8 +7,10 @@ import java.util.regex.Pattern;
 public class Test {
 
     private static final Pattern END_PATTERN = Pattern.compile("<+/+\\w+>");
+    private static final Pattern ARGUMENT_PATTERN = Pattern.compile("\\{([0-9])+}");
 
     public static void main(String[] args) {
+        System.out.println(ARGUMENT_PATTERN.matcher("Hi {1} {3} Gros").find());
         System.out.println(Tag.textsWithoutTags("Hi ! <actionbar>Might be ignored in output list <actionbar>Here also</actionbar> Final text :) !"));
 
         System.out.println(Tag.getContent("actionbar", "<actionbar>%itsme_placeholder_essentialsPrefix% %itsme_placeholder_textColor%Essentials <yellow>{0}</yellow> a été rechargé"));

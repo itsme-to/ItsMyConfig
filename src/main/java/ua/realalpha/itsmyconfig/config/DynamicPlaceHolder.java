@@ -15,14 +15,14 @@ import java.util.Map;
 
 public class DynamicPlaceHolder extends PlaceholderExpansion {
 
-    private final Map<String, String> identifierToResult = new HashMap<>();
+    private final Map<String, CustomPlaceHolderData> identifierToResult = new HashMap<>();
     private final int[] values = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
     private final String[] romanLiterals = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
 
     private final String[] smallCaps =  new String[]
             {"ᴀ", "ʙ", "ᴄ", "ᴅ", "ᴇ", "ғ", "ɢ", "ʜ", "ɪ", "ᴊ", "ᴋ", "ʟ", "ᴍ", "ɴ", "ᴏ", "ᴘ", "ǫ", "ʀ", "s", "ᴛ", "ᴜ", "ᴠ", "ᴡ", "x", "ʏ"};
 
-    private ProgressBarBucket progressBarBucket;
+    private final ProgressBarBucket progressBarBucket;
 
     public DynamicPlaceHolder(ProgressBarBucket progressBarBucket) {
         this.progressBarBucket = progressBarBucket;
@@ -58,7 +58,7 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
 
         if (strings.length >= 2 && strings[0].equalsIgnoreCase("placeholder")) {
             if (!identifierToResult.containsKey(strings[1])) return "Not Found Custom PlaceHolder";
-            return identifierToResult.get(strings[1]);
+            return identifierToResult.get(strings[1]).replaceArguments(strings);
         }
 
         if (strings.length >= 2) {
@@ -100,7 +100,7 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
     }
 
     public void registerIdentifier(String key, String value){
-        this.identifierToResult.put(key, value);
+        this.identifierToResult.put(key, new CustomPlaceHolderData(value));
     }
 
     public String messageToSmallCaps(String message) {
