@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import ua.realalpha.itsmyconfig.progress.ProgressBar;
 import ua.realalpha.itsmyconfig.progress.ProgressBarBucket;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +18,9 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
     private final Map<String, String> identifierToResult = new HashMap<>();
     private final int[] values = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
     private final String[] romanLiterals = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
+
+    private final String[] smallCaps =  new String[]
+            {"ᴀ", "ʙ", "ᴄ", "ᴅ", "ᴇ", "ғ", "ɢ", "ʜ", "ɪ", "ᴊ", "ᴋ", "ʟ", "ᴍ", "ɴ", "ᴏ", "ᴘ", "ǫ", "ʀ", "s", "ᴛ", "ᴜ", "ᴠ", "ᴡ", "x", "ʏ"};
 
     private ProgressBarBucket progressBarBucket;
 
@@ -57,13 +61,19 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
             return identifierToResult.get(strings[1]);
         }
 
-        if (strings.length >= 2 && strings[0].equalsIgnoreCase("latin")){
-            try {
-                int integer = Integer.parseInt(strings[1]);
-                return integerToRoman(integer);
-            }catch (NumberFormatException e){
-                return "Illegal Number Format";
+        if (strings.length >= 2) {
+            if (strings[0].equalsIgnoreCase("latin")) {
+                try {
+                    int integer = Integer.parseInt(strings[1]);
+                    return integerToRoman(integer);
+                }catch (NumberFormatException e){
+                    return "Illegal Number Format";
+                }
+            } else if (strings[0].equalsIgnoreCase("smallcaps")) {
+                String message = strings[1].toLowerCase();
+                return messageToSmallCaps(message);
             }
+
         }
 
         if (strings.length >= 4 && strings[0].equalsIgnoreCase("progress")) {
@@ -91,6 +101,20 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
 
     public void registerIdentifier(String key, String value){
         this.identifierToResult.put(key, value);
+    }
+
+    public String messageToSmallCaps(String message) {
+        byte[] bytes = message.toLowerCase().getBytes(StandardCharsets.UTF_8);
+        StringBuilder builder = new StringBuilder();
+        for (byte messageByte : bytes) {
+            if (messageByte >= 97 && messageByte <= 122) {
+                builder.append(smallCaps[messageByte - 97]);
+            } else {
+                builder.append((char) messageByte);
+            }
+        }
+
+        return builder.toString();
     }
 
     public String integerToRoman(int num) {
