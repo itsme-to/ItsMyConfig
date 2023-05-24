@@ -22,7 +22,8 @@
 symbol-prefix: "$"
 
 custom-placeholder:
-  example: "Example placeholder"
+  example:
+    value: "Example placeholder"
 
 custom-progress:
   basic:

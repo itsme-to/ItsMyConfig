@@ -113,7 +113,7 @@ public class ItsMyConfig extends JavaPlugin {
 
         ConfigurationSection customPlaceholderConfigurationSection = this.getConfig().getConfigurationSection("custom-placeholder");
         for (String identifier : customPlaceholderConfigurationSection.getKeys(false)) {
-            String result = customPlaceholderConfigurationSection.getString(identifier);
+            String result = customPlaceholderConfigurationSection.getString(identifier + ".value");
             dynamicPlaceHolder.registerIdentifier(identifier, result);
             this.getLogger().info(String.format("Register placeHolder %s", identifier));
         }
