@@ -3,6 +3,7 @@ package ua.realalpha.itsmyconfig.config.message;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
+import java.util.Collections;
 import java.util.List;
 
 public interface MessageKey {
@@ -13,7 +14,11 @@ public interface MessageKey {
 
     void setMessage(List<String> message);
 
-    static MessageKey from(String key){
+    static MessageKey from(String key, String message) {
+        return new DefaultMessage(key, message);
+    }
+
+    static MessageKey from(String key) {
         return new DefaultMessage(key);
     }
 
@@ -31,6 +36,11 @@ public interface MessageKey {
 
         public DefaultMessage(String key) {
             this.key = key;
+        }
+
+        public DefaultMessage(String key, String message) {
+            this.key = key;
+            this.message = Collections.singletonList(message);
         }
 
         @Override

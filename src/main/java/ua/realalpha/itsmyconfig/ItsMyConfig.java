@@ -137,12 +137,6 @@ public class ItsMyConfig extends JavaPlugin {
             messageKey.setMessage(messagesConfigurationSection.getStringList(identifier));
         }
 
-        ConfigurationSection commandsConfigurationSection = this.getConfig().getConfigurationSection("commands");
-        for (String identifier : commandsConfigurationSection.getKeys(false)) {
-            MessageKey messageKey = CommandUsage.getMessageKey(identifier);
-            messageKey.setMessage(Collections.singletonList(commandsConfigurationSection.getString(identifier + ".usage")));
-        }
-
         ConfigurationSection customProgressConfigurationSection = this.getConfig().getConfigurationSection("custom-progress");
         for (String identifier : customProgressConfigurationSection.getKeys(false)) {
             ConfigurationSection configurationSection = customProgressConfigurationSection.getConfigurationSection(identifier);

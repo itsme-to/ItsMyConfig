@@ -39,10 +39,14 @@ public class PlaceholderData {
     }
 
     public String replaceArguments(String[] params) {
-        if (params.length > 2) {
-            String output = this.message;
+        return this.replaceArguments(params, this.message);
+    }
+
+    public String replaceArguments(String[] params, String message) {
+        if (params.length > 1) {
+            String output = message;
             for (Integer argument : this.arguments) {
-                int index = argument + 2;
+                int index = argument + 1;
                 if (index >= params.length) continue;
                 output = output.replaceAll("\\{" + argument + "}", params[index]);
             }

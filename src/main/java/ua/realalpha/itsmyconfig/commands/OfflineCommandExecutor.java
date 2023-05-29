@@ -31,14 +31,20 @@ public class OfflineCommandExecutor implements CommandExecutor {
             return false;
         }
 
-        OfflineCommandSender offlineCommandSender = OfflineCommandSender.valueOf(args[0].toUpperCase());
+        OfflineCommandSender offlineCommandSender;
+
+        try {
+            offlineCommandSender = OfflineCommandSender.valueOf(args[1].toUpperCase());
+        } catch (Exception e) {
+            offlineCommandSender = OfflineCommandSender.NONE;
+        }
 
         if (offlineCommandSender == OfflineCommandSender.NONE){
             MessageKey.sendUsage(sender, CommandUsage.OFFLINE);
             return false;
         }
 
-        String target = args[1];
+        String target = args[0];
 
         int delay;
         try {

@@ -25,14 +25,13 @@ public class RequirementManager {
         return this.requirements.stream().filter(requirement -> requirement.matchIdentifier(type)).findAny().orElse(null);
     }
 
-    public String getDenyMessage(PlaceholderData data, Player player) {
+    public String getDenyMessage(PlaceholderData data, Player player, String[] params) {
         for (RequirementData requirementData : data.getRequirements()) {
             Requirement<?> requirement = this.getRequirementByType(requirementData.getIdentifier());
             if (requirement == null) continue;
-            if (requirement.validate(requirementData.getIdentifier(),
-                    PlaceholderAPI.setPlaceholders(player, requirementData.getInput()),
-                    PlaceholderAPI.setPlaceholders(player, requirementData.getOutput())
-            )) continue;
+            String input = PlaceholderAPI.setPlaceholders(player, data.replaceArguments(params, requirementData.getInput()));
+            String output = PlaceholderAPI.setPlaceholders(player, data.replaceArguments(params, requirementData.getOutput()));
+            if (requirement.validate(requirementData.getIdentifier(), input, output)) continue;
             return ChatColor.translateAlternateColorCodes('&', requirementData.getDeny());
         }
 

@@ -50,11 +50,3 @@ messages:
     - "&a&lSUCCES &f┃ Message Send !"
   commandAdded:
     - "&a&lSUCCESS &f┃ The command has been added to &b{player}"
-
-commands:
-  reload: #Permission: itsmyconfig.reload
-    usage: "itsmyconfig reload"
-  message:  #Permission: itsmyconfig.message
-    usage: "message <player> [message]"
-  offline:  #Permission: itsmyconfig.offline
-    usage: "offline <console/player> <player-name> <delay> [command]"
