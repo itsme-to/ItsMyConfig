@@ -1,18 +1,21 @@
-package ua.realalpha.itsmyconfig.config;
+package ua.realalpha.itsmyconfig.config.placeholder;
+
+import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CustomPlaceHolderData {
+public class PlaceholderData {
 
     private static final Pattern ARGUMENT_PATTERN = Pattern.compile("\\{([0-9]+)}");
 
     private final String message;
     private final List<Integer> arguments;
+    private final List<RequirementData> requirements = new ArrayList<>();
 
-    public CustomPlaceHolderData(String message) {
+    public PlaceholderData(String message) {
         this.message = message;
         List<Integer> arguments = null;
         Matcher matcher = ARGUMENT_PATTERN.matcher(message);
@@ -27,8 +30,15 @@ public class CustomPlaceHolderData {
         this.arguments = arguments;
     }
 
+    public void registerRequirement(ConfigurationSection section) {
+        String identifier = section.getString("type");
+        String input = section.getString("input");
+        String output = section.getString("output");
+        String deny = section.getString("deny");
+        this.requirements.add(new RequirementData(identifier, input, output, deny));
+    }
+
     public String replaceArguments(String[] params) {
-        System.out.println(this.arguments);
         if (params.length > 2) {
             String output = this.message;
             for (Integer argument : this.arguments) {
@@ -43,4 +53,7 @@ public class CustomPlaceHolderData {
         }
     }
 
+    public List<RequirementData> getRequirements() {
+        return requirements;
+    }
 }

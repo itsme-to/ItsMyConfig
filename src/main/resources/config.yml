@@ -24,6 +24,12 @@ symbol-prefix: "$"
 custom-placeholder:
   example:
     value: "Example placeholder"
+    requirements:
+      example:
+        type: "=="
+        input: 100
+        output: 200
+        deny: "&cYou don't have enough money !"
 
 custom-progress:
   basic:

@@ -6,6 +6,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ua.realalpha.itsmyconfig.ItsMyConfig;
+import ua.realalpha.itsmyconfig.config.placeholder.PlaceholderData;
 import ua.realalpha.itsmyconfig.progress.ProgressBar;
 import ua.realalpha.itsmyconfig.progress.ProgressBarBucket;
 
@@ -15,7 +17,8 @@ import java.util.Map;
 
 public class DynamicPlaceHolder extends PlaceholderExpansion {
 
-    private final Map<String, CustomPlaceHolderData> identifierToResult = new HashMap<>();
+    private final ItsMyConfig plugin;
+    private final Map<String, PlaceholderData> identifierToResult = new HashMap<>();
     private final int[] values = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
     private final String[] romanLiterals = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
 
@@ -24,7 +27,8 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
 
     private final ProgressBarBucket progressBarBucket;
 
-    public DynamicPlaceHolder(ProgressBarBucket progressBarBucket) {
+    public DynamicPlaceHolder(ItsMyConfig plugin, ProgressBarBucket progressBarBucket) {
+        this.plugin = plugin;
         this.progressBarBucket = progressBarBucket;
     }
 
@@ -58,7 +62,11 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
 
         if (strings.length >= 2 && strings[0].equalsIgnoreCase("placeholder")) {
             if (!identifierToResult.containsKey(strings[1])) return "Not Found Custom PlaceHolder";
-            return identifierToResult.get(strings[1]).replaceArguments(strings);
+            PlaceholderData data = identifierToResult.get(strings[1]);
+            String result = data.replaceArguments(strings);
+            String deny = this.plugin.getRequirementManager().getDenyMessage(data, player);
+            if (deny != null) return deny;
+            return result;
         }
 
         if (strings.length >= 2) {
@@ -99,8 +107,10 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
         return "ERROR";
     }
 
-    public void registerIdentifier(String key, String value){
-        this.identifierToResult.put(key, new CustomPlaceHolderData(value));
+    public PlaceholderData registerIdentifier(String key, String value) {
+        PlaceholderData data = new PlaceholderData(value);
+        this.identifierToResult.put(key, data);
+        return data;
     }
 
     public String messageToSmallCaps(String message) {

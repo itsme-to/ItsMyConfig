@@ -1,3 +1,5 @@
+import ua.realalpha.itsmyconfig.requirement.Requirement;
+import ua.realalpha.itsmyconfig.requirement.RequirementManager;
 import ua.realalpha.itsmyconfig.progress.ProgressBar;
 import ua.realalpha.itsmyconfig.xml.Tag;
 
@@ -10,6 +12,13 @@ public class Test {
     private static final Pattern ARGUMENT_PATTERN = Pattern.compile("\\{([0-9])+}");
 
     public static void main(String[] args) {
+        RequirementManager manager = new RequirementManager();
+        String identifier = "!string contains ignorecase";
+        String input = "10";
+        String output = "Bramsou";
+        Requirement<?> requirement = manager.getRequirementByType(identifier);
+        System.out.println("Validate: " + requirement.validate(identifier, input, output));
+
         System.out.println(ARGUMENT_PATTERN.matcher("Hi {1} {3} Gros").find());
         System.out.println(Tag.textsWithoutTags("Hi ! <actionbar>Might be ignored in output list <actionbar>Here also</actionbar> Final text :) !"));
 

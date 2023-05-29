@@ -22,6 +22,7 @@ import ua.realalpha.itsmyconfig.config.DynamicPlaceHolder;
 import ua.realalpha.itsmyconfig.config.message.CommandUsage;
 import ua.realalpha.itsmyconfig.config.message.Message;
 import ua.realalpha.itsmyconfig.config.message.MessageKey;
+import ua.realalpha.itsmyconfig.config.placeholder.PlaceholderData;
 import ua.realalpha.itsmyconfig.listeners.PlayerJoinListener;
 import ua.realalpha.itsmyconfig.model.ActionBarModel;
 import ua.realalpha.itsmyconfig.model.SubTitle;
@@ -29,6 +30,7 @@ import ua.realalpha.itsmyconfig.model.TitleModel;
 import ua.realalpha.itsmyconfig.offlinecommand.OfflineCommandManager;
 import ua.realalpha.itsmyconfig.progress.ProgressBar;
 import ua.realalpha.itsmyconfig.progress.ProgressBarBucket;
+import ua.realalpha.itsmyconfig.requirement.RequirementManager;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
@@ -41,6 +43,7 @@ public class ItsMyConfig extends JavaPlugin {
     private DynamicPlaceHolder dynamicPlaceHolder;
     private ProgressBarBucket progressBarBucket = new ProgressBarBucket();
     private String symbolPrefix;
+    private RequirementManager requirementManager;
 
     private static Field TEXT_COMPONENT_CONTENT;
     static {
@@ -65,8 +68,10 @@ public class ItsMyConfig extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        this.dynamicPlaceHolder = new DynamicPlaceHolder(progressBarBucket);
+        this.dynamicPlaceHolder = new DynamicPlaceHolder(this, progressBarBucket);
         this.dynamicPlaceHolder.register();
+
+        this.requirementManager = new RequirementManager();
 
         this.getCommand("message").setExecutor(new MessageCommandExecutor(this));
         this.getCommand("itsmyconfig").setExecutor(new ReloadCommandExecutor(this));
@@ -114,7 +119,15 @@ public class ItsMyConfig extends JavaPlugin {
         ConfigurationSection customPlaceholderConfigurationSection = this.getConfig().getConfigurationSection("custom-placeholder");
         for (String identifier : customPlaceholderConfigurationSection.getKeys(false)) {
             String result = customPlaceholderConfigurationSection.getString(identifier + ".value");
-            dynamicPlaceHolder.registerIdentifier(identifier, result);
+            PlaceholderData data = dynamicPlaceHolder.registerIdentifier(identifier, result);
+            ConfigurationSection requirementSection = customPlaceholderConfigurationSection.getConfigurationSection(identifier + ".requirements");
+            if (requirementSection != null) {
+                for (String requirement : requirementSection.getKeys(false)) {
+                    data.registerRequirement(customPlaceholderConfigurationSection
+                            .getConfigurationSection(identifier + ".requirements." + requirement));
+                }
+            }
+
             this.getLogger().info(String.format("Register placeHolder %s", identifier));
         }
 
@@ -168,4 +181,7 @@ public class ItsMyConfig extends JavaPlugin {
     }
 
 
+    public RequirementManager getRequirementManager() {
+        return requirementManager;
+    }
 }
