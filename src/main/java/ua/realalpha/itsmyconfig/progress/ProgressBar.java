@@ -25,8 +25,8 @@ public class ProgressBar {
         int completed = (int) Math.round(percent * pattern.length());
         if (completed > pattern.length()) completed = pattern.length();
         StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(completedColor);
         if (completed != 0) {
-            stringBuilder.append(completedColor);
             stringBuilder.append(pattern, 0, completed);
         }
         if (completed != pattern.length()){

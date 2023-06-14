@@ -79,6 +79,23 @@ public class Tag {
         return message.substring(getFirstIndex(message), getLastIndex(tag, message));
     }
 
+    public static String messageWithoutTagAndItsContent(String tag, String message) {
+        String startTag = "<" + tag + ">";
+        String endTag = "</" + tag + ">";
+        int startIndex = message.indexOf(startTag);
+        int endIndex = message.indexOf(endTag);
+
+        if (startIndex == -1) {
+            return message;
+        }
+
+        if (endIndex == -1) {
+            return message.substring(0, startIndex);
+        }
+
+        return message.substring(0, startIndex) + message.substring(endIndex + endTag.length());
+    }
+
     private static int getLastIndex(String tag, String message){
         String tagEnd = "</" + tag + ">";
         int end = message.indexOf(tagEnd);

@@ -33,14 +33,14 @@ custom-progress:
     remaining-color: "&7"
 
 messages:
-  invalidUse:
+  invalid-use:
     - "&c&lERROR &f┃ Invalid use"
     - "  &e/{usage}"
   reload:
     - "&a&lSUCCES &f┃ ItsmyConfig &freloaded !"
-  nopermission:
+  no-permission:
     - "&a&lERROR &f┃ You don't have permission"
-  messageSend:
+  message-send:
     - "&a&lSUCCES &f┃ Message Send !"
-  commandAdded:
+  command-added:
     - "&a&lSUCCESS &f┃ The command has been added to &b{player}"

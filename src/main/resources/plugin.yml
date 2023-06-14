@@ -5,6 +5,7 @@ main: ua.realalpha.itsmyconfig.ItsMyConfig
 api-version: 1.13
 depend:
   - ProtocolLib
+  - PlaceholderAPI
 
 commands:
   message:

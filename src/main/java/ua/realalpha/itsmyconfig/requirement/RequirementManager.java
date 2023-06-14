@@ -32,7 +32,7 @@ public class RequirementManager {
             String input = PlaceholderAPI.setPlaceholders(player, data.replaceArguments(params, requirementData.getInput()));
             String output = PlaceholderAPI.setPlaceholders(player, data.replaceArguments(params, requirementData.getOutput()));
             if (requirement.validate(requirementData.getIdentifier(), input, output)) continue;
-            return ChatColor.translateAlternateColorCodes('&', requirementData.getDeny());
+            return ChatColor.translateAlternateColorCodes('&', data.replaceArguments(params, requirementData.getDeny()));
         }
 
         return null;

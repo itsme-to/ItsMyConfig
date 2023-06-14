@@ -9,10 +9,10 @@ public class Message {
     private static Map<String, MessageKey> MESSAGE_KEY_BY_IDENTIFIER = new HashMap<>();
 
     public static MessageKey RELOAD = MessageKey.from("reload");
-    public static MessageKey NO_PERMISSION = MessageKey.from("nopermission");
-    public static MessageKey MESSAGE_SEND = MessageKey.from("messageSend");
-    public static MessageKey COMMAND_ADDED = MessageKey.from("commandAdded");
-    public static MessageKey INVALID_USE = MessageKey.from("invalidUse");
+    public static MessageKey NO_PERMISSION = MessageKey.from("no-permission");
+    public static MessageKey MESSAGE_SEND = MessageKey.from("message-send");
+    public static MessageKey COMMAND_ADDED = MessageKey.from("command-added");
+    public static MessageKey INVALID_USE = MessageKey.from("invalid-use");
 
     static {
         Field[] declaredFields = Message.class.getDeclaredFields();

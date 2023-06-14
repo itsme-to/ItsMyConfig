@@ -81,12 +81,9 @@ public class ItsMyConfig extends JavaPlugin {
         modelRepository.registerModel(new TitleModel(this));
         modelRepository.registerModel(new SubTitle(this));
 
-        PluginManager pluginManager = this.getServer().getPluginManager();
-
         this.adventure = BukkitAudiences.create(this);
 
         loadConfig();
-
 
         ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
         protocolManager.addPacketListener(new PacketChatListener(this, modelRepository));
@@ -97,9 +94,7 @@ public class ItsMyConfig extends JavaPlugin {
         PluginCommand offlineCommand = this.getCommand("offline");
         offlineCommand.setExecutor(new OfflineCommandExecutor(offlineCommandManager));
 
-        pluginManager.registerEvents(new PlayerJoinListener(offlineCommandManager), this);
-
-
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(offlineCommandManager), this);
     }
 
     @Override

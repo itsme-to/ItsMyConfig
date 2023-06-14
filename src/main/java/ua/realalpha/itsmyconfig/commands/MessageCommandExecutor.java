@@ -39,9 +39,11 @@ public class MessageCommandExecutor implements CommandExecutor {
         }
 
         Collection<? extends Player> players;
-        if (args[0].equalsIgnoreCase("all")){
+        if (args[0].equalsIgnoreCase("all") || args[0].equalsIgnoreCase("*")){
             players = Bukkit.getOnlinePlayers();
-        }else {
+        } else if (args[0].equalsIgnoreCase("me") && sender instanceof Player) {
+            players = Collections.singletonList(((Player) sender));
+        } else {
             Player player = Bukkit.getPlayer(args[0]);
             if (player == null) return false;
             players = Collections.singletonList(player);
@@ -67,9 +69,9 @@ public class MessageCommandExecutor implements CommandExecutor {
             }
         });
 
-
-
-        Message.MESSAGE_SEND.getMessage().forEach(s -> sender.sendMessage(ChatColor.translateAlternateColorCodes('&', s)));
+        if (sender instanceof Player) {
+            Message.MESSAGE_SEND.getMessage().forEach(s -> sender.sendMessage(ChatColor.translateAlternateColorCodes('&', s)));
+        }
 
         return false;
     }
