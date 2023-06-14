@@ -77,9 +77,6 @@ public class PacketChatListener extends PacketAdapter {
                     Tag.getContent(modelType.getTagName(), withoutSymbol),
                     tags
             ));
-        } else {
-            // Otherwise, just send the message.
-            sendMessage(player, withoutSymbol);
         }
 
         String messageOutOfModels = modelTypes.stream()
