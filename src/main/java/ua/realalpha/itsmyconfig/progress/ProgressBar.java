@@ -23,19 +23,24 @@ public class ProgressBar {
     public String render(double value, double maxValue){
         double percent = value / maxValue;
         int completed = (int) Math.round(percent * pattern.length());
-        if (completed > pattern.length()) completed = pattern.length();
+
+        if (completed > pattern.length()) {
+            completed = pattern.length();
+        }
+
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(completedColor);
+
         if (completed != 0) {
             stringBuilder.append(pattern, 0, completed);
         }
+
         if (completed != pattern.length()){
             stringBuilder.append(progressColor);
             stringBuilder.append(pattern, completed, completed+1);
             stringBuilder.append(remainingColor);
             stringBuilder.append(pattern, completed+1, pattern.length());
         }
-
 
         return stringBuilder.toString();
     }

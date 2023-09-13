@@ -10,7 +10,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PlaceholderData {
-
     private static final Pattern ARGUMENT_PATTERN = Pattern.compile("\\{([0-9]+)}");
 
     private final String message;
@@ -39,13 +38,14 @@ public class PlaceholderData {
     }
 
     public String replaceArguments(String[] params, String message) {
-        if (params.length > 1) {
+        if (params.length >= 1) {
             String output = message;
 
             for (Integer argument : this.arguments) {
-                int index = argument + 1;
+                int index = argument;
                 if (index >= params.length) continue;
-                output = output.replaceAll("\\{" + argument + "}", params[index]);
+                // Dollar signs are quoted before using replaceAll
+                output = output.replaceAll(Pattern.quote("{" + argument + "}"), params[index].replace("$", "\\$"));
             }
 
             return output;

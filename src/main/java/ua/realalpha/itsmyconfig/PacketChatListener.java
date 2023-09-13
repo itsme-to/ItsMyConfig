@@ -1,7 +1,10 @@
 package ua.realalpha.itsmyconfig;
 
 import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.*;
+import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.utility.MinecraftVersion;
 import com.comphenix.protocol.wrappers.AdventureComponentConverter;
@@ -9,8 +12,12 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.entity.Player;
 import ua.realalpha.itsmyconfig.model.ModelType;
@@ -29,8 +36,13 @@ public class PacketChatListener extends PacketAdapter {
     private final ItsMyConfig itsMyConfig;
     private final Pattern colorFilter = Pattern.compile("[§&][a-zA-Z0-9]");
 
-    public PacketChatListener(ItsMyConfig itsMyConfig, ModelRepository modelRepository) {
-        super(itsMyConfig, ListenerPriority.NORMAL, PacketType.Play.Server.CHAT, PacketType.Play.Server.DISGUISED_CHAT, PacketType.Play.Server.SYSTEM_CHAT);
+    private final MiniMessage miniMessage = MiniMessage.miniMessage();
+    private final GsonComponentSerializer gson = GsonComponentSerializer.gson();
+    private final PlainTextComponentSerializer plain = PlainTextComponentSerializer.plainText();
+
+
+    public PacketChatListener(ItsMyConfig itsMyConfig, ModelRepository modelRepository, PacketType... types) {
+        super(itsMyConfig, ListenerPriority.NORMAL, types);
         this.itsMyConfig = itsMyConfig;
         this.modelRepository = modelRepository;
     }
@@ -92,37 +104,48 @@ public class PacketChatListener extends PacketAdapter {
 
     private void sendMessage(Player player, String message) {
         Audience audience = itsMyConfig.adventure().player(player);
-        MiniMessage miniMessage = MiniMessage.miniMessage();
-        Component parsed = miniMessage.deserialize(message);
+        Component parsed = replaceClickEvent(miniMessage.deserialize(message));
         ItsMyConfig.applyingChatColor(parsed);
         audience.sendMessage(parsed);
     }
 
-    private String processMessage(PacketContainer container) {
-        if (MinecraftVersion.getCurrentVersion().isAtLeast(MinecraftVersion.CAVES_CLIFFS_2)) { // At least 1.18
-            try {
-                StructureModifier modifier = container.getModifier().withType(AdventureComponentConverter.getComponentClass());
+    private Component replaceClickEvent(Component component) {
+        Component copied = component;
+        ClickEvent event = component.clickEvent();
 
-                if (modifier.size() == 1) {
-                    WrappedChatComponent chatComponent = convert(modifier.readSafely(0));
-
-                    return parseString(chatComponent.getJson());
-                }
-            } catch (Throwable ignored) { /* NO-OP: Not Paper */ }
-
-            return parseString(container.getStrings().readSafely(0));
-        } else { // Otherwise
-            WrappedChatComponent chatComponent = container.getChatComponents().readSafely(0);
-
-            if (chatComponent == null) {
-                return null;
-            }
-
-            return parseString(chatComponent.getJson());
+        // Serialized then deserialized components with a click event have their value starting with "&f".
+        if (event != null && event.value().startsWith("&f")) {
+            copied = component.clickEvent(ClickEvent.clickEvent(event.action(), event.value().substring(2)));
         }
+
+        copied = copied.children(copied.children().stream().map(this::replaceClickEvent).collect(Collectors.toList()));
+        return copied;
     }
 
-    private WrappedChatComponent convert(Object o) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private String processMessage(PacketContainer container) {
+        try {
+            StructureModifier<?> modifier = container.getModifier().withType(AdventureComponentConverter.getComponentClass());
+
+            if (modifier.size() == 1) {
+                WrappedChatComponent chatComponent = convertFromComponent(modifier.readSafely(0));
+                return plain.serialize(gson.deserialize(chatComponent.getJson()));
+            }
+        } catch (Throwable ignored) {}
+
+        StructureModifier<TextComponent> textComponentModifier = container.getModifier().withType(TextComponent.class);
+
+        if (textComponentModifier.size() == 1) {
+            return textComponentModifier.readSafely(0).toLegacyText();
+        }
+
+        if (container.getChatComponents().readSafely(0) != null) {
+            return plain.serialize(gson.deserialize(container.getChatComponents().readSafely(0).getJson()));
+        }
+
+        return parseString(container.getStrings().readSafely(0));
+    }
+
+    private WrappedChatComponent convertFromComponent(Object o) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method method = AdventureComponentConverter.class.getDeclaredMethod(
                 "fromComponent",
                 AdventureComponentConverter.getComponentClass()

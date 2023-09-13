@@ -22,7 +22,7 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
     private final int[] values = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
     private final String[] romanLiterals = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
 
-    private final String[] smallCaps =  new String[]
+    private final String[] smallCaps = new String[]
             {"ᴀ", "ʙ", "ᴄ", "ᴅ", "ᴇ", "ғ", "ɢ", "ʜ", "ɪ", "ᴊ", "ᴋ", "ʟ", "ᴍ", "ɴ", "ᴏ", "ᴘ", "ǫ", "ʀ", "s", "ᴛ", "ᴜ", "ᴠ", "ᴡ", "x", "ʏ"};
 
     private final ProgressBarBucket progressBarBucket;
@@ -65,7 +65,7 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
                 try {
                     int integer = Integer.parseInt(strings[2]);
                     return integerToRoman(integer);
-                }catch (NumberFormatException e){
+                } catch (NumberFormatException e) {
                     return "Illegal Number Format";
                 }
             } else if (strings[1].equalsIgnoreCase("smallcaps")) {
@@ -81,12 +81,12 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
             try {
                 value = Double.parseDouble(strings[2]);
                 maxValue = Double.parseDouble(strings[3]);
-            }catch (NumberFormatException e){
+            } catch (NumberFormatException e) {
                 return "Illegal Number Format";
             }
             ProgressBar progressBar = progressBarBucket.getProgressBar(identifier);
 
-            if (progressBar == null){
+            if (progressBar == null) {
                 return String.format("Not Found Progress Bar(%s)", identifier);
             }
 
@@ -94,10 +94,24 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
         } else {
             if (!identifierToResult.containsKey(strings[0])) return "Not Found Custom PlaceHolder";
             PlaceholderData data = identifierToResult.get(strings[0]);
-            String result = data.replaceArguments(strings);
-            String deny = this.plugin.getRequirementManager().getDenyMessage(data, player, strings);
-            return deny != null ? deny : result;
+            String result = data.replaceArguments(getArgs(strings).split("::"));
+            String deny = this.plugin.getRequirementManager().getDenyMessage(data, player, getArgs(strings).split("::"));
+            return ChatColor.translateAlternateColorCodes('&', deny != null ? deny : result);
         }
+    }
+
+    private String getArgs(String[] strings) {
+        if (strings.length < 2) {
+            return "";
+        }
+
+        StringBuilder builder = new StringBuilder(strings[1]);
+
+        for (int i = 2; i < strings.length; i++) {
+            builder.append("_").append(strings[i]);
+        }
+
+        return builder.toString();
     }
 
     public PlaceholderData registerIdentifier(String key, String value) {

@@ -13,10 +13,8 @@ import ua.realalpha.itsmyconfig.config.message.Message;
 import ua.realalpha.itsmyconfig.config.message.MessageKey;
 import ua.realalpha.itsmyconfig.xml.Tag;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 public class MessageCommandExecutor implements CommandExecutor {
 

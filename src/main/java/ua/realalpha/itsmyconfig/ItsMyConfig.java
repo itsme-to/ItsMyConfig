@@ -1,25 +1,19 @@
 package ua.realalpha.itsmyconfig;
 
+import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
-import com.comphenix.protocol.utility.MinecraftVersion;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import ua.realalpha.itsmyconfig.commands.ItsMyConfigCommandExecutor;
 import ua.realalpha.itsmyconfig.commands.MessageCommandExecutor;
 import ua.realalpha.itsmyconfig.commands.OfflineCommandExecutor;
-import ua.realalpha.itsmyconfig.commands.ReloadCommandExecutor;
 import ua.realalpha.itsmyconfig.config.DynamicPlaceHolder;
-import ua.realalpha.itsmyconfig.config.message.CommandUsage;
 import ua.realalpha.itsmyconfig.config.message.Message;
 import ua.realalpha.itsmyconfig.config.message.MessageKey;
 import ua.realalpha.itsmyconfig.config.placeholder.PlaceholderData;
@@ -33,7 +27,6 @@ import ua.realalpha.itsmyconfig.progress.ProgressBarBucket;
 import ua.realalpha.itsmyconfig.requirement.RequirementManager;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
 
 public class ItsMyConfig extends JavaPlugin {
 
@@ -73,8 +66,9 @@ public class ItsMyConfig extends JavaPlugin {
 
         this.requirementManager = new RequirementManager();
 
+        this.getCommand("itsmyconfig").setExecutor(new ItsMyConfigCommandExecutor(this));
         this.getCommand("message").setExecutor(new MessageCommandExecutor(this));
-        this.getCommand("itsmyconfig").setExecutor(new ReloadCommandExecutor(this));
+        this.getCommand("offline").setExecutor(new OfflineCommandExecutor(offlineCommandManager));
 
         modelRepository = new ModelRepository();
         modelRepository.registerModel(new ActionBarModel(this));
@@ -86,13 +80,11 @@ public class ItsMyConfig extends JavaPlugin {
         loadConfig();
 
         ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-        protocolManager.addPacketListener(new PacketChatListener(this, modelRepository));
+        protocolManager.addPacketListener(new PacketChatListener(this, modelRepository, PacketType.Play.Server.DISGUISED_CHAT, PacketType.Play.Server.SYSTEM_CHAT));
+        protocolManager.addPacketListener(new PacketChatListener(this, modelRepository, PacketType.Play.Server.CHAT));
 
         this.offlineCommandManager = new OfflineCommandManager(this);
         this.offlineCommandManager.read();
-
-        PluginCommand offlineCommand = this.getCommand("offline");
-        offlineCommand.setExecutor(new OfflineCommandExecutor(offlineCommandManager));
 
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(offlineCommandManager), this);
     }
@@ -149,7 +141,6 @@ public class ItsMyConfig extends JavaPlugin {
         return symbolPrefix;
     }
 
-
     public static void applyingChatColor(Component rootComponent){
         if(rootComponent instanceof TextComponent) {
             TextComponent textComponent = (TextComponent) rootComponent;
@@ -172,5 +163,9 @@ public class ItsMyConfig extends JavaPlugin {
 
     public RequirementManager getRequirementManager() {
         return requirementManager;
+    }
+
+    public OfflineCommandManager getOfflineCommandManager() {
+        return offlineCommandManager;
     }
 }

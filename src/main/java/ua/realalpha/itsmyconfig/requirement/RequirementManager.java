@@ -1,7 +1,6 @@
 package ua.realalpha.itsmyconfig.requirement;
 
 import me.clip.placeholderapi.PlaceholderAPI;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import ua.realalpha.itsmyconfig.config.placeholder.PlaceholderData;
 import ua.realalpha.itsmyconfig.config.placeholder.RequirementData;
@@ -32,7 +31,7 @@ public class RequirementManager {
             String input = PlaceholderAPI.setPlaceholders(player, data.replaceArguments(params, requirementData.getInput()));
             String output = PlaceholderAPI.setPlaceholders(player, data.replaceArguments(params, requirementData.getOutput()));
             if (requirement.validate(requirementData.getIdentifier(), input, output)) continue;
-            return ChatColor.translateAlternateColorCodes('&', data.replaceArguments(params, requirementData.getDeny()));
+            return data.replaceArguments(params, requirementData.getDeny());
         }
 
         return null;

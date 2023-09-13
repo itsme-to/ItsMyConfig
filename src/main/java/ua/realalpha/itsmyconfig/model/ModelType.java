@@ -28,5 +28,4 @@ public enum ModelType {
     public String getTagName(){
         return name().toLowerCase(Locale.ROOT);
     }
-
 }
