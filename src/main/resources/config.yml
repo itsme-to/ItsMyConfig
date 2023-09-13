@@ -18,7 +18,7 @@ symbol-prefix: "$"
 custom-placeholder:
   prefix:
     value: "<gradient:#ff0f7b:#f89b29><bold>ServerName</bold></gradient> <white>┃"
-  #Do not modifiy {0}, it's a variable to get the content. 
+  #Do not modify {0}, it's a variable to get the content.
   #You also need to keep the tag closed.
   color:
     value: "<yellow>{0}</yellow>"
@@ -33,7 +33,6 @@ custom-placeholder:
         input: 100
         output: 200
         deny: "&cYou don't have enough money !"
-
 
 custom-progress:
   basic:
