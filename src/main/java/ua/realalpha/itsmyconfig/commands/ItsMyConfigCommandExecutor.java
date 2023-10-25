@@ -11,8 +11,6 @@ import ua.realalpha.itsmyconfig.ItsMyConfig;
 import ua.realalpha.itsmyconfig.config.message.CommandUsage;
 import ua.realalpha.itsmyconfig.config.message.Message;
 import ua.realalpha.itsmyconfig.config.message.MessageKey;
-import ua.realalpha.itsmyconfig.offlinecommand.OfflineCommandEntry;
-import ua.realalpha.itsmyconfig.offlinecommand.OfflineCommandSender;
 import ua.realalpha.itsmyconfig.xml.Tag;
 
 import java.util.Collection;
@@ -20,7 +18,7 @@ import java.util.Collections;
 
 public class ItsMyConfigCommandExecutor implements CommandExecutor {
 
-    private ItsMyConfig itsMyConfig;
+    private final ItsMyConfig itsMyConfig;
 
     public ItsMyConfigCommandExecutor(ItsMyConfig itsMyConfig) {
         this.itsMyConfig = itsMyConfig;
@@ -36,9 +34,6 @@ public class ItsMyConfigCommandExecutor implements CommandExecutor {
         switch (args[0].toLowerCase()) {
             case "reload":
                 reload(sender, args);
-                break;
-            case "offline":
-                offline(sender, args);
                 break;
             case "message":
                 message(sender, args);
@@ -105,58 +100,4 @@ public class ItsMyConfigCommandExecutor implements CommandExecutor {
         Message.RELOAD.getMessage().forEach(s -> sender.sendMessage(ChatColor.translateAlternateColorCodes('&', s)));
     }
 
-    private void offline(CommandSender sender, String[] args) {
-        if (sender instanceof Player && !sender.hasPermission("itsmyconfig.offline")) {
-            Message.NO_PERMISSION.getMessage().forEach(s -> sender.sendMessage(ChatColor.translateAlternateColorCodes('&', s)));
-            return;
-        }
-        if (args.length <= 3) {
-            MessageKey.sendUsage(sender, CommandUsage.OFFLINE);
-            return;
-        }
-
-        OfflineCommandSender offlineCommandSender;
-
-        try {
-            offlineCommandSender = OfflineCommandSender.valueOf(args[2].toUpperCase());
-        } catch (Exception e) {
-            offlineCommandSender = OfflineCommandSender.NONE;
-        }
-
-        if (offlineCommandSender == OfflineCommandSender.NONE){
-            MessageKey.sendUsage(sender, CommandUsage.OFFLINE);
-            return;
-        }
-
-        String target = args[1];
-
-        int delay;
-
-        try {
-            delay = Integer.parseInt(args[3]);
-        } catch (NumberFormatException e) {
-            MessageKey.sendUsage(sender, CommandUsage.OFFLINE);
-            return;
-        }
-
-        StringBuilder stringBuilder = new StringBuilder();
-
-        for (int i = 4; i < args.length; i++) {
-            stringBuilder.append(args[i]);
-            if (i != args.length - 1) stringBuilder.append(' ');
-        }
-
-        OfflineCommandEntry offlineCommandEntry = new OfflineCommandEntry(offlineCommandSender, delay, stringBuilder.toString());
-        Player player = Bukkit.getPlayerExact(target);
-
-        if (player != null) {
-            offlineCommandEntry.execute(player, true);
-        } else {
-            itsMyConfig.getOfflineCommandManager().addOfflineCommandEntry(target, offlineCommandEntry);
-        }
-
-        Message.COMMAND_ADDED.getMessage().forEach(s -> sender.sendMessage(
-                ChatColor.translateAlternateColorCodes('&', s).replaceAll("\\{player}", target))
-        );
-    }
 }

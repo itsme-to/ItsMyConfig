@@ -10,7 +10,5 @@ depend:
 commands:
   message:
     permission: "itsmyconfig.message"
-  offline:
-    permission: "itsmyconfig.offline"
   itsmyconfig:
     permission: "itsmyconfig.reload"

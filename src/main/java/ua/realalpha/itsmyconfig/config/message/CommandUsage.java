@@ -8,9 +8,8 @@ public class CommandUsage {
 
     private final static Map<String, MessageKey> MESSAGE_KEY_BY_IDENTIFIER = new HashMap<>();
 
-    public static MessageKey RELOAD = MessageKey.from("reload", "itsmyconfig <message/offline/reload>");
+    public static MessageKey RELOAD = MessageKey.from("reload", "itsmyconfig <message/reload>");
     public static MessageKey MESSAGE = MessageKey.from("message", "itsmyconfig message <player> [message]");
-    public static MessageKey OFFLINE = MessageKey.from("offline", "itsmyconfig offline <player> <console/player> <delay> [command]");
 
     static {
         Field[] declaredFields = CommandUsage.class.getDeclaredFields();
@@ -24,7 +23,7 @@ public class CommandUsage {
                 }
             }
 
-        }catch (IllegalAccessException e){
+        } catch (IllegalAccessException e){
             e.printStackTrace();
         }
     }

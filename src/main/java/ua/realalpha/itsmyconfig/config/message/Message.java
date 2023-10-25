@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class Message {
 
-    private static Map<String, MessageKey> MESSAGE_KEY_BY_IDENTIFIER = new HashMap<>();
+    private static final Map<String, MessageKey> MESSAGE_KEY_BY_IDENTIFIER = new HashMap<>();
 
     public static MessageKey RELOAD = MessageKey.from("reload");
     public static MessageKey NO_PERMISSION = MessageKey.from("no-permission");
