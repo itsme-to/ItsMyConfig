@@ -16,6 +16,8 @@ import ua.realalpha.itsmyconfig.config.message.Message;
 import ua.realalpha.itsmyconfig.config.message.MessageKey;
 import ua.realalpha.itsmyconfig.config.placeholder.PlaceholderData;
 import ua.realalpha.itsmyconfig.model.ActionBarModel;
+import ua.realalpha.itsmyconfig.model.SubTitle;
+import ua.realalpha.itsmyconfig.model.TitleModel;
 import ua.realalpha.itsmyconfig.progress.ProgressBar;
 import ua.realalpha.itsmyconfig.progress.ProgressBarBucket;
 import ua.realalpha.itsmyconfig.requirement.RequirementManager;
@@ -63,6 +65,8 @@ public class ItsMyConfig extends JavaPlugin {
 
         ModelRepository modelRepository = new ModelRepository();
         modelRepository.registerModel(new ActionBarModel(this));
+        modelRepository.registerModel(new TitleModel(this));
+        modelRepository.registerModel(new SubTitle(this));
 
         this.adventure = BukkitAudiences.create(this);
 

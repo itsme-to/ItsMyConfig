@@ -7,6 +7,8 @@ import java.util.Map;
 public enum ModelType {
 
     UNKNOWN,
+    TITLE,
+    SUBTITLE,
     ACTIONBAR;
 
     private static final Map<String, ModelType> MODEL_TYPE_BY_NAME = new HashMap<>();
