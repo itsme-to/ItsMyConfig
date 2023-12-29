@@ -7,13 +7,11 @@ import java.util.Map;
 public enum ModelType {
 
     UNKNOWN,
-    ACTIONBAR,
     TITLE,
     SUBTITLE,
-    BOSS_BAR,
-    TOAST;
+    ACTIONBAR;
 
-    private static Map<String, ModelType> MODEL_TYPE_BY_NAME = new HashMap<>();
+    private static final Map<String, ModelType> MODEL_TYPE_BY_NAME = new HashMap<>();
 
     static {
         for (ModelType modelType : ModelType.values()) {

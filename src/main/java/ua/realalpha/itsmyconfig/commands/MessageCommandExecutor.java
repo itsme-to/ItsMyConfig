@@ -18,7 +18,7 @@ import java.util.Collections;
 
 public class MessageCommandExecutor implements CommandExecutor {
 
-    private ItsMyConfig itsMyConfig;
+    private final ItsMyConfig itsMyConfig;
 
     public MessageCommandExecutor(ItsMyConfig itsMyConfig) {
         this.itsMyConfig = itsMyConfig;

@@ -2,11 +2,11 @@ package ua.realalpha.itsmyconfig.progress;
 
 public class ProgressBar {
 
-    private String key;
-    private String pattern;
-    private String completedColor;
-    private String progressColor;
-    private String remainingColor;
+    private final String key;
+    private final String pattern;
+    private final String completedColor;
+    private final String progressColor;
+    private final String remainingColor;
 
     public ProgressBar(String key, String pattern, String completedColor, String progressColor, String remainingColor) {
         this.key = key;

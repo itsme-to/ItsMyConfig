@@ -14,7 +14,8 @@ import java.util.Collection;
 
 public class TitleModel extends Model {
 
-    private ItsMyConfig itsMyConfig;
+    private final ItsMyConfig itsMyConfig;
+
     public TitleModel(ItsMyConfig itsMyConfig) {
         super(ModelType.TITLE);
         this.itsMyConfig = itsMyConfig;
@@ -35,4 +36,5 @@ public class TitleModel extends Model {
         Duration fadeOut = (parameters.length >= 3) ? Ticks.duration(Integer.parseInt(parameters[2])) : Ticks.duration(20);
         return Title.Times.times(fadeIn, stay, fadeOut);
     }
+
 }

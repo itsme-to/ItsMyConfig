@@ -6,22 +6,18 @@ import com.comphenix.protocol.ProtocolManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
 import ua.realalpha.itsmyconfig.commands.ItsMyConfigCommandExecutor;
 import ua.realalpha.itsmyconfig.commands.MessageCommandExecutor;
-import ua.realalpha.itsmyconfig.commands.OfflineCommandExecutor;
 import ua.realalpha.itsmyconfig.config.DynamicPlaceHolder;
 import ua.realalpha.itsmyconfig.config.message.Message;
 import ua.realalpha.itsmyconfig.config.message.MessageKey;
 import ua.realalpha.itsmyconfig.config.placeholder.PlaceholderData;
-import ua.realalpha.itsmyconfig.listeners.PlayerJoinListener;
 import ua.realalpha.itsmyconfig.model.ActionBarModel;
 import ua.realalpha.itsmyconfig.model.SubTitle;
 import ua.realalpha.itsmyconfig.model.TitleModel;
-import ua.realalpha.itsmyconfig.offlinecommand.OfflineCommandManager;
 import ua.realalpha.itsmyconfig.progress.ProgressBar;
 import ua.realalpha.itsmyconfig.progress.ProgressBarBucket;
 import ua.realalpha.itsmyconfig.requirement.RequirementManager;
@@ -31,14 +27,12 @@ import java.lang.reflect.Field;
 public class ItsMyConfig extends JavaPlugin {
 
 
-    private OfflineCommandManager offlineCommandManager;
-    private ModelRepository modelRepository;
     private DynamicPlaceHolder dynamicPlaceHolder;
-    private ProgressBarBucket progressBarBucket = new ProgressBarBucket();
+    private final ProgressBarBucket progressBarBucket = new ProgressBarBucket();
     private String symbolPrefix;
     private RequirementManager requirementManager;
 
-    private static Field TEXT_COMPONENT_CONTENT;
+    private static final Field TEXT_COMPONENT_CONTENT;
     static {
         try {
             Class<?> textComponentImpClazz = Class.forName("net.kyori.adventure.text.TextComponentImpl");
@@ -68,9 +62,8 @@ public class ItsMyConfig extends JavaPlugin {
 
         this.getCommand("itsmyconfig").setExecutor(new ItsMyConfigCommandExecutor(this));
         this.getCommand("message").setExecutor(new MessageCommandExecutor(this));
-        this.getCommand("offline").setExecutor(new OfflineCommandExecutor(offlineCommandManager));
 
-        modelRepository = new ModelRepository();
+        ModelRepository modelRepository = new ModelRepository();
         modelRepository.registerModel(new ActionBarModel(this));
         modelRepository.registerModel(new TitleModel(this));
         modelRepository.registerModel(new SubTitle(this));
@@ -82,24 +75,16 @@ public class ItsMyConfig extends JavaPlugin {
         ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
         protocolManager.addPacketListener(new PacketChatListener(this, modelRepository, PacketType.Play.Server.DISGUISED_CHAT, PacketType.Play.Server.SYSTEM_CHAT));
         protocolManager.addPacketListener(new PacketChatListener(this, modelRepository, PacketType.Play.Server.CHAT));
-
-        this.offlineCommandManager = new OfflineCommandManager(this);
-        this.offlineCommandManager.read();
-
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(offlineCommandManager), this);
     }
 
     @Override
     public void onDisable() {
-        this.offlineCommandManager.write();
     }
 
     public void loadConfig(){
         progressBarBucket.clearProgressBar();
         this.saveDefaultConfig();
         this.reloadConfig();
-
-
 
         this.symbolPrefix = this.getConfig().getString("symbol-prefix");
 
@@ -142,7 +127,7 @@ public class ItsMyConfig extends JavaPlugin {
     }
 
     public static void applyingChatColor(Component rootComponent){
-        if(rootComponent instanceof TextComponent) {
+        if (rootComponent instanceof TextComponent) {
             TextComponent textComponent = (TextComponent) rootComponent;
             String translateAlternateColorCodes = ChatColor.translateAlternateColorCodes('&', textComponent.content());
             modifyContentOfTextComponent(textComponent, translateAlternateColorCodes);
@@ -165,7 +150,4 @@ public class ItsMyConfig extends JavaPlugin {
         return requirementManager;
     }
 
-    public OfflineCommandManager getOfflineCommandManager() {
-        return offlineCommandManager;
-    }
 }

@@ -31,7 +31,7 @@ public interface MessageKey {
 
     class DefaultMessage implements MessageKey {
 
-        private String key;
+        private final String key;
         private List<String> message;
 
         public DefaultMessage(String key) {

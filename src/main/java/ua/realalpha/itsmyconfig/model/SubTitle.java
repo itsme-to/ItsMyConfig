@@ -13,7 +13,7 @@ import java.util.Collection;
 
 public class SubTitle extends Model {
 
-    private ItsMyConfig itsMyConfig;
+    private final ItsMyConfig itsMyConfig;
 
     public SubTitle(ItsMyConfig itsMyConfig) {
         super(ModelType.SUBTITLE);
@@ -31,7 +31,7 @@ public class SubTitle extends Model {
             String[] parameters = Tag.getParameters(message);
             Title title = Title.title(Component.empty(), parsed, TitleModel.createTimes(parameters));
             audience.showTitle(title);
-        }else {
+        } else {
             audience.sendTitlePart(TitlePart.SUBTITLE, parsed);
         }
 

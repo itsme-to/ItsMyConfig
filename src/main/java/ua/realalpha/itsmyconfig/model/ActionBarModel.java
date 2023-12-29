@@ -9,9 +9,9 @@ import ua.realalpha.itsmyconfig.xml.Tag;
 
 import java.util.Collection;
 
-public class ActionBarModel extends Model {
+public final class ActionBarModel extends Model {
 
-    private ItsMyConfig itsMyConfig;
+    private final ItsMyConfig itsMyConfig;
     public ActionBarModel(ItsMyConfig itsMyConfig) {
         super(ModelType.ACTIONBAR);
         this.itsMyConfig = itsMyConfig;
