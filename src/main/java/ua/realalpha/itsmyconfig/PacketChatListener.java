@@ -13,11 +13,12 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.ComponentSerializer;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.entity.Player;
 import ua.realalpha.itsmyconfig.model.ModelType;
 import ua.realalpha.itsmyconfig.xml.Tag;
@@ -37,21 +38,28 @@ public class PacketChatListener extends PacketAdapter {
 
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
     private final GsonComponentSerializer gson = GsonComponentSerializer.gson();
-    private final PlainTextComponentSerializer plain = PlainTextComponentSerializer.plainText();
+    private final ComponentSerializer<Component, net.kyori.adventure.text.TextComponent, String> serializer;
 
-
-    public PacketChatListener(ItsMyConfig itsMyConfig, ModelRepository modelRepository, PacketType... types) {
+    public PacketChatListener(
+            ItsMyConfig itsMyConfig,
+            ModelRepository modelRepository,
+            PacketType... types
+    ) {
         super(itsMyConfig, ListenerPriority.NORMAL, types);
         this.itsMyConfig = itsMyConfig;
         this.modelRepository = modelRepository;
-    }
 
+        boolean legacy = itsMyConfig.getConfig().getBoolean("use-legacy-serializer");
+        this.serializer =
+                legacy ? LegacyComponentSerializer.legacySection() : PlainTextComponentSerializer.plainText()
+        ;
+    }
 
     @Override
     public void onPacketSending(PacketEvent event) {
         PacketContainer packetContainer = event.getPacket();
         Player player = event.getPlayer();
-        String message = processMessage(packetContainer);
+        String message = this.processMessage(packetContainer);
 
         if (message == null) return;
 
@@ -108,7 +116,7 @@ public class PacketChatListener extends PacketAdapter {
         audience.sendMessage(parsed);
     }
 
-    private Component replaceClickEvent(Component component) {
+    private Component replaceClickEvent(final Component component) {
         Component copied = component;
         ClickEvent event = component.clickEvent();
 
@@ -121,13 +129,13 @@ public class PacketChatListener extends PacketAdapter {
         return copied;
     }
 
-    private String processMessage(PacketContainer container) {
+    private String processMessage(final PacketContainer container) {
         try {
             StructureModifier<?> modifier = container.getModifier().withType(AdventureComponentConverter.getComponentClass());
 
             if (modifier.size() == 1) {
                 WrappedChatComponent chatComponent = convertFromComponent(modifier.readSafely(0));
-                return plain.serialize(gson.deserialize(chatComponent.getJson()));
+                return serializer.serialize(gson.deserialize(chatComponent.getJson()));
             }
         } catch (Throwable ignored) {}
 
@@ -137,8 +145,14 @@ public class PacketChatListener extends PacketAdapter {
             return textComponentModifier.readSafely(0).toLegacyText();
         }
 
-        if (container.getChatComponents().readSafely(0) != null) {
-            return plain.serialize(gson.deserialize(container.getChatComponents().readSafely(0).getJson()));
+        WrappedChatComponent chatComponent = container.getChatComponents().readSafely(0);
+        if (chatComponent != null) {
+            String jsonString = chatComponent.getJson();
+            try {
+                return serializer.serialize(gson.deserialize(jsonString));
+            } catch (final Exception e) {
+                throw new RuntimeException("An error happened while de/serializing " + jsonString, e);
+            }
         }
 
         return parseString(container.getStrings().readSafely(0));
@@ -158,7 +172,7 @@ public class PacketChatListener extends PacketAdapter {
             return null;
         }
 
-        return processBaseComponents(ComponentSerializer.parse(rawMessage));
+        return processBaseComponents(net.md_5.bungee.chat.ComponentSerializer.parse(rawMessage));
     }
 
     private String processBaseComponents(BaseComponent[] components) {
