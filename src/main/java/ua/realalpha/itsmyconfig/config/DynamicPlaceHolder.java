@@ -55,7 +55,6 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
     @Override
     public @Nullable String onPlaceholderRequest(Player player, @NotNull String params) {
         params = PlaceholderAPI.setPlaceholders(player, params.replaceAll("\\$\\((.*?)\\)\\$", "%$1%"));
-        params = PlaceholderAPI.setBracketPlaceholders(player, params);
 
         String[] strings = params.split("_");
         if (strings.length == 0) return "Illegal Argument";

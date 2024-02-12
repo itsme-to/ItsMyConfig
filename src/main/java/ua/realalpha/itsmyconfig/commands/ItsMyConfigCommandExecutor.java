@@ -74,7 +74,6 @@ public class ItsMyConfigCommandExecutor implements CommandExecutor {
         players.forEach(player -> {
             String message = stringBuilder.toString();
             message = PlaceholderAPI.setPlaceholders(player, message);
-            message = PlaceholderAPI.setBracketPlaceholders(player, message);
             message = ChatColor.translateAlternateColorCodes('&', message);
 
 

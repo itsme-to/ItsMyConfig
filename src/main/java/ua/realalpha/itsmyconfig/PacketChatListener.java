@@ -9,7 +9,6 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.AdventureComponentConverter;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import me.clip.placeholderapi.PlaceholderAPI;
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -32,8 +31,8 @@ import java.util.stream.Collectors;
 
 public class PacketChatListener extends PacketAdapter {
 
+    private final ItsMyConfig plugin;
     private final ModelRepository modelRepository;
-    private final ItsMyConfig itsMyConfig;
     private final Pattern colorFilter = Pattern.compile("[§&][a-zA-Z0-9]");
 
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
@@ -41,51 +40,48 @@ public class PacketChatListener extends PacketAdapter {
     private final ComponentSerializer<Component, net.kyori.adventure.text.TextComponent, String> serializer;
 
     public PacketChatListener(
-            ItsMyConfig itsMyConfig,
+            ItsMyConfig plugin,
             ModelRepository modelRepository,
             PacketType... types
     ) {
-        super(itsMyConfig, ListenerPriority.NORMAL, types);
-        this.itsMyConfig = itsMyConfig;
+        super(plugin, ListenerPriority.NORMAL, types);
+        this.plugin = plugin;
         this.modelRepository = modelRepository;
 
-        boolean legacy = itsMyConfig.getConfig().getBoolean("use-legacy-serializer");
-        this.serializer =
-                legacy ? LegacyComponentSerializer.legacySection() : PlainTextComponentSerializer.plainText()
-        ;
+        boolean legacy = plugin.getConfig().getBoolean("use-legacy-serializer");
+        this.serializer = legacy ? LegacyComponentSerializer.legacySection() : PlainTextComponentSerializer.plainText();
     }
 
     @Override
     public void onPacketSending(PacketEvent event) {
-        PacketContainer packetContainer = event.getPacket();
-        Player player = event.getPlayer();
+        final PacketContainer packetContainer = event.getPacket();
+        final Player player = event.getPlayer();
         String message = this.processMessage(packetContainer);
 
-        if (message == null) return;
-
-        // Parsing PlaceholderAPI placeholders
-        message = PlaceholderAPI.setPlaceholders(player, message);
-        message = PlaceholderAPI.setBracketPlaceholders(player, message);
-
-        String withoutColors = message.replaceAll(colorFilter.pattern(), "");
+        if (message == null) {
+            return;
+        }
 
         // If message doesn't start with "$" => do nothing
-        if (!withoutColors.startsWith(itsMyConfig.getSymbolPrefix())) {
+        if (!colorFilter.matcher(message).replaceAll("").startsWith(plugin.getSymbolPrefix())) {
             return;
         }
 
         event.setCancelled(true);
 
-        String withoutSymbol = message.substring(message.indexOf(itsMyConfig.getSymbolPrefix()) + 1)
-                .replaceAll("§", "&");
+        // Parsing PlaceholderAPI placeholders
+        message = PlaceholderAPI.setPlaceholders(player, message);
+
+        // Remove legacy color symbol
+        final String withoutSymbol = message.substring(message.indexOf(plugin.getSymbolPrefix()) + 1).replaceAll("§", "&");
 
         // If message's only "$" => cancel event and do nothing
         if (withoutSymbol.isEmpty()) {
             return;
         }
 
-        List<String> tags = Tag.getTags(withoutSymbol);
-        List<ModelType> modelTypes = tags.stream().map(ModelType::getModelType)
+        final List<String> tags = Tag.getTags(withoutSymbol);
+        final List<ModelType> modelTypes = tags.stream().map(ModelType::getModelType)
                 .filter(modelRepository::hasModel)
                 .collect(Collectors.toList());
 
@@ -98,7 +94,7 @@ public class PacketChatListener extends PacketAdapter {
             ));
         }
 
-        String messageOutOfModels = modelTypes.stream()
+        final String messageOutOfModels = modelTypes.stream()
                 .map(ModelType::getTagName)
                 .reduce(withoutSymbol, (s, s2) -> Tag.messageWithoutTagAndItsContent(s2, s));
 
@@ -110,10 +106,9 @@ public class PacketChatListener extends PacketAdapter {
     }
 
     private void sendMessage(Player player, String message) {
-        Audience audience = itsMyConfig.adventure().player(player);
         Component parsed = replaceClickEvent(miniMessage.deserialize(message));
         ItsMyConfig.applyingChatColor(parsed);
-        audience.sendMessage(parsed);
+        plugin.adventure().player(player).sendMessage(parsed);
     }
 
     private Component replaceClickEvent(final Component component) {
@@ -179,4 +174,5 @@ public class PacketChatListener extends PacketAdapter {
         return Arrays.stream(components).map(component -> component.toLegacyText())
                 .reduce("", (s, s2) -> s + s2);
     }
+
 }

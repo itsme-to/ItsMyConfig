@@ -80,7 +80,7 @@ public class Tag {
     }
 
     public static String messageWithoutTagAndItsContent(String tag, String message) {
-        String startTag = "<" + tag + ">";
+        String startTag = "<" + tag;
         String endTag = "</" + tag + ">";
         int startIndex = message.indexOf(startTag);
         int endIndex = message.indexOf(endTag);
