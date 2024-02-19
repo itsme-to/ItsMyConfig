@@ -13,11 +13,13 @@ public class PlaceholderData {
     private static final Pattern ARGUMENT_PATTERN = Pattern.compile("\\{([0-9]+)}");
 
     private final String message;
+    private final PlaceholderType type;
     private final Set<Integer> arguments = new HashSet<>();
     private final List<RequirementData> requirements = new ArrayList<>();
 
-    public PlaceholderData(String message) {
+    public PlaceholderData(final String message, final String type) {
         this.message = message;
+        this.type = PlaceholderType.find(type);
         registerArguments(message);
     }
 

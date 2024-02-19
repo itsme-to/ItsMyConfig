@@ -88,25 +88,26 @@ public class ItsMyConfig extends JavaPlugin {
 
         this.symbolPrefix = this.getConfig().getString("symbol-prefix");
 
-        ConfigurationSection customPlaceholderConfigurationSection = this.getConfig().getConfigurationSection("custom-placeholder");
-        for (String identifier : customPlaceholderConfigurationSection.getKeys(false)) {
-            String result = customPlaceholderConfigurationSection.getString(identifier + ".value");
-            PlaceholderData data = dynamicPlaceHolder.registerIdentifier(identifier, result);
-            ConfigurationSection requirementSection = customPlaceholderConfigurationSection.getConfigurationSection(identifier + ".requirements");
+        final ConfigurationSection customPlaceholderSection = this.getConfig().getConfigurationSection("custom-placeholder");
+        for (final String identifier : customPlaceholderSection.getKeys(false)) {
+            final String result = customPlaceholderSection.getString(identifier + ".value");
+            final String type = customPlaceholderSection.getString(identifier + ".type");
+            final PlaceholderData data = dynamicPlaceHolder.registerIdentifier(identifier, result, type);
+            ConfigurationSection requirementSection = customPlaceholderSection.getConfigurationSection(identifier + ".requirements");
             if (requirementSection != null) {
                 for (String requirement : requirementSection.getKeys(false)) {
-                    data.registerRequirement(customPlaceholderConfigurationSection
+                    data.registerRequirement(customPlaceholderSection
                             .getConfigurationSection(identifier + ".requirements." + requirement));
                 }
             }
 
-            this.getLogger().info(String.format("Register placeHolder %s", identifier));
+            this.getLogger().info(String.format("Registered placeholder %s", identifier));
         }
 
-        ConfigurationSection messagesConfigurationSection = this.getConfig().getConfigurationSection("messages");
-        for (String identifier : messagesConfigurationSection.getKeys(false)) {
+        ConfigurationSection messagesSection = this.getConfig().getConfigurationSection("messages");
+        for (String identifier : messagesSection.getKeys(false)) {
             MessageKey messageKey = Message.getMessageKey(identifier);
-            messageKey.setMessage(messagesConfigurationSection.getStringList(identifier));
+            messageKey.setMessage(messagesSection.getStringList(identifier));
         }
 
         ConfigurationSection customProgressConfigurationSection = this.getConfig().getConfigurationSection("custom-progress");

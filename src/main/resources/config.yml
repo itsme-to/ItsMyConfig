@@ -14,7 +14,7 @@
 #################################################################################################
 
 symbol-prefix: "$"
-use-legacy-serializer: false
+use-legacy-serializer: true
 custom-placeholder:
   prefix:
     value: "<gradient:#ff0f7b:#f89b29><bold>ServerName</bold></gradient> <white>┃"

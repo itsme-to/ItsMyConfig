@@ -116,8 +116,8 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
         return builder.toString();
     }
 
-    public PlaceholderData registerIdentifier(String key, String value) {
-        PlaceholderData data = new PlaceholderData(value);
+    public PlaceholderData registerIdentifier(String key, String value, String type) {
+        PlaceholderData data = new PlaceholderData(value, type);
         this.identifierToResult.put(key, data);
         return data;
     }
