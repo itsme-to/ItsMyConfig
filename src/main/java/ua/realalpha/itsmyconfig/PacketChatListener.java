@@ -20,21 +20,19 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 import ua.realalpha.itsmyconfig.model.ModelType;
+import ua.realalpha.itsmyconfig.util.StringUtil;
 import ua.realalpha.itsmyconfig.xml.Tag;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class PacketChatListener extends PacketAdapter {
 
     private final ItsMyConfig plugin;
     private final ModelRepository modelRepository;
-    private final Pattern colorFilter = Pattern.compile("[§&][a-zA-Z0-9]");
-
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
     private final GsonComponentSerializer gson = GsonComponentSerializer.gson();
     private final ComponentSerializer<Component, net.kyori.adventure.text.TextComponent, String> serializer;
@@ -48,7 +46,7 @@ public class PacketChatListener extends PacketAdapter {
         this.plugin = plugin;
         this.modelRepository = modelRepository;
 
-        boolean legacy = plugin.getConfig().getBoolean("use-legacy-serializer");
+        final boolean legacy = plugin.getConfig().getBoolean("use-legacy-serializer");
         this.serializer = legacy ? LegacyComponentSerializer.legacySection() : PlainTextComponentSerializer.plainText();
     }
 
@@ -63,7 +61,7 @@ public class PacketChatListener extends PacketAdapter {
         }
 
         // If message doesn't start with "$" => do nothing
-        if (!colorFilter.matcher(message).replaceAll("").startsWith(plugin.getSymbolPrefix())) {
+        if (!StringUtil.COLOR_FILTER.matcher(message).replaceAll("").startsWith(plugin.getSymbolPrefix())) {
             return;
         }
 

@@ -3,19 +3,16 @@ package ua.realalpha.itsmyconfig.requirement.type;
 import ua.realalpha.itsmyconfig.requirement.Requirement;
 import ua.realalpha.itsmyconfig.requirement.checker.ContainsCheck;
 import ua.realalpha.itsmyconfig.requirement.checker.StringEqualsCheck;
+import ua.realalpha.itsmyconfig.util.StringUtil;
 
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
 public class StringRequirement extends Requirement<String> {
-
-    private final Pattern colorFilter = Pattern.compile("[§&][a-zA-Z0-9]");
 
     public StringRequirement() {
         this.syntax("equals", new StringEqualsCheck());
         this.syntax("contains", new ContainsCheck());
     }
-
 
     @Override
     public boolean validate(String identifier, String inputString, String outputString) {
@@ -33,8 +30,8 @@ public class StringRequirement extends Requirement<String> {
 
         if (ignoreColor) {
             identifier = identifier.replace("ignorecolor", "");
-            input = inputString.replaceAll(colorFilter.pattern(), "");
-            output = outputString.replaceAll(colorFilter.pattern(), "");
+            input = inputString.replaceAll(StringUtil.COLOR_FILTER.pattern(), "");
+            output = outputString.replaceAll(StringUtil.COLOR_FILTER.pattern(), "");
         }
 
         boolean reverse = identifier.startsWith("!");
@@ -55,4 +52,5 @@ public class StringRequirement extends Requirement<String> {
                 "!string"
         };
     }
+
 }
