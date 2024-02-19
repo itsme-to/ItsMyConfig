@@ -91,10 +91,13 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
 
             return ChatColor.translateAlternateColorCodes('&', progressBar.render(value, maxValue));
         } else {
-            if (!identifierToResult.containsKey(strings[0])) return "Not Found Custom PlaceHolder";
-            PlaceholderData data = identifierToResult.get(strings[0]);
-            String result = data.replaceArguments(getArgs(strings).split("::"));
-            String deny = this.plugin.getRequirementManager().getDenyMessage(data, player, getArgs(strings).split("::"));
+            if (!identifierToResult.containsKey(strings[0])) {
+                return "Not Found Custom PlaceHolder";
+            }
+
+            final PlaceholderData data = identifierToResult.get(strings[0]);
+            final String result = PlaceholderAPI.setPlaceholders(player, data.replaceArguments(getArgs(strings).split("::")));
+            final String deny = this.plugin.getRequirementManager().getDenyMessage(data, player, getArgs(strings).split("::"));
             return ChatColor.translateAlternateColorCodes('&', deny != null ? deny : result);
         }
     }
