@@ -2,15 +2,18 @@ package to.itsme.itsmyconfig.util;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.util.Ticks;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import to.itsme.itsmyconfig.ItsMyConfig;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalInt;
@@ -21,6 +24,18 @@ public final class Utilities {
     private static final ItsMyConfig plugin = ItsMyConfig.getInstance();
     private static final Pattern COLOR_FILTER = Pattern.compile("[§&][a-zA-Z0-9]");
     private static final Pattern TAG_PATTERN = Pattern.compile("<([^/][^>\\s]+)[^>]*>");
+
+    private static final Field TEXT_COMPONENT_CONTENT;
+    static {
+        try {
+            Class<?> textComponentImpClazz = Class.forName("net.kyori.adventure.text.TextComponentImpl");
+            Field contentField = textComponentImpClazz.getDeclaredField("content");
+            contentField.setAccessible(true);
+            TEXT_COMPONENT_CONTENT = contentField;
+        } catch (ClassNotFoundException | NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static boolean hasTag(final String message) {
         return TAG_PATTERN.matcher(message).find();
@@ -133,6 +148,26 @@ public final class Utilities {
                 Ticks.duration(s.orElse(70)),
                 Ticks.duration(out.orElse(20))
         );
+    }
+
+
+    public static void applyingChatColor(Component rootComponent){
+        if (rootComponent instanceof TextComponent) {
+            TextComponent textComponent = (TextComponent) rootComponent;
+            String translateAlternateColorCodes = ChatColor.translateAlternateColorCodes('&', textComponent.content());
+            modifyContentOfTextComponent(textComponent, translateAlternateColorCodes);
+            for (Component component : rootComponent.children()) {
+                applyingChatColor(component);
+            }
+        }
+    }
+
+    private static void modifyContentOfTextComponent(TextComponent textComponent, String content){
+        try {
+            TEXT_COMPONENT_CONTENT.set(textComponent, content);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

@@ -4,9 +4,6 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
 import to.itsme.itsmyconfig.config.message.Message;
@@ -19,10 +16,7 @@ import to.itsme.itsmyconfig.config.placeholder.PlaceholderData;
 import to.itsme.itsmyconfig.progress.ProgressBar;
 import to.itsme.itsmyconfig.progress.ProgressBarBucket;
 
-import java.lang.reflect.Field;
-
 public class ItsMyConfig extends JavaPlugin {
-
 
     private static ItsMyConfig instance;
     private DynamicPlaceHolder dynamicPlaceHolder;
@@ -30,26 +24,7 @@ public class ItsMyConfig extends JavaPlugin {
     private String symbolPrefix;
     private RequirementManager requirementManager;
 
-    private static final Field TEXT_COMPONENT_CONTENT;
-    static {
-        try {
-            Class<?> textComponentImpClazz = Class.forName("net.kyori.adventure.text.TextComponentImpl");
-            Field contentField = textComponentImpClazz.getDeclaredField("content");
-            contentField.setAccessible(true);
-            TEXT_COMPONENT_CONTENT = contentField;
-        } catch (ClassNotFoundException | NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private BukkitAudiences adventure;
-
-    public BukkitAudiences adventure() {
-        if(this.adventure == null) {
-            throw new IllegalStateException("Tried to access Adventure when the plugin was disabled!");
-        }
-        return this.adventure;
-    }
 
     @Override
     public void onEnable() {
@@ -66,12 +41,12 @@ public class ItsMyConfig extends JavaPlugin {
 
         loadConfig();
 
-        ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
+        final ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
         protocolManager.addPacketListener(new PacketChatListener(this, PacketType.Play.Server.DISGUISED_CHAT, PacketType.Play.Server.SYSTEM_CHAT));
         protocolManager.addPacketListener(new PacketChatListener(this, PacketType.Play.Server.CHAT));
     }
 
-    public void loadConfig(){
+    public void loadConfig() {
         progressBarBucket.clearProgressBar();
         this.saveDefaultConfig();
         this.reloadConfig();
@@ -113,27 +88,15 @@ public class ItsMyConfig extends JavaPlugin {
 
     }
 
+    public BukkitAudiences adventure() {
+        if (this.adventure == null) {
+            throw new IllegalStateException("Tried to access Adventure when the plugin was disabled!");
+        }
+        return this.adventure;
+    }
+
     public String getSymbolPrefix() {
         return symbolPrefix;
-    }
-
-    public static void applyingChatColor(Component rootComponent){
-        if (rootComponent instanceof TextComponent) {
-            TextComponent textComponent = (TextComponent) rootComponent;
-            String translateAlternateColorCodes = ChatColor.translateAlternateColorCodes('&', textComponent.content());
-            modifyContentOfTextComponent(textComponent, translateAlternateColorCodes);
-            for (Component component : rootComponent.children()) {
-                applyingChatColor(component);
-            }
-        }
-    }
-
-    private static void modifyContentOfTextComponent(TextComponent textComponent, String content){
-        try {
-            TEXT_COMPONENT_CONTENT.set(textComponent, content);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public static ItsMyConfig getInstance() {
