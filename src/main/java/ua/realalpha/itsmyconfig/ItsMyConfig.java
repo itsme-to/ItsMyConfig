@@ -15,9 +15,6 @@ import ua.realalpha.itsmyconfig.config.DynamicPlaceHolder;
 import ua.realalpha.itsmyconfig.config.message.Message;
 import ua.realalpha.itsmyconfig.config.message.MessageKey;
 import ua.realalpha.itsmyconfig.config.placeholder.PlaceholderData;
-import ua.realalpha.itsmyconfig.model.ActionBarModel;
-import ua.realalpha.itsmyconfig.model.SubTitle;
-import ua.realalpha.itsmyconfig.model.TitleModel;
 import ua.realalpha.itsmyconfig.progress.ProgressBar;
 import ua.realalpha.itsmyconfig.progress.ProgressBarBucket;
 import ua.realalpha.itsmyconfig.requirement.RequirementManager;
@@ -27,6 +24,7 @@ import java.lang.reflect.Field;
 public class ItsMyConfig extends JavaPlugin {
 
 
+    private static ItsMyConfig instance;
     private DynamicPlaceHolder dynamicPlaceHolder;
     private final ProgressBarBucket progressBarBucket = new ProgressBarBucket();
     private String symbolPrefix;
@@ -55,6 +53,7 @@ public class ItsMyConfig extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        instance = this;
         this.dynamicPlaceHolder = new DynamicPlaceHolder(this, progressBarBucket);
         this.dynamicPlaceHolder.register();
 
@@ -63,22 +62,13 @@ public class ItsMyConfig extends JavaPlugin {
         this.getCommand("itsmyconfig").setExecutor(new ItsMyConfigCommandExecutor(this));
         this.getCommand("message").setExecutor(new MessageCommandExecutor(this));
 
-        ModelRepository modelRepository = new ModelRepository();
-        modelRepository.registerModel(new ActionBarModel(this));
-        modelRepository.registerModel(new TitleModel(this));
-        modelRepository.registerModel(new SubTitle(this));
-
         this.adventure = BukkitAudiences.create(this);
 
         loadConfig();
 
         ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-        protocolManager.addPacketListener(new PacketChatListener(this, modelRepository, PacketType.Play.Server.DISGUISED_CHAT, PacketType.Play.Server.SYSTEM_CHAT));
-        protocolManager.addPacketListener(new PacketChatListener(this, modelRepository, PacketType.Play.Server.CHAT));
-    }
-
-    @Override
-    public void onDisable() {
+        protocolManager.addPacketListener(new PacketChatListener(this, PacketType.Play.Server.DISGUISED_CHAT, PacketType.Play.Server.SYSTEM_CHAT));
+        protocolManager.addPacketListener(new PacketChatListener(this, PacketType.Play.Server.CHAT));
     }
 
     public void loadConfig(){
@@ -146,6 +136,9 @@ public class ItsMyConfig extends JavaPlugin {
         }
     }
 
+    public static ItsMyConfig getInstance() {
+        return instance;
+    }
 
     public RequirementManager getRequirementManager() {
         return requirementManager;

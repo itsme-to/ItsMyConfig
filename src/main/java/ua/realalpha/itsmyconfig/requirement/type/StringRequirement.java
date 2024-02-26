@@ -3,7 +3,7 @@ package ua.realalpha.itsmyconfig.requirement.type;
 import ua.realalpha.itsmyconfig.requirement.Requirement;
 import ua.realalpha.itsmyconfig.requirement.checker.ContainsCheck;
 import ua.realalpha.itsmyconfig.requirement.checker.StringEqualsCheck;
-import ua.realalpha.itsmyconfig.util.StringUtil;
+import ua.realalpha.itsmyconfig.util.Utilities;
 
 import java.util.Arrays;
 
@@ -30,8 +30,8 @@ public class StringRequirement extends Requirement<String> {
 
         if (ignoreColor) {
             identifier = identifier.replace("ignorecolor", "");
-            input = inputString.replaceAll(StringUtil.COLOR_FILTER.pattern(), "");
-            output = outputString.replaceAll(StringUtil.COLOR_FILTER.pattern(), "");
+            input = inputString.replaceAll(Utilities.COLOR_FILTER.pattern(), "");
+            output = outputString.replaceAll(Utilities.COLOR_FILTER.pattern(), "");
         }
 
         boolean reverse = identifier.startsWith("!");
