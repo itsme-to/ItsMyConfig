@@ -15,7 +15,7 @@ public class StringRequirement extends Requirement<String> {
     }
 
     @Override
-    public boolean validate(String identifier, String inputString, String outputString) {
+    public boolean validate(String identifier, final String inputString, final String outputString) {
         boolean ignoreCase = identifier.toLowerCase().contains("ignorecase");
         boolean ignoreColor = identifier.toLowerCase().contains("ignorecolor");
 
@@ -34,7 +34,7 @@ public class StringRequirement extends Requirement<String> {
             output = Utilities.colorless(outputString);
         }
 
-        boolean reverse = identifier.startsWith("!");
+        final boolean reverse = identifier.startsWith("!");
         String[] syntaxArguments = identifier.split(" ");
         syntaxArguments = Arrays.copyOfRange(syntaxArguments, 1, syntaxArguments.length);
         boolean result = true;

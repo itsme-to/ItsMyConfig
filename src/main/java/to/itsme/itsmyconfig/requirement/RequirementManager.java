@@ -20,13 +20,17 @@ public class RequirementManager {
     );
 
 
-    public Requirement<?> getRequirementByType(String type) {
+    public Requirement<?> getRequirementByType(final String type) {
         return this.requirements.stream().filter(requirement -> requirement.matchIdentifier(type)).findAny().orElse(null);
     }
 
-    public String getDenyMessage(PlaceholderData data, Player player, String[] params) {
-        for (RequirementData requirementData : data.getRequirements()) {
-            Requirement<?> requirement = this.getRequirementByType(requirementData.getIdentifier());
+    public String getDenyMessage(
+            final PlaceholderData data,
+            final Player player,
+            final String[] params
+    ) {
+        for (final RequirementData requirementData : data.getRequirements()) {
+            final Requirement<?> requirement = this.getRequirementByType(requirementData.getIdentifier());
             if (requirement == null) continue;
             String input = PlaceholderAPI.setPlaceholders(player, data.replaceArguments(params, requirementData.getInput()));
             String output = PlaceholderAPI.setPlaceholders(player, data.replaceArguments(params, requirementData.getOutput()));

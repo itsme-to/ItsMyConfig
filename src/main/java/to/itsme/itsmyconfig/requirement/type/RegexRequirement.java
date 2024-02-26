@@ -10,12 +10,16 @@ public class RegexRequirement extends Requirement<String> {
     }
 
     @Override
-    public boolean validate(String identifier, String input, String output) {
+    public boolean validate(
+            final String identifier,
+            final String input,
+            final String output
+    ) {
         return this.isValid("regex matches", input, output);
     }
 
     @Override
-    public boolean matchIdentifier(String identifier) {
+    public boolean matchIdentifier(final String identifier) {
         return identifier.equals("regex matches");
     }
 

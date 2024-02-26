@@ -2,6 +2,6 @@ package to.itsme.itsmyconfig.requirement;
 
 public interface RequirementChecker<T> {
 
-    boolean check(T input, T output);
+    boolean check(final T input, final T output);
 
 }

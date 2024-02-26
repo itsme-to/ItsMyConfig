@@ -18,8 +18,8 @@ public class NumberRequirement extends Requirement<Double> {
 
     @Override
     public boolean validate(String identifier, String inputString, String outputString) {
-        Double input = this.transformString(inputString);
-        Double output = this.transformString(outputString);
+        final Double input = this.transformString(inputString);
+        final Double output = this.transformString(outputString);
         if (input == null || output == null) return false;
         return this.isValid(identifier, input, output);
     }

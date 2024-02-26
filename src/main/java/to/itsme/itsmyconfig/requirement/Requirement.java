@@ -8,11 +8,11 @@ public abstract class Requirement<V> {
     private final Map<String, RequirementChecker<V>[]> syntaxMap = new HashMap<>();
 
     @SafeVarargs
-    protected final void syntax(String syntax, RequirementChecker<V>... transformers) {
+    protected final void syntax(final String syntax, final RequirementChecker<V>... transformers) {
         this.syntaxMap.put(syntax, transformers);
     }
 
-    protected boolean isValid(String syntax, V input, V output) {
+    protected boolean isValid(final String syntax, final V input, final V output) {
         RequirementChecker<V>[] checkers = this.syntaxMap.get(syntax);
         if (checkers == null) return true;
         boolean valid = false;
@@ -24,8 +24,8 @@ public abstract class Requirement<V> {
         return valid;
     }
 
-    public boolean matchIdentifier(String identifier) {
-        String firstValueOfIdentifier = identifier.split(" ")[0];
+    public boolean matchIdentifier(final String identifier) {
+        final String firstValueOfIdentifier = identifier.split(" ")[0];
         for (String requiredIdentifier : this.identifiers()) {
             if (firstValueOfIdentifier.equals(requiredIdentifier)) return true;
         }
@@ -33,7 +33,7 @@ public abstract class Requirement<V> {
         return false;
     }
 
-    public abstract boolean validate(String identifier, String input, String output);
+    public abstract boolean validate(final String identifier, final String input, final String output);
 
     public abstract String[] identifiers();
 
