@@ -11,7 +11,7 @@ import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.config.message.CommandUsage;
 import to.itsme.itsmyconfig.config.message.Message;
 import to.itsme.itsmyconfig.config.message.MessageKey;
-import to.itsme.itsmyconfig.xml.Tag;
+import to.itsme.itsmyconfig.util.Utilities;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -60,7 +60,7 @@ public class MessageCommandExecutor implements CommandExecutor {
 
             String[] strings = message.split("\\\\r?\\\\n|\\\\r");
             for (String string : strings) {
-                String symbol = Tag.hasTagPresent(string) ? this.plugin.getSymbolPrefix() : "";
+                String symbol = Utilities.hasTag(string) ? this.plugin.getSymbolPrefix() : "";
                 player.sendMessage(symbol + string);
             }
         });

@@ -11,7 +11,7 @@ import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.config.message.CommandUsage;
 import to.itsme.itsmyconfig.config.message.Message;
 import to.itsme.itsmyconfig.config.message.MessageKey;
-import to.itsme.itsmyconfig.xml.Tag;
+import to.itsme.itsmyconfig.util.Utilities;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -19,6 +19,7 @@ import java.util.Collections;
 public class ItsMyConfigCommandExecutor implements CommandExecutor {
 
     private final ItsMyConfig itsMyConfig;
+    private static final MessageKey RELOAD = MessageKey.from("reload", "itsmyconfig <message/reload>");
 
     public ItsMyConfigCommandExecutor(ItsMyConfig itsMyConfig) {
         this.itsMyConfig = itsMyConfig;
@@ -27,7 +28,7 @@ public class ItsMyConfigCommandExecutor implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
-            MessageKey.sendUsage(sender, CommandUsage.RELOAD);
+            MessageKey.sendUsage(sender, RELOAD);
             return false;
         }
 
@@ -79,7 +80,7 @@ public class ItsMyConfigCommandExecutor implements CommandExecutor {
 
             String[] strings = message.split("\\\\r?\\\\n|\\\\r");
             for (String string : strings) {
-                String symbol = Tag.hasTagPresent(string) ? this.itsMyConfig.getSymbolPrefix() : "";
+                String symbol = Utilities.hasTag(string) ? this.itsMyConfig.getSymbolPrefix() : "";
                 player.sendMessage(symbol + string);
             }
         });

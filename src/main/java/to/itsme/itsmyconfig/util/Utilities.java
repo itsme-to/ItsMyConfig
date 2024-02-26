@@ -20,6 +20,11 @@ public final class Utilities {
 
     private static final ItsMyConfig plugin = ItsMyConfig.getInstance();
     private static final Pattern COLOR_FILTER = Pattern.compile("[§&][a-zA-Z0-9]");
+    private static final Pattern TAG_PATTERN = Pattern.compile("<([^/][^>\\s]+)[^>]*>");
+
+    public static boolean hasTag(final String message) {
+        return TAG_PATTERN.matcher(message).find();
+    }
 
     public static String colorless(final String text) {
         return COLOR_FILTER.matcher(text).replaceAll("");

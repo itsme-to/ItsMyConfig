@@ -34,7 +34,7 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getIdentifier() {
-        return this.plugin.getConfig().getString("identifier", "itsmyconfig");
+        return "itsmyconfig";
     }
 
     @Override
