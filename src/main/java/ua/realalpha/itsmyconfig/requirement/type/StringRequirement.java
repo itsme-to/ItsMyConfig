@@ -30,8 +30,8 @@ public class StringRequirement extends Requirement<String> {
 
         if (ignoreColor) {
             identifier = identifier.replace("ignorecolor", "");
-            input = inputString.replaceAll(Utilities.COLOR_FILTER.pattern(), "");
-            output = outputString.replaceAll(Utilities.COLOR_FILTER.pattern(), "");
+            input = Utilities.COLOR_FILTER.matcher(inputString).replaceAll("");
+            output = Utilities.COLOR_FILTER.matcher(outputString).replaceAll("");
         }
 
         boolean reverse = identifier.startsWith("!");

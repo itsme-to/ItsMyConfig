@@ -8,11 +8,13 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.util.Ticks;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import ua.realalpha.itsmyconfig.ItsMyConfig;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.regex.Pattern;
 
 public final class Utilities {
@@ -44,11 +46,9 @@ public final class Utilities {
                 plugin.adventure().player(player).showTitle(title);
             } else if (args.size() == 4) {
                 final Title.Times times = createTimes(
-                        new String[] {
-                                args.get(0).value(),
-                                args.get(1).value(),
-                                args.get(2).value()
-                        }
+                        args.get(0).asInt(),
+                        args.get(1).asInt(),
+                        args.get(2).asInt()
                 );
                 final Title title = Title.title(
                         context.deserialize(args.get(3).value()),
@@ -58,11 +58,9 @@ public final class Utilities {
                 plugin.adventure().player(player).showTitle(title);
             } else if (args.size() == 5) {
                 final Title.Times times = createTimes(
-                        new String[] {
-                                args.get(0).value(),
-                                args.get(1).value(),
-                                args.get(2).value()
-                        }
+                        args.get(0).asInt(),
+                        args.get(1).asInt(),
+                        args.get(2).asInt()
                 );
                 final Title title = Title.title(
                         context.deserialize(args.get(3).value()),
@@ -88,11 +86,9 @@ public final class Utilities {
                 plugin.adventure().player(player).showTitle(title);
             } else if (args.size() == 4) {
                 final Title.Times times = createTimes(
-                        new String[] {
-                                args.get(0).value(),
-                                args.get(1).value(),
-                                args.get(2).value()
-                        }
+                        args.get(0).asInt(),
+                        args.get(1).asInt(),
+                        args.get(2).asInt()
                 );
                 final Title title = Title.title(
                         Component.empty(),
@@ -106,14 +102,6 @@ public final class Utilities {
         });
     }
 
-
-    private static Title.Times createTimes(String[] parameters){
-        Duration fadeIn = (parameters.length >= 1) ? Ticks.duration(Integer.parseInt(parameters[0])) : Ticks.duration(10);
-        Duration stay = (parameters.length >= 2) ? Ticks.duration(Integer.parseInt(parameters[1])) : Ticks.duration(70);
-        Duration fadeOut = (parameters.length >= 3) ? Ticks.duration(Integer.parseInt(parameters[2])) : Ticks.duration(20);
-        return Title.Times.times(fadeIn, stay, fadeOut);
-    }
-
     public static TagResolver actionbarTag(final Player player) {
         return TagResolver.resolver("actionbar", (argumentQueue, context) -> {
             final String bar = argumentQueue.popOr("").value();
@@ -121,5 +109,18 @@ public final class Utilities {
             return Tag.selfClosingInserting(Component.empty());
         });
     }
+
+    @SuppressWarnings("all")
+    private static Title.Times createTimes(
+            @NotNull OptionalInt in,
+            @NotNull OptionalInt  s,
+            @NotNull OptionalInt  out
+    ) {
+        Duration fadeIn = Ticks.duration(in.orElse(10));
+        Duration stay = Ticks.duration(s.orElse(70));
+        Duration fadeOut = Ticks.duration(out.orElse(20));
+        return Title.Times.times(fadeIn, stay, fadeOut);
+    }
+
 
 }
