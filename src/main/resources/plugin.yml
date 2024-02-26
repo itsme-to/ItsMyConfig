@@ -1,12 +1,11 @@
 name: ItsMyConfig
 version: ${project.version}
-author: RealAlphaUA
-main: ua.realalpha.itsmyconfig.ItsMyConfig
+authors: [iiAhmedYT, RealAlphaUA]
+main: to.itsme.itsmyconfig.ItsMyConfig
 api-version: 1.13
 depend:
   - ProtocolLib
   - PlaceholderAPI
-
 commands:
   message:
     permission: "itsmyconfig.message"
