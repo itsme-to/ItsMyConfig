@@ -1,5 +1,5 @@
 name: ItsMyConfig
-version: ${project.version}
+version: ${version}
 authors: [iiAhmedYT, RealAlphaUA]
 main: to.itsme.itsmyconfig.ItsMyConfig
 api-version: 1.13

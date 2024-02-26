@@ -67,7 +67,9 @@ public class PacketChatListener extends PacketAdapter {
                 Utilities.actionbarTag(player)
         ));
         ItsMyConfig.applyingChatColor(parsed);
-        plugin.adventure().player(player).sendMessage(parsed);
+        if (!parsed.equals(Component.empty())) {
+            plugin.adventure().player(player).sendMessage(parsed);
+        }
     }
 
     private Component replaceClickEvent(final Component component) {
