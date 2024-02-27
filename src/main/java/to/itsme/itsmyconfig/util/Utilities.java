@@ -26,6 +26,7 @@ public final class Utilities {
     private static final Pattern TAG_PATTERN = Pattern.compile("<([^/][^>\\s]+)[^>]*>");
 
     private static final Field TEXT_COMPONENT_CONTENT;
+
     static {
         try {
             Class<?> textComponentImpClazz = Class.forName("net.kyori.adventure.text.TextComponentImpl");
@@ -37,14 +38,32 @@ public final class Utilities {
         }
     }
 
-    public static boolean hasTag(final String message) {
+    /**
+     * Determines if a given message contains any tags.
+     *
+     * @param message The message to check for tags.
+     * @return true if the message contains tags, otherwise false.
+     */
+    public static boolean hasTags(final String message) {
         return TAG_PATTERN.matcher(message).find();
     }
 
+    /**
+     * Removes color codes from a string.
+     *
+     * @param text The text to remove color codes from.
+     * @return The text without color codes.
+     */
     public static String colorless(final String text) {
         return COLOR_FILTER.matcher(text).replaceAll("");
     }
 
+    /**
+     * Provides a PlaceholderAPI tag resolver.
+     *
+     * @param player The player for whom the resolver is being created.
+     * @return The PlaceholderAPI tag resolver.
+     */
     public static TagResolver papiTag(final Player player) {
         return TagResolver.resolver("papi", (argumentQueue, context) -> {
             final String papiPlaceholder = argumentQueue.popOr("papi tag requires an argument").value();
@@ -54,6 +73,12 @@ public final class Utilities {
         });
     }
 
+    /**
+     * Provides a title tag resolver.
+     *
+     * @param player The player for whom the resolver is being created.
+     * @return The title tag resolver.
+     */
     public static TagResolver titleTag(final Player player) {
         return TagResolver.resolver("title", (argumentQueue, context) -> {
             final List<Tag.Argument> args = new ArrayList<>();
@@ -99,6 +124,12 @@ public final class Utilities {
         });
     }
 
+    /**
+     * Provides a subtitle tag resolver.
+     *
+     * @param player The player for whom the resolver is being created.
+     * @return The subtitle tag resolver.
+     */
     public static TagResolver subtitleTag(final Player player) {
         return TagResolver.resolver("subtitle", (argumentQueue, context) -> {
             final List<Tag.Argument> args = new ArrayList<>();
@@ -129,40 +160,74 @@ public final class Utilities {
         });
     }
 
+    /**
+     * Provides an action bar tag resolver.
+     *
+     * @param player The player for whom the resolver is being created.
+     * @return The action bar tag resolver.
+     */
     public static TagResolver actionbarTag(final Player player) {
         return TagResolver.resolver("actionbar", (argumentQueue, context) -> {
-            final String bar = argumentQueue.popOr("").value();
+            final String bar = argumentQueue.popOr("Invalid actionbar value").value();
             plugin.adventure().player(player).sendActionBar(context.deserialize(bar));
             return Tag.selfClosingInserting(Component.empty());
         });
     }
 
-    @SuppressWarnings("all")
-    private static Title.Times createTimes(
-            @NotNull OptionalInt in,
-            @NotNull OptionalInt  s,
-            @NotNull OptionalInt  out
-    ) {
-        return Title.Times.times(
-                Ticks.duration(in.orElse(10)),
-                Ticks.duration(s.orElse(70)),
-                Ticks.duration(out.orElse(20))
-        );
-    }
-
-
-    public static void applyingChatColor(Component rootComponent){
+    /**
+     * Applies chat colors to a root component and its children recursively.
+     *
+     * @param rootComponent The root component to apply chat colors to.
+     */
+    public static void applyChatColors(final Component rootComponent) {
         if (rootComponent instanceof TextComponent) {
-            TextComponent textComponent = (TextComponent) rootComponent;
-            String translateAlternateColorCodes = ChatColor.translateAlternateColorCodes('&', textComponent.content());
+            final TextComponent textComponent = (TextComponent) rootComponent;
+            final String translateAlternateColorCodes = ChatColor.translateAlternateColorCodes('&', textComponent.content());
             modifyContentOfTextComponent(textComponent, translateAlternateColorCodes);
-            for (Component component : rootComponent.children()) {
-                applyingChatColor(component);
+            for (final Component component : rootComponent.children()) {
+                applyChatColors(component);
             }
         }
     }
 
-    private static void modifyContentOfTextComponent(TextComponent textComponent, String content){
+    /**
+     * Converts a list of objects to a string, where each object is represented on a new line.
+     *
+     * @param list The list of objects to be converted to a string.
+     * @return The string representation of the list.
+     */
+    public static String toString(@NotNull List<?> list) {
+        return String.join(System.lineSeparator(), list.stream().map(Object::toString).toArray(String[]::new));
+    }
+
+    /**
+     * Helper method to create Title times with optional values.
+     *
+     * @param fadeIn  The fade in time.
+     * @param stay    The stay time.
+     * @param fadeOut The fade out time.
+     * @return Title.Times object with specified times.
+     */
+    @SuppressWarnings("all")
+    private static Title.Times createTimes(
+            @NotNull OptionalInt fadeIn,
+            @NotNull OptionalInt stay,
+            @NotNull OptionalInt fadeOut
+    ) {
+        return Title.Times.times(
+                Ticks.duration(fadeIn.orElse(10)),
+                Ticks.duration(stay.orElse(70)),
+                Ticks.duration(fadeOut.orElse(20))
+        );
+    }
+
+    /**
+     * Modifies the content of a TextComponent instance.
+     *
+     * @param textComponent The TextComponent instance to modify.
+     * @param content       The new content for the TextComponent.
+     */
+    private static void modifyContentOfTextComponent(TextComponent textComponent, String content) {
         try {
             TEXT_COMPONENT_CONTENT.set(textComponent, content);
         } catch (IllegalAccessException e) {

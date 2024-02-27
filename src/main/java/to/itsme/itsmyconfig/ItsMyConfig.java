@@ -6,25 +6,26 @@ import com.comphenix.protocol.ProtocolManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
-import to.itsme.itsmyconfig.config.message.Message;
-import to.itsme.itsmyconfig.config.message.MessageKey;
-import to.itsme.itsmyconfig.requirement.RequirementManager;
-import to.itsme.itsmyconfig.commands.ItsMyConfigCommandExecutor;
-import to.itsme.itsmyconfig.commands.MessageCommandExecutor;
+import to.itsme.itsmyconfig.command.CommandManager;
 import to.itsme.itsmyconfig.config.DynamicPlaceHolder;
 import to.itsme.itsmyconfig.config.placeholder.PlaceholderData;
 import to.itsme.itsmyconfig.progress.ProgressBar;
 import to.itsme.itsmyconfig.progress.ProgressBarBucket;
+import to.itsme.itsmyconfig.requirement.RequirementManager;
 
 public class ItsMyConfig extends JavaPlugin {
 
     private static ItsMyConfig instance;
-    private DynamicPlaceHolder dynamicPlaceHolder;
     private final ProgressBarBucket progressBarBucket = new ProgressBarBucket();
+    private DynamicPlaceHolder dynamicPlaceHolder;
     private String symbolPrefix;
     private RequirementManager requirementManager;
 
     private BukkitAudiences adventure;
+
+    public static ItsMyConfig getInstance() {
+        return instance;
+    }
 
     @Override
     public void onEnable() {
@@ -32,11 +33,9 @@ public class ItsMyConfig extends JavaPlugin {
         this.dynamicPlaceHolder = new DynamicPlaceHolder(this, progressBarBucket);
         this.dynamicPlaceHolder.register();
 
+        new CommandManager(this);
+
         this.requirementManager = new RequirementManager();
-
-        this.getCommand("itsmyconfig").setExecutor(new ItsMyConfigCommandExecutor(this));
-        this.getCommand("message").setExecutor(new MessageCommandExecutor(this));
-
         this.adventure = BukkitAudiences.create(this);
 
         loadConfig();
@@ -69,13 +68,7 @@ public class ItsMyConfig extends JavaPlugin {
             this.getLogger().info(String.format("Registered placeholder %s", identifier));
         }
 
-        ConfigurationSection messagesSection = this.getConfig().getConfigurationSection("messages");
-        for (String identifier : messagesSection.getKeys(false)) {
-            MessageKey messageKey = Message.getMessageKey(identifier);
-            messageKey.setMessage(messagesSection.getStringList(identifier));
-        }
-
-        ConfigurationSection customProgressConfigurationSection = this.getConfig().getConfigurationSection("custom-progress");
+        final ConfigurationSection customProgressConfigurationSection = this.getConfig().getConfigurationSection("custom-progress");
         for (String identifier : customProgressConfigurationSection.getKeys(false)) {
             ConfigurationSection configurationSection = customProgressConfigurationSection.getConfigurationSection(identifier);
             String symbol = configurationSection.getString("symbol");
@@ -97,10 +90,6 @@ public class ItsMyConfig extends JavaPlugin {
 
     public String getSymbolPrefix() {
         return symbolPrefix;
-    }
-
-    public static ItsMyConfig getInstance() {
-        return instance;
     }
 
     public RequirementManager getRequirementManager() {

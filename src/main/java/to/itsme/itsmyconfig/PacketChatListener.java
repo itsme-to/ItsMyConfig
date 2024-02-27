@@ -66,7 +66,7 @@ public class PacketChatListener extends PacketAdapter {
                 Utilities.subtitleTag(player),
                 Utilities.actionbarTag(player)
         ));
-        Utilities.applyingChatColor(parsed);
+        Utilities.applyChatColors(parsed);
         if (!parsed.equals(Component.empty())) {
             plugin.adventure().player(player).sendMessage(parsed);
         }
@@ -93,7 +93,8 @@ public class PacketChatListener extends PacketAdapter {
                 WrappedChatComponent chatComponent = convertFromComponent(modifier.readSafely(0));
                 return legacy.serialize(gson.deserialize(chatComponent.getJson()));
             }
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
 
         StructureModifier<TextComponent> textComponentModifier = container.getModifier().withType(TextComponent.class);
 

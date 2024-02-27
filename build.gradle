@@ -23,6 +23,11 @@ repositories {
     }
 
     maven {
+        name = "jitpack"
+        url = "https://jitpack.io"
+    }
+
+    maven {
         name = "protocollib-repo"
         url = "https://repo.dmulloy2.net/repository/public/"
     }
@@ -31,15 +36,22 @@ repositories {
         name = "papi-repo"
         url = "https://repo.extendedclip.com/content/repositories/placeholderapi/"
     }
+
 }
 
+def lampVersion = "3.1.9"
+def adventureVersion = "4.16.0"
 dependencies {
-    api 'net.kyori:adventure-text-minimessage:4.16.0'
-    api 'net.kyori:adventure-text-serializer-gson:4.16.0'
-    api 'net.kyori:adventure-platform-bukkit:4.3.2'
-    compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
-    compileOnly 'com.comphenix.protocol:ProtocolLib:5.0.0'
-    compileOnly 'me.clip:placeholderapi:2.11.1'
+    api "net.kyori:adventure-text-minimessage:${adventureVersion}"
+    api "net.kyori:adventure-text-serializer-gson:${adventureVersion}"
+    api "net.kyori:adventure-platform-bukkit:4.3.2"
+
+    implementation "com.github.Revxrsal.Lamp:common:${lampVersion}"
+    implementation "com.github.Revxrsal.Lamp:bukkit:${lampVersion}"
+
+    compileOnly "org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT"
+    compileOnly "com.comphenix.protocol:ProtocolLib:5.0.0"
+    compileOnly "me.clip:placeholderapi:2.11.1"
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -58,4 +70,5 @@ processResources {
 def shadePath = "to.itsme.itsmyconfig.shade."
 shadowJar {
     relocate("net.kyori", "${shadePath}kyori")
+    relocate("revxrsal.commands", "${shadePath}lamp")
 }

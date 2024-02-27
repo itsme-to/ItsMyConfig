@@ -2,13 +2,15 @@ package to.itsme.itsmyconfig.progress;
 
 public class ProgressBar {
 
-    private final String key;
-    private final String pattern;
-    private final String completedColor;
-    private final String progressColor;
-    private final String remainingColor;
+    private final String key, pattern, completedColor, progressColor, remainingColor;
 
-    public ProgressBar(String key, String pattern, String completedColor, String progressColor, String remainingColor) {
+    public ProgressBar(
+            final String key,
+            final String pattern,
+            final String completedColor,
+            final String progressColor,
+            final String remainingColor
+    ) {
         this.key = key;
         this.pattern = pattern;
         this.completedColor = completedColor;
@@ -20,8 +22,8 @@ public class ProgressBar {
         return key;
     }
 
-    public String render(double value, double maxValue){
-        double percent = value / maxValue;
+    public String render(final double value, final double max) {
+        final double percent = value / max;
         int completed = (int) Math.round(percent * pattern.length());
 
         if (completed > pattern.length()) {
@@ -35,13 +37,14 @@ public class ProgressBar {
             stringBuilder.append(pattern, 0, completed);
         }
 
-        if (completed != pattern.length()){
+        if (completed != pattern.length()) {
             stringBuilder.append(progressColor);
-            stringBuilder.append(pattern, completed, completed+1);
+            stringBuilder.append(pattern, completed, completed + 1);
             stringBuilder.append(remainingColor);
-            stringBuilder.append(pattern, completed+1, pattern.length());
+            stringBuilder.append(pattern, completed + 1, pattern.length());
         }
 
         return stringBuilder.toString();
     }
+
 }

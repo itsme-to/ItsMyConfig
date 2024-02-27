@@ -23,7 +23,7 @@ custom-placeholder:
     value: "<yellow>{0}</yellow>"
   error:
     value: "<red><bold>ERROR</bold></red> <white>┃"
-    
+
   example:
     value: "Example placeholder"
     requirements:
@@ -42,13 +42,11 @@ custom-progress:
 
 messages:
   invalid-use:
-    - "&c&lERROR &f┃ Invalid use"
-    - "  &e/{usage}"
+    - "<red><bold>ERROR</bold></red> <white>┃ Invalid use"
+    - "  <yellow>/<usage>"
   reload:
-    - "&a&lSUCCES &f┃ ItsmyConfig &freloaded !"
+    - "<green><bold>SUCCES</bold></green> <white>┃ ItsmyConfig &freloaded !"
   no-permission:
-    - "&a&lERROR &f┃ You don't have permission"
-  message-send:
-    - "&a&lSUCCES &f┃ Message Send !"
-  command-added:
-    - "&a&lSUCCESS &f┃ The command has been added to &b{player}"
+    - "<red><bold>ERROR</bold></red> <white>┃ You don't have permission"
+  message-sent:
+    - "<green><bold>SUCCES</bold></green> <white>┃ Message Sent !"
