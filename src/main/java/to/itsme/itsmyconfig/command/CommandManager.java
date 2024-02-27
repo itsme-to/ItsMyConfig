@@ -2,6 +2,7 @@ package to.itsme.itsmyconfig.command;
 
 import revxrsal.commands.bukkit.BukkitCommandHandler;
 import to.itsme.itsmyconfig.ItsMyConfig;
+import to.itsme.itsmyconfig.command.handler.ExceptionHandler;
 import to.itsme.itsmyconfig.command.impl.ItsMyConfigCommand;
 
 public final class CommandManager {
@@ -12,6 +13,7 @@ public final class CommandManager {
     public CommandManager(final ItsMyConfig plugin) {
         this.plugin = plugin;
         this.handler = BukkitCommandHandler.create(plugin);
+        this.handler.setExceptionHandler(new ExceptionHandler());
         this.registerCommands();
         this.handler.registerBrigadier();
         this.handler.enableAdventure();
