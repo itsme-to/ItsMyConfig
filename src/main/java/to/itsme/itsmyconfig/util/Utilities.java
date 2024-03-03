@@ -17,6 +17,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class Utilities {
@@ -25,6 +26,7 @@ public final class Utilities {
 
     private static final ItsMyConfig plugin = ItsMyConfig.getInstance();
     private static final Pattern COLOR_FILTER = Pattern.compile("[§&][a-zA-Z0-9]");
+    private static final Pattern ARGUMENT_PATTERN = Pattern.compile("\\{([0-9]+)}");
 
     private static final Field TEXT_COMPONENT_CONTENT;
 
@@ -37,6 +39,15 @@ public final class Utilities {
         } catch (ClassNotFoundException | NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static List<Integer> getArguments(final String string) {
+        final List<Integer> args = new ArrayList<>();
+        final Matcher matcher = ARGUMENT_PATTERN.matcher(string);
+        while (matcher.find()) {
+            args.add(Integer.parseInt(matcher.group(1)));
+        }
+        return args;
     }
 
     /**

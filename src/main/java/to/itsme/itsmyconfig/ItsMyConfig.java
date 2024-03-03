@@ -9,6 +9,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import to.itsme.itsmyconfig.command.CommandManager;
 import to.itsme.itsmyconfig.config.DynamicPlaceHolder;
 import to.itsme.itsmyconfig.config.placeholder.PlaceholderData;
+import to.itsme.itsmyconfig.config.placeholder.PlaceholderType;
+import to.itsme.itsmyconfig.config.placeholder.type.AnimatedPlaceholderData;
+import to.itsme.itsmyconfig.config.placeholder.type.ColorPlaceholderData;
+import to.itsme.itsmyconfig.config.placeholder.type.RandomPlaceholderData;
+import to.itsme.itsmyconfig.config.placeholder.type.StringPlaceholderData;
 import to.itsme.itsmyconfig.progress.ProgressBar;
 import to.itsme.itsmyconfig.progress.ProgressBarBucket;
 import to.itsme.itsmyconfig.requirement.RequirementManager;
@@ -54,14 +59,29 @@ public final class ItsMyConfig extends JavaPlugin {
 
         final ConfigurationSection customPlaceholderSection = this.getConfig().getConfigurationSection("custom-placeholder");
         for (final String identifier : customPlaceholderSection.getKeys(false)) {
-            final String result = customPlaceholderSection.getString(identifier + ".value");
-            final String type = customPlaceholderSection.getString(identifier + ".type");
-            final PlaceholderData data = dynamicPlaceHolder.registerIdentifier(identifier, result, type);
+            final PlaceholderType type = PlaceholderType.find(customPlaceholderSection.getString(identifier + ".type"));
+            final PlaceholderData data;
+            switch (type) {
+                default:
+                case STRING:
+                    data = new StringPlaceholderData(customPlaceholderSection.getString(identifier + ".value"));
+                    break;
+                case COLOR:
+                    data = new ColorPlaceholderData(customPlaceholderSection.getString(identifier + ".value"));
+                    break;
+                case RANDOM:
+                    data = new RandomPlaceholderData(customPlaceholderSection.getStringList(identifier + ".values"));
+                    break;
+                case ANIMATED:
+                    data = new AnimatedPlaceholderData(customPlaceholderSection.getStringList(identifier + ".values"));
+                    break;
+            }
+
+            this.dynamicPlaceHolder.registerIdentifier(identifier, data);
             ConfigurationSection requirementSection = customPlaceholderSection.getConfigurationSection(identifier + ".requirements");
             if (requirementSection != null) {
                 for (String requirement : requirementSection.getKeys(false)) {
-                    data.registerRequirement(customPlaceholderSection
-                            .getConfigurationSection(identifier + ".requirements." + requirement));
+                    data.registerRequirement(customPlaceholderSection.getConfigurationSection(identifier + ".requirements." + requirement));
                 }
             }
 

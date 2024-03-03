@@ -27,7 +27,10 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
 
     private final ProgressBarBucket progressBarBucket;
 
-    public DynamicPlaceHolder(ItsMyConfig plugin, ProgressBarBucket progressBarBucket) {
+    public DynamicPlaceHolder(
+            final ItsMyConfig plugin,
+            final ProgressBarBucket progressBarBucket
+    ) {
         this.plugin = plugin;
         this.progressBarBucket = progressBarBucket;
     }
@@ -56,8 +59,10 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
     public @Nullable String onPlaceholderRequest(Player player, @NotNull String params) {
         params = PlaceholderAPI.setPlaceholders(player, params.replaceAll("\\$\\((.*?)\\)\\$", "%$1%"));
 
-        String[] strings = params.split("_");
-        if (strings.length == 0) return "Illegal Argument";
+        final String[] strings = params.split("_");
+        if (strings.length == 0) {
+            return "Illegal Argument";
+        }
 
         if (strings.length >= 3 && strings[0].equalsIgnoreCase("font")) {
             if (strings[1].equalsIgnoreCase("latin")) {
@@ -73,7 +78,9 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
             }
 
             return "ERROR";
-        } else if (strings.length >= 4 && strings[0].equalsIgnoreCase("progress")) {
+        }
+
+        if (strings.length >= 4 && strings[0].equalsIgnoreCase("progress")) {
             String identifier = strings[1];
             double value;
             double maxValue;
@@ -83,23 +90,27 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
             } catch (NumberFormatException e) {
                 return "Illegal Number Format";
             }
-            ProgressBar progressBar = progressBarBucket.getProgressBar(identifier);
 
+            final ProgressBar progressBar = progressBarBucket.getProgressBar(identifier);
             if (progressBar == null) {
                 return String.format("Not Found Progress Bar(%s)", identifier);
             }
 
             return ChatColor.translateAlternateColorCodes('&', progressBar.render(value, maxValue));
-        } else {
-            if (!identifierToResult.containsKey(strings[0])) {
-                return "Not Found Custom PlaceHolder";
-            }
-
-            final PlaceholderData data = identifierToResult.get(strings[0]);
-            final String result = PlaceholderAPI.setPlaceholders(player, data.replaceArguments(getArgs(strings).split("::")));
-            final String deny = this.plugin.getRequirementManager().getDenyMessage(data, player, getArgs(strings).split("::"));
-            return ChatColor.translateAlternateColorCodes('&', deny != null ? deny : result);
         }
+
+        if (!identifierToResult.containsKey(strings[0])) {
+            return "Placeholder not found";
+        }
+
+        final PlaceholderData data = identifierToResult.get(strings[0]);
+        final String deny = this.plugin.getRequirementManager().getDenyMessage(data, player, getArgs(strings).split("::"));
+        if (deny != null) {
+            return ChatColor.translateAlternateColorCodes('&', deny);
+        }
+
+        return ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, data.getResult(getArgs(strings).split("::")))
+        );
     }
 
     private String getArgs(String[] strings) {
@@ -116,10 +127,8 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
         return builder.toString();
     }
 
-    public PlaceholderData registerIdentifier(String key, String value, String type) {
-        PlaceholderData data = new PlaceholderData(value, type);
+    public void registerIdentifier(String key, PlaceholderData data) {
         this.identifierToResult.put(key, data);
-        return data;
     }
 
     public String messageToSmallCaps(String message) {

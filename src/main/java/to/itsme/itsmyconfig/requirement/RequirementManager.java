@@ -30,10 +30,16 @@ public final class RequirementManager {
     ) {
         for (final RequirementData requirementData : data.getRequirements()) {
             final Requirement<?> requirement = this.getRequirementByType(requirementData.getIdentifier());
-            if (requirement == null) continue;
-            String input = PlaceholderAPI.setPlaceholders(player, data.replaceArguments(params, requirementData.getInput()));
-            String output = PlaceholderAPI.setPlaceholders(player, data.replaceArguments(params, requirementData.getOutput()));
-            if (requirement.validate(requirementData.getIdentifier(), input, output)) continue;
+            if (requirement == null) {
+                continue;
+            }
+
+            final String input = PlaceholderAPI.setPlaceholders(player, data.replaceArguments(params, requirementData.getInput()));
+            final String output = PlaceholderAPI.setPlaceholders(player, data.replaceArguments(params, requirementData.getOutput()));
+            if (requirement.validate(requirementData.getIdentifier(), input, output)) {
+                continue;
+            }
+
             return data.replaceArguments(params, requirementData.getDeny());
         }
 
