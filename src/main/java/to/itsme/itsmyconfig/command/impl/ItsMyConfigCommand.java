@@ -12,7 +12,6 @@ import revxrsal.commands.bukkit.annotation.CommandPermission;
 import revxrsal.commands.command.CommandActor;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.util.Message;
-import to.itsme.itsmyconfig.util.Utilities;
 
 @Command("itsmyconfig")
 public class ItsMyConfigCommand {
@@ -45,8 +44,7 @@ public class ItsMyConfigCommand {
         players.forEach(player -> {
             final String[] strings = message.split("\\\\r?\\\\n|\\\\r");
             for (final String string : strings) {
-                String symbol = Utilities.hasTags(string) ? this.plugin.getSymbolPrefix() : "";
-                player.sendMessage(symbol + string);
+                player.sendMessage(this.plugin.getSymbolPrefix() + string);
             }
         });
 

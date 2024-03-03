@@ -10,7 +10,6 @@ import com.comphenix.protocol.wrappers.AdventureComponentConverter;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -26,7 +25,6 @@ import java.util.stream.Collectors;
 public class PacketChatListener extends PacketAdapter {
 
     private final ItsMyConfig plugin;
-    private final MiniMessage miniMessage = MiniMessage.miniMessage();
     private final GsonComponentSerializer gson = GsonComponentSerializer.gson();
     private final LegacyComponentSerializer legacy = LegacyComponentSerializer.legacySection();
 
@@ -59,12 +57,8 @@ public class PacketChatListener extends PacketAdapter {
             final Player player,
             final String message
     ) {
-        final Component parsed = replaceClickEvent(miniMessage.deserialize(
-                message,
-                Utilities.papiTag(player),
-                Utilities.titleTag(player),
-                Utilities.subtitleTag(player),
-                Utilities.actionbarTag(player)
+        final Component parsed = replaceClickEvent(Utilities.MM.deserialize(
+                message, Utilities.playerTag(player)
         ));
         Utilities.applyChatColors(parsed);
         if (!parsed.equals(Component.empty())) {

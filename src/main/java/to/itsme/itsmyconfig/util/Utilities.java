@@ -3,6 +3,7 @@ package to.itsme.itsmyconfig.util;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -21,9 +22,10 @@ import java.util.regex.Pattern;
 
 public final class Utilities {
 
+    public static final MiniMessage MM = MiniMessage.miniMessage();
+
     private static final ItsMyConfig plugin = ItsMyConfig.getInstance();
     private static final Pattern COLOR_FILTER = Pattern.compile("[§&][a-zA-Z0-9]");
-    private static final Pattern TAG_PATTERN = Pattern.compile("<([^/][^>\\s]+)[^>]*>");
 
     private static final Field TEXT_COMPONENT_CONTENT;
 
@@ -39,16 +41,6 @@ public final class Utilities {
     }
 
     /**
-     * Determines if a given message contains any tags.
-     *
-     * @param message The message to check for tags.
-     * @return true if the message contains tags, otherwise false.
-     */
-    public static boolean hasTags(final String message) {
-        return TAG_PATTERN.matcher(message).find();
-    }
-
-    /**
      * Removes color codes from a string.
      *
      * @param text The text to remove color codes from.
@@ -56,6 +48,19 @@ public final class Utilities {
      */
     public static String colorless(final String text) {
         return COLOR_FILTER.matcher(text).replaceAll("");
+    }
+
+    /**
+     * Resolves all possible tags
+     *
+     * @param player The player for whom the resolver is being created.
+     * @return All {@link TagResolver}s of th player combined.
+     */
+    public static TagResolver playerTag(final Player player) {
+        return TagResolver.resolver(
+                papiTag(player), titleTag(player),
+                subtitleTag(player), actionbarTag(player)
+        );
     }
 
     /**
@@ -87,10 +92,10 @@ public final class Utilities {
             }
 
             if (args.size() == 1) {
-                final Title title = Title.title(context.deserialize(args.get(0).value()), Component.empty());
+                final Title title = Title.title(MM.deserialize(args.get(0).value(), playerTag(player)), Component.empty());
                 plugin.adventure().player(player).showTitle(title);
             } else if (args.size() == 2) {
-                final Title title = Title.title(context.deserialize(args.get(0).value()), context.deserialize(args.get(1).value()));
+                final Title title = Title.title(MM.deserialize(args.get(0).value()), MM.deserialize(args.get(1).value(), playerTag(player)));
                 plugin.adventure().player(player).showTitle(title);
             } else if (args.size() == 4) {
                 final Title.Times times = createTimes(
@@ -99,7 +104,7 @@ public final class Utilities {
                         args.get(2).asInt()
                 );
                 final Title title = Title.title(
-                        context.deserialize(args.get(3).value()),
+                        MM.deserialize(args.get(3).value(), playerTag(player)),
                         Component.empty(),
                         times
                 );
@@ -111,8 +116,8 @@ public final class Utilities {
                         args.get(2).asInt()
                 );
                 final Title title = Title.title(
-                        context.deserialize(args.get(3).value()),
-                        context.deserialize(args.get(4).value()),
+                        MM.deserialize(args.get(3).value(), playerTag(player)),
+                        MM.deserialize(args.get(4).value(), playerTag(player)),
                         times
                 );
                 plugin.adventure().player(player).showTitle(title);
@@ -138,7 +143,7 @@ public final class Utilities {
             }
 
             if (args.size() == 1) {
-                final Title title = Title.title(Component.empty(), context.deserialize(args.get(0).value()));
+                final Title title = Title.title(Component.empty(), MM.deserialize(args.get(0).value(), playerTag(player)));
                 plugin.adventure().player(player).showTitle(title);
             } else if (args.size() == 4) {
                 final Title.Times times = createTimes(
@@ -148,7 +153,7 @@ public final class Utilities {
                 );
                 final Title title = Title.title(
                         Component.empty(),
-                        context.deserialize(args.get(3).value()),
+                        MM.deserialize(args.get(3).value(), playerTag(player)),
                         times
                 );
                 plugin.adventure().player(player).showTitle(title);
@@ -169,7 +174,7 @@ public final class Utilities {
     public static TagResolver actionbarTag(final Player player) {
         return TagResolver.resolver("actionbar", (argumentQueue, context) -> {
             final String bar = argumentQueue.popOr("Invalid actionbar value").value();
-            plugin.adventure().player(player).sendActionBar(context.deserialize(bar));
+            plugin.adventure().player(player).sendActionBar(MM.deserialize(bar, playerTag(player)));
             return Tag.selfClosingInserting(Component.empty());
         });
     }

@@ -1,7 +1,6 @@
 package to.itsme.itsmyconfig.util;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.entity.Player;
 import revxrsal.commands.bukkit.BukkitCommandActor;
@@ -17,7 +16,6 @@ public enum Message {
     MESSAGE_SENT("message-sent"),
     ;
 
-    private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
     private static final ItsMyConfig plugin = ItsMyConfig.getInstance();
     private final String path;
 
@@ -26,7 +24,7 @@ public enum Message {
     }
 
     public void send(final Player player, final TagResolver... resolvers) {
-        final Component component = MINI_MESSAGE.deserialize(
+        final Component component = Utilities.MM.deserialize(
                 toString(),
                 Utilities.papiTag(player),
                 Utilities.titleTag(player),
@@ -45,7 +43,7 @@ public enum Message {
         if (actor.isPlayer()) {
             send(actor.requirePlayer(), replacers);
         } else {
-            actor.reply(MINI_MESSAGE.deserialize(toString(), replacers));
+            actor.reply(Utilities.MM.deserialize(toString(), replacers));
         }
     }
 
