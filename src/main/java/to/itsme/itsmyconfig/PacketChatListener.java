@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class PacketChatListener extends PacketAdapter {
+public final class PacketChatListener extends PacketAdapter {
 
     private final ItsMyConfig plugin;
     private final GsonComponentSerializer gson = GsonComponentSerializer.gson();

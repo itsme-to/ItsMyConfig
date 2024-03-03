@@ -13,7 +13,7 @@ import to.itsme.itsmyconfig.progress.ProgressBar;
 import to.itsme.itsmyconfig.progress.ProgressBarBucket;
 import to.itsme.itsmyconfig.requirement.RequirementManager;
 
-public class ItsMyConfig extends JavaPlugin {
+public final class ItsMyConfig extends JavaPlugin {
 
     private static ItsMyConfig instance;
     private final ProgressBarBucket progressBarBucket = new ProgressBarBucket();

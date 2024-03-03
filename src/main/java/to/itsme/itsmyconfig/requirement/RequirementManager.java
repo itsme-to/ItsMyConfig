@@ -11,14 +11,13 @@ import to.itsme.itsmyconfig.requirement.type.StringRequirement;
 import java.util.Arrays;
 import java.util.List;
 
-public class RequirementManager {
+public final class RequirementManager {
 
     private final List<Requirement<?>> requirements = Arrays.asList(
             new NumberRequirement(),
             new RegexRequirement(),
             new StringRequirement()
     );
-
 
     public Requirement<?> getRequirementByType(final String type) {
         return this.requirements.stream().filter(requirement -> requirement.matchIdentifier(type)).findAny().orElse(null);

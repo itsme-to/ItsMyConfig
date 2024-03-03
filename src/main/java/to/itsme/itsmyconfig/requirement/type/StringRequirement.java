@@ -1,34 +1,29 @@
 package to.itsme.itsmyconfig.requirement.type;
 
 import to.itsme.itsmyconfig.requirement.Requirement;
-import to.itsme.itsmyconfig.requirement.checker.ContainsCheck;
-import to.itsme.itsmyconfig.requirement.checker.StringEqualsCheck;
 import to.itsme.itsmyconfig.util.Utilities;
 
 import java.util.Arrays;
 
-public class StringRequirement extends Requirement<String> {
+public final class StringRequirement extends Requirement<String> {
 
     public StringRequirement() {
-        this.syntax("equals", new StringEqualsCheck());
-        this.syntax("contains", new ContainsCheck());
+        this.syntax("equals", String::equals);
+        this.syntax("contains", String::contains);
     }
 
     @Override
     public boolean validate(String identifier, final String inputString, final String outputString) {
-        boolean ignoreCase = identifier.toLowerCase().contains("ignorecase");
-        boolean ignoreColor = identifier.toLowerCase().contains("ignorecolor");
-
         String input = inputString;
         String output = outputString;
 
-        if (ignoreCase) {
+        if (identifier.contains("ignorecase")) {
             identifier = identifier.replace("ignorecase", "");
             input = inputString.toLowerCase();
             output = outputString.toLowerCase();
         }
 
-        if (ignoreColor) {
+        if (identifier.contains("ignorecolor")) {
             identifier = identifier.replace("ignorecolor", "");
             input = Utilities.colorless(inputString);
             output = Utilities.colorless(outputString);

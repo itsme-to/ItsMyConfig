@@ -1,19 +1,18 @@
 package to.itsme.itsmyconfig.requirement.type;
 
 import to.itsme.itsmyconfig.requirement.Requirement;
-import to.itsme.itsmyconfig.requirement.checker.LowerCheck;
-import to.itsme.itsmyconfig.requirement.checker.NumberEqualsCheck;
-import to.itsme.itsmyconfig.requirement.checker.UpperCheck;
 
-public class NumberRequirement extends Requirement<Double> {
+import java.util.Objects;
+
+public final class NumberRequirement extends Requirement<Double> {
 
     public NumberRequirement() {
-        this.syntax("==", new NumberEqualsCheck(false));
-        this.syntax(">", new UpperCheck());
-        this.syntax("<", new LowerCheck());
-        this.syntax(">=", new UpperCheck(), new NumberEqualsCheck(false));
-        this.syntax("<=", new LowerCheck(), new NumberEqualsCheck(false));
-        this.syntax("!=", new NumberEqualsCheck(true));
+        this.syntax("==", Objects::equals);
+        this.syntax(">", (input, output) -> input > output);
+        this.syntax("<", (input, output) -> input < output);
+        this.syntax(">=", this.syntaxMap.get(">")[0], this.syntaxMap.get("==")[0]);
+        this.syntax("<=", this.syntaxMap.get("<")[0], this.syntaxMap.get("==")[0]);
+        this.syntax("!=", (input, output) -> !Objects.equals(input, output));
     }
 
     @Override

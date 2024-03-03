@@ -1,12 +1,13 @@
 package to.itsme.itsmyconfig.requirement.type;
 
 import to.itsme.itsmyconfig.requirement.Requirement;
-import to.itsme.itsmyconfig.requirement.checker.RegexCheck;
 
-public class RegexRequirement extends Requirement<String> {
+import java.util.regex.Pattern;
+
+public final class RegexRequirement extends Requirement<String> {
 
     public RegexRequirement() {
-        this.syntax("regex matches", new RegexCheck());
+        this.syntax("regex matches", (input, output) -> Pattern.compile(output).matcher(input).matches());
     }
 
     @Override
