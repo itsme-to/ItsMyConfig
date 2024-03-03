@@ -6,7 +6,6 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.util.Ticks;
 import org.bukkit.ChatColor;
@@ -73,7 +72,8 @@ public final class Utilities {
         return TagResolver.resolver("papi", (argumentQueue, context) -> {
             final String papiPlaceholder = argumentQueue.popOr("papi tag requires an argument").value();
             final String parsedPlaceholder = PlaceholderAPI.setPlaceholders(player, '%' + papiPlaceholder + '%');
-            final Component componentPlaceholder = LegacyComponentSerializer.legacySection().deserialize(parsedPlaceholder);
+            final Component componentPlaceholder = MM.deserialize(parsedPlaceholder.replace("§", "&"));
+            applyChatColors(componentPlaceholder);
             return Tag.selfClosingInserting(componentPlaceholder);
         });
     }
