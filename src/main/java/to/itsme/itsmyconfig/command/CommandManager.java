@@ -14,6 +14,7 @@ public final class CommandManager {
         this.plugin = plugin;
         this.handler = BukkitCommandHandler.create(plugin);
         this.handler.setExceptionHandler(new ExceptionHandler());
+        this.handler.getAutoCompleter();
         this.registerCommands();
         this.handler.registerBrigadier();
         this.handler.enableAdventure();

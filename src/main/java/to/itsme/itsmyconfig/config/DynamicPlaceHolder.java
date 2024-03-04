@@ -109,7 +109,10 @@ public class DynamicPlaceHolder extends PlaceholderExpansion {
             return ChatColor.translateAlternateColorCodes('&', deny);
         }
 
-        return ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, data.getResult(getArgs(strings).split("::")))
+        return ChatColor.translateAlternateColorCodes(
+                '&', PlaceholderAPI.setPlaceholders(
+                        player, data.getResult(getArgs(strings).split("::"))
+                )
         );
     }
 

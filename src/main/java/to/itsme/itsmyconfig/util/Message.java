@@ -13,8 +13,7 @@ public enum Message {
     INVALID_USE("invalid-use"),
     RELOAD("reload"),
     NO_PERMISSION("no-permission"),
-    MESSAGE_SENT("message-sent"),
-    ;
+    MESSAGE_SENT("message-sent");
 
     private static final ItsMyConfig plugin = ItsMyConfig.getInstance();
     private final String path;
@@ -26,10 +25,7 @@ public enum Message {
     public void send(final Player player, final TagResolver... resolvers) {
         final Component component = Utilities.MM.deserialize(
                 toString(),
-                Utilities.papiTag(player),
-                Utilities.titleTag(player),
-                Utilities.subtitleTag(player),
-                Utilities.actionbarTag(player),
+                Utilities.playerTag(player),
                 TagResolver.resolver(resolvers)
         );
         plugin.adventure().player(player).sendMessage(component);

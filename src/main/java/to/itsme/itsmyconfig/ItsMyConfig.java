@@ -57,31 +57,31 @@ public final class ItsMyConfig extends JavaPlugin {
 
         this.symbolPrefix = this.getConfig().getString("symbol-prefix");
 
-        final ConfigurationSection customPlaceholderSection = this.getConfig().getConfigurationSection("custom-placeholder");
-        for (final String identifier : customPlaceholderSection.getKeys(false)) {
-            final PlaceholderType type = PlaceholderType.find(customPlaceholderSection.getString(identifier + ".type"));
+        final ConfigurationSection placeholdersSec = this.getConfig().getConfigurationSection("custom-placeholder");
+        for (final String identifier : placeholdersSec.getKeys(false)) {
+            final PlaceholderType type = PlaceholderType.find(placeholdersSec.getString(identifier + ".type"));
             final PlaceholderData data;
             switch (type) {
-                default:
-                case STRING:
-                    data = new StringPlaceholderData(customPlaceholderSection.getString(identifier + ".value"));
-                    break;
-                case COLOR:
-                    data = new ColorPlaceholderData(customPlaceholderSection.getString(identifier + ".value"));
-                    break;
                 case RANDOM:
-                    data = new RandomPlaceholderData(customPlaceholderSection.getStringList(identifier + ".values"));
+                    data = new RandomPlaceholderData(placeholdersSec.getStringList(identifier + ".values"));
                     break;
                 case ANIMATED:
-                    data = new AnimatedPlaceholderData(customPlaceholderSection.getStringList(identifier + ".values"));
+                    data = new AnimatedPlaceholderData(placeholdersSec.getStringList(identifier + ".values"));
+                    break;
+                case COLOR:
+                    data = new ColorPlaceholderData(placeholdersSec.getString(identifier + ".value"));
+                    break;
+                default:
+                case STRING:
+                    data = new StringPlaceholderData(placeholdersSec.getString(identifier + ".value"));
                     break;
             }
 
             this.dynamicPlaceHolder.registerIdentifier(identifier, data);
-            ConfigurationSection requirementSection = customPlaceholderSection.getConfigurationSection(identifier + ".requirements");
-            if (requirementSection != null) {
-                for (String requirement : requirementSection.getKeys(false)) {
-                    data.registerRequirement(customPlaceholderSection.getConfigurationSection(identifier + ".requirements." + requirement));
+            final ConfigurationSection requirementSec = placeholdersSec.getConfigurationSection(identifier + ".requirements");
+            if (requirementSec != null) {
+                for (final String requirement : requirementSec.getKeys(false)) {
+                    data.registerRequirement(requirementSec.getConfigurationSection(requirement));
                 }
             }
 

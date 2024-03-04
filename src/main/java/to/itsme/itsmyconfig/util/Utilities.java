@@ -11,6 +11,7 @@ import net.kyori.adventure.util.Ticks;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import to.itsme.itsmyconfig.ItsMyConfig;
 
 import java.lang.reflect.Field;
@@ -199,7 +200,7 @@ public final class Utilities {
         if (rootComponent instanceof TextComponent) {
             final TextComponent textComponent = (TextComponent) rootComponent;
             final String translateAlternateColorCodes = ChatColor.translateAlternateColorCodes('&', textComponent.content());
-            modifyContentOfTextComponent(textComponent, translateAlternateColorCodes);
+            modifyTextComponent(textComponent, translateAlternateColorCodes);
             for (final Component component : rootComponent.children()) {
                 applyChatColors(component);
             }
@@ -212,7 +213,7 @@ public final class Utilities {
      * @param list The list of objects to be converted to a string.
      * @return The string representation of the list.
      */
-    public static String toString(@NotNull List<?> list) {
+    public static String toString(final @NotNull List<?> list) {
         return String.join(System.lineSeparator(), list.stream().map(Object::toString).toArray(String[]::new));
     }
 
@@ -226,9 +227,9 @@ public final class Utilities {
      */
     @SuppressWarnings("all")
     private static Title.Times createTimes(
-            @NotNull OptionalInt fadeIn,
-            @NotNull OptionalInt stay,
-            @NotNull OptionalInt fadeOut
+            final @NotNull OptionalInt fadeIn,
+            final @NotNull OptionalInt stay,
+            final @NotNull OptionalInt fadeOut
     ) {
         return Title.Times.times(
                 Ticks.duration(fadeIn.orElse(10)),
@@ -240,12 +241,15 @@ public final class Utilities {
     /**
      * Modifies the content of a TextComponent instance.
      *
-     * @param textComponent The TextComponent instance to modify.
+     * @param component The TextComponent instance to modify.
      * @param content       The new content for the TextComponent.
      */
-    private static void modifyContentOfTextComponent(TextComponent textComponent, String content) {
+    private static void modifyTextComponent(
+            final @NotNull TextComponent component,
+            final @Nullable String content
+    ) {
         try {
-            TEXT_COMPONENT_CONTENT.set(textComponent, content);
+            TEXT_COMPONENT_CONTENT.set(component, content);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }

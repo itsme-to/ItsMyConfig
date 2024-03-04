@@ -29,4 +29,5 @@ public class RequirementData {
     public String getDeny() {
         return deny;
     }
+
 }

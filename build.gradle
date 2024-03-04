@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'to.itsme'
-version = '2.2.3'
+version = '3.0.0-BETA'
 description = 'ItsMyConfig'
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
