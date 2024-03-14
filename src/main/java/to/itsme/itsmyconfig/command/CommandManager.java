@@ -13,6 +13,17 @@ public final class CommandManager {
     public CommandManager(final ItsMyConfig plugin) {
         this.plugin = plugin;
         this.handler = BukkitCommandHandler.create(plugin);
+
+        // set the help-writer format
+        this.handler.setHelpWriter((cmd, actor) ->
+                String.format(
+                        "  <gray>● <white>/%s <aqua>%s<dark_gray>- <white>%s",
+                        cmd.getPath().toRealString(),
+                        cmd.getUsage().isEmpty() ? "" : cmd.getUsage() + " ",
+                        cmd.getDescription()
+                )
+        );
+
         this.handler.setExceptionHandler(new ExceptionHandler());
         this.handler.getAutoCompleter();
         this.registerCommands();

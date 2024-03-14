@@ -1,6 +1,7 @@
 name: ItsMyConfig
 version: ${version}
 authors: [ iiAhmedYT, RealAlphaUA ]
+website: https://discord.gg/itsme-to
 main: to.itsme.itsmyconfig.ItsMyConfig
 api-version: 1.13
 depend:

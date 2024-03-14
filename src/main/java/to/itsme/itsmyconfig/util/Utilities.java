@@ -9,6 +9,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.util.Ticks;
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -70,7 +71,7 @@ public final class Utilities {
     public static TagResolver playerTag(final Player player) {
         return TagResolver.resolver(
                 papiTag(player), titleTag(player),
-                subtitleTag(player), actionbarTag(player)
+                subtitleTag(player), actionbarTag(player), soundTag(player)
         );
     }
 
@@ -187,6 +188,35 @@ public final class Utilities {
         return TagResolver.resolver("actionbar", (argumentQueue, context) -> {
             final String bar = argumentQueue.popOr("Invalid actionbar value").value();
             plugin.adventure().player(player).sendActionBar(MM.deserialize(bar, playerTag(player)));
+            return Tag.selfClosingInserting(Component.empty());
+        });
+    }
+
+    /**
+     * Provides a sound player tag resolver.
+     *
+     * @param player The player for whom the resolver is being created.
+     * @return The sound tag resolver.
+     */
+    public static TagResolver soundTag(final Player player) {
+        return TagResolver.resolver("sound", (argumentQueue, context) -> {
+            final List<Tag.Argument> args = new ArrayList<>();
+            while (argumentQueue.hasNext()) {
+                args.add(argumentQueue.pop());
+            }
+
+            if (args.size() == 1) {
+                final Sound sound = Sound.valueOf(args.get(0).value());
+                player.playSound(player.getLocation(), sound, 1.0F, 1.0F);
+            } else if (args.size() == 3) {
+                final Sound sound = Sound.valueOf(args.get(0).value());
+                final float volume = (float) args.get(1).asDouble().orElse(1.0D);
+                final float pitch = (float) args.get(2).asDouble().orElse(1.0D);
+                player.playSound(player.getLocation(), sound, volume, pitch);
+            } else {
+                return Tag.preProcessParsed("Invalid sound tag arguments");
+            }
+
             return Tag.selfClosingInserting(Component.empty());
         });
     }
