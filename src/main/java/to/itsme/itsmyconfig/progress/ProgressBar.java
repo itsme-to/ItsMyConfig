@@ -1,6 +1,6 @@
 package to.itsme.itsmyconfig.progress;
 
-public class ProgressBar {
+public final class ProgressBar {
 
     private final String key, pattern, completedColor, progressColor, remainingColor;
 

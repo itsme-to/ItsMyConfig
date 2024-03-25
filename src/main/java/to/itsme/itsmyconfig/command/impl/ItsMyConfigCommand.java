@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 @Command("itsmyconfig")
-public class ItsMyConfigCommand {
+public final class ItsMyConfigCommand {
 
     private final ItsMyConfig plugin;
 
@@ -135,7 +135,7 @@ public class ItsMyConfigCommand {
         }
 
         final PlaceholderType type = PlaceholderType.find(section.getString("type"));
-        if (type == PlaceholderType.ANIMATED || type == PlaceholderType.RANDOM) {
+        if (type == PlaceholderType.ANIMATION || type == PlaceholderType.RANDOM) {
             actor.reply(Utilities.MM.deserialize("<red>Placeholder <yellow>" + placeholder + "</yellow>'s type is not supported via commands.</red>"));
             return;
         }

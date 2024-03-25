@@ -9,7 +9,7 @@ import revxrsal.commands.exception.NoPermissionException;
 import revxrsal.commands.exception.TooManyArgumentsException;
 import to.itsme.itsmyconfig.util.Message;
 
-public class ExceptionHandler extends BukkitExceptionAdapter {
+public final class ExceptionHandler extends BukkitExceptionAdapter {
 
     @Override
     public void noPermission(@NotNull CommandActor actor, @NotNull NoPermissionException exception) {

@@ -1,6 +1,6 @@
 package to.itsme.itsmyconfig.config.placeholder;
 
-public class RequirementData {
+public final class RequirementData {
 
     private final String identifier;
     private final String input;

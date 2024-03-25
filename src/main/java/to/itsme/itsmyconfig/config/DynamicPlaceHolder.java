@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DynamicPlaceHolder extends PlaceholderExpansion {
+public final class DynamicPlaceHolder extends PlaceholderExpansion {
 
     private final ItsMyConfig plugin;
     private final Map<String, PlaceholderData> identifierToResult = new HashMap<>();

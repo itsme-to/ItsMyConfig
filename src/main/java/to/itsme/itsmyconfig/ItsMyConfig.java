@@ -65,15 +65,21 @@ public final class ItsMyConfig extends JavaPlugin {
                 case RANDOM:
                     data = new RandomPlaceholderData(placeholdersSec.getStringList(identifier + ".values"));
                     break;
-                case ANIMATED:
-                    data = new AnimatedPlaceholderData(placeholdersSec.getStringList(identifier + ".values"));
+                case ANIMATION:
+                    data = new AnimatedPlaceholderData(
+                            placeholdersSec.getStringList(identifier + ".values"),
+                            placeholdersSec.getInt(identifier + ".args.interval", 20)
+                    );
                     break;
                 case COLOR:
-                    data = new ColorPlaceholderData(placeholdersSec.getString(identifier + ".value"));
+                    data = new ColorPlaceholderData(
+                            placeholdersSec.getString(identifier + ".value", ""),
+                            placeholdersSec.getConfigurationSection(identifier + ".args")
+                    );
                     break;
                 default:
                 case STRING:
-                    data = new StringPlaceholderData(placeholdersSec.getString(identifier + ".value"));
+                    data = new StringPlaceholderData(placeholdersSec.getString(identifier + ".value", ""));
                     break;
             }
 
@@ -88,15 +94,16 @@ public final class ItsMyConfig extends JavaPlugin {
             this.getLogger().info(String.format("Registered placeholder %s", identifier));
         }
 
-        final ConfigurationSection customProgressConfigurationSection = this.getConfig().getConfigurationSection("custom-progress");
-        for (String identifier : customProgressConfigurationSection.getKeys(false)) {
-            ConfigurationSection configurationSection = customProgressConfigurationSection.getConfigurationSection(identifier);
-            String symbol = configurationSection.getString("symbol");
-            String completedColor = configurationSection.getString("completed-color");
-            String progressColor = configurationSection.getString("progress-color");
-            String remainingColor = configurationSection.getString("remaining-color");
-            ProgressBar progressBar = new ProgressBar(identifier, symbol, completedColor, progressColor, remainingColor);
-            progressBarBucket.registerProgressBar(progressBar);
+        final ConfigurationSection customProgressSec = this.getConfig().getConfigurationSection("custom-progress");
+        for (final String identifier : customProgressSec.getKeys(false)) {
+            final ConfigurationSection configurationSection = customProgressSec.getConfigurationSection(identifier);
+            progressBarBucket.registerProgressBar(new ProgressBar(
+                    identifier,
+                    configurationSection.getString("symbol"),
+                    configurationSection.getString("completed-color"),
+                    configurationSection.getString("progress-color"),
+                    configurationSection.getString("remaining-color")
+            ));
         }
 
     }

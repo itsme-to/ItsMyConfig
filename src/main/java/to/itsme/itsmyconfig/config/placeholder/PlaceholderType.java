@@ -6,8 +6,8 @@ public enum PlaceholderType {
 
     STRING,
     COLOR,
-    ANIMATED,
-    RANDOM;
+    RANDOM,
+    ANIMATION;
 
     public static PlaceholderType find(final String type) {
         try {

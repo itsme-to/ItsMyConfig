@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 public final class Utilities {
 
     public static final MiniMessage MM = MiniMessage.miniMessage();
+    public static final Pattern HEX_PATTERN = Pattern.compile("#[a-fA-F0-9]{6}");
 
     private static final ItsMyConfig plugin = ItsMyConfig.getInstance();
     private static final Pattern COLOR_FILTER = Pattern.compile("[§&][a-zA-Z0-9]");

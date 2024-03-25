@@ -15,8 +15,11 @@ public final class AnimatedPlaceholderData extends PlaceholderData {
     private final HashMap<String, List<Integer>> messages = new HashMap<>();
     private int index = 0;
 
-    public AnimatedPlaceholderData(final List<String> messages) {
-        super(PlaceholderType.ANIMATED);
+    public AnimatedPlaceholderData(
+            final List<String> messages,
+            final int interval
+    ) {
+        super(PlaceholderType.ANIMATION);
         for (final String message : messages) {
             this.messages.put(message, Utilities.getArguments(message));
         }
@@ -28,7 +31,7 @@ public final class AnimatedPlaceholderData extends PlaceholderData {
             } else {
                 index = 0;
             }
-        }, 0, 10);
+        }, interval, interval);
     }
 
     public Map.Entry<String, List<Integer>> getNextEntry() {
