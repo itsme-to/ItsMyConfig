@@ -1,7 +1,7 @@
-package to.itsme.itsmyconfig.config.placeholder.type;
+package to.itsme.itsmyconfig.placeholder.type;
 
-import to.itsme.itsmyconfig.config.placeholder.PlaceholderData;
-import to.itsme.itsmyconfig.config.placeholder.PlaceholderType;
+import to.itsme.itsmyconfig.placeholder.PlaceholderData;
+import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 
 public final class StringPlaceholderData extends PlaceholderData {
 

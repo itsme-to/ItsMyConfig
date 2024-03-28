@@ -1,4 +1,4 @@
-package to.itsme.itsmyconfig.config.placeholder;
+package to.itsme.itsmyconfig.placeholder;
 
 import org.bukkit.configuration.ConfigurationSection;
 import to.itsme.itsmyconfig.util.Utilities;

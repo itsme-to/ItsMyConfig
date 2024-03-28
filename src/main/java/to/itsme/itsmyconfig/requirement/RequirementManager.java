@@ -2,8 +2,8 @@ package to.itsme.itsmyconfig.requirement;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.entity.Player;
-import to.itsme.itsmyconfig.config.placeholder.PlaceholderData;
-import to.itsme.itsmyconfig.config.placeholder.RequirementData;
+import to.itsme.itsmyconfig.placeholder.PlaceholderData;
+import to.itsme.itsmyconfig.placeholder.RequirementData;
 import to.itsme.itsmyconfig.requirement.type.NumberRequirement;
 import to.itsme.itsmyconfig.requirement.type.RegexRequirement;
 import to.itsme.itsmyconfig.requirement.type.StringRequirement;

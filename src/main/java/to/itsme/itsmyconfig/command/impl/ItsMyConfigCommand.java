@@ -14,7 +14,7 @@ import revxrsal.commands.bukkit.EntitySelector;
 import revxrsal.commands.bukkit.annotation.CommandPermission;
 import revxrsal.commands.help.CommandHelp;
 import to.itsme.itsmyconfig.ItsMyConfig;
-import to.itsme.itsmyconfig.config.placeholder.PlaceholderType;
+import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Message;
 import to.itsme.itsmyconfig.util.Utilities;
 
@@ -39,7 +39,7 @@ public final class ItsMyConfigCommand {
         final String hyphen = "\n<gray><strikethrough>-----------------------------------------</strikethrough></gray>";
         builder.append(hyphen)
                 .append('\n')
-                .append("<white>This server is running <aqua><plugin></aqua> by <gold><author></gold></white>")
+                .append("<white>This server is running <aqua><plugin></aqua></white> <gray>(developed by <gold><author></gold>)</gray>")
                 .append('\n');
 
         Collections.reverse(help);

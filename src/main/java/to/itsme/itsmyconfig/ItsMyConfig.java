@@ -7,13 +7,13 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
 import to.itsme.itsmyconfig.command.CommandManager;
-import to.itsme.itsmyconfig.config.DynamicPlaceHolder;
-import to.itsme.itsmyconfig.config.placeholder.PlaceholderData;
-import to.itsme.itsmyconfig.config.placeholder.PlaceholderType;
-import to.itsme.itsmyconfig.config.placeholder.type.AnimatedPlaceholderData;
-import to.itsme.itsmyconfig.config.placeholder.type.ColorPlaceholderData;
-import to.itsme.itsmyconfig.config.placeholder.type.RandomPlaceholderData;
-import to.itsme.itsmyconfig.config.placeholder.type.StringPlaceholderData;
+import to.itsme.itsmyconfig.placeholder.DynamicPlaceHolder;
+import to.itsme.itsmyconfig.placeholder.PlaceholderData;
+import to.itsme.itsmyconfig.placeholder.PlaceholderType;
+import to.itsme.itsmyconfig.placeholder.type.AnimatedPlaceholderData;
+import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholderData;
+import to.itsme.itsmyconfig.placeholder.type.RandomPlaceholderData;
+import to.itsme.itsmyconfig.placeholder.type.StringPlaceholderData;
 import to.itsme.itsmyconfig.progress.ProgressBar;
 import to.itsme.itsmyconfig.progress.ProgressBarBucket;
 import to.itsme.itsmyconfig.requirement.RequirementManager;
@@ -68,13 +68,12 @@ public final class ItsMyConfig extends JavaPlugin {
                 case ANIMATION:
                     data = new AnimatedPlaceholderData(
                             placeholdersSec.getStringList(identifier + ".values"),
-                            placeholdersSec.getInt(identifier + ".args.interval", 20)
+                            placeholdersSec.getInt(identifier + ".interval", 20)
                     );
                     break;
                 case COLOR:
                     data = new ColorPlaceholderData(
-                            placeholdersSec.getString(identifier + ".value", ""),
-                            placeholdersSec.getConfigurationSection(identifier + ".args")
+                            placeholdersSec.getConfigurationSection(identifier)
                     );
                     break;
                 default:
@@ -121,6 +120,10 @@ public final class ItsMyConfig extends JavaPlugin {
 
     public RequirementManager getRequirementManager() {
         return requirementManager;
+    }
+
+    public DynamicPlaceHolder getDynamicPlaceHolder() {
+        return dynamicPlaceHolder;
     }
 
 }

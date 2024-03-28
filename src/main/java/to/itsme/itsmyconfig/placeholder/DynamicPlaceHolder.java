@@ -1,4 +1,4 @@
-package to.itsme.itsmyconfig.config;
+package to.itsme.itsmyconfig.placeholder;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -7,11 +7,11 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import to.itsme.itsmyconfig.ItsMyConfig;
-import to.itsme.itsmyconfig.config.placeholder.PlaceholderData;
+import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholderData;
 import to.itsme.itsmyconfig.progress.ProgressBar;
 import to.itsme.itsmyconfig.progress.ProgressBarBucket;
+import to.itsme.itsmyconfig.util.Utilities;
 
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,9 +21,6 @@ public final class DynamicPlaceHolder extends PlaceholderExpansion {
     private final Map<String, PlaceholderData> identifierToResult = new HashMap<>();
     private final int[] values = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
     private final String[] romanLiterals = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
-
-    private final String[] smallCaps = new String[]
-            {"ᴀ", "ʙ", "ᴄ", "ᴅ", "ᴇ", "ғ", "ɢ", "ʜ", "ɪ", "ᴊ", "ᴋ", "ʟ", "ᴍ", "ɴ", "ᴏ", "ᴘ", "ǫ", "ʀ", "s", "ᴛ", "ᴜ", "ᴠ", "ᴡ", "x", "ʏ"};
 
     private final ProgressBarBucket progressBarBucket;
 
@@ -56,7 +53,7 @@ public final class DynamicPlaceHolder extends PlaceholderExpansion {
     }
 
     @Override
-    public @Nullable String onPlaceholderRequest(Player player, @NotNull String params) {
+    public @Nullable String onPlaceholderRequest(final Player player, @NotNull String params) {
         params = PlaceholderAPI.setPlaceholders(player, params.replaceAll("\\$\\((.*?)\\)\\$", "%$1%"));
 
         final String[] strings = params.split("_");
@@ -74,7 +71,7 @@ public final class DynamicPlaceHolder extends PlaceholderExpansion {
                 }
             } else if (strings[1].equalsIgnoreCase("smallcaps")) {
                 String message = strings[2].toLowerCase();
-                return messageToSmallCaps(message);
+                return Utilities.toSmallCaps(message);
             }
 
             return "ERROR";
@@ -109,11 +106,12 @@ public final class DynamicPlaceHolder extends PlaceholderExpansion {
             return ChatColor.translateAlternateColorCodes('&', deny);
         }
 
-        return ChatColor.translateAlternateColorCodes(
-                '&', PlaceholderAPI.setPlaceholders(
-                        player, data.getResult(getArgs(strings).split("::"))
-                )
-        );
+        final String result = PlaceholderAPI.setPlaceholders(player, data.getResult(getArgs(strings).split("::")));
+        if  (data instanceof ColorPlaceholderData) {
+            return result;
+        }
+
+        return ChatColor.translateAlternateColorCodes('&', result);
     }
 
     private String getArgs(String[] strings) {
@@ -132,20 +130,6 @@ public final class DynamicPlaceHolder extends PlaceholderExpansion {
 
     public void registerIdentifier(String key, PlaceholderData data) {
         this.identifierToResult.put(key, data);
-    }
-
-    public String messageToSmallCaps(String message) {
-        byte[] bytes = message.toLowerCase().getBytes(StandardCharsets.UTF_8);
-        StringBuilder builder = new StringBuilder();
-        for (byte messageByte : bytes) {
-            if (messageByte >= 97 && messageByte <= 122) {
-                builder.append(smallCaps[messageByte - 97]);
-            } else {
-                builder.append((char) messageByte);
-            }
-        }
-
-        return builder.toString();
     }
 
     public String integerToRoman(int num) {

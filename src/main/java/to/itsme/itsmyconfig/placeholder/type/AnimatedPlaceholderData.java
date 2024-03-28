@@ -1,18 +1,19 @@
-package to.itsme.itsmyconfig.config.placeholder.type;
+package to.itsme.itsmyconfig.placeholder.type;
 
 import org.bukkit.Bukkit;
 import to.itsme.itsmyconfig.ItsMyConfig;
-import to.itsme.itsmyconfig.config.placeholder.PlaceholderData;
-import to.itsme.itsmyconfig.config.placeholder.PlaceholderType;
+import to.itsme.itsmyconfig.placeholder.PlaceholderData;
+import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Utilities;
 
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public final class AnimatedPlaceholderData extends PlaceholderData {
 
-    private final HashMap<String, List<Integer>> messages = new HashMap<>();
+    private final Map<String, List<Integer>> messages = Collections.synchronizedMap(new LinkedHashMap<>());
     private int index = 0;
 
     public AnimatedPlaceholderData(
@@ -26,7 +27,7 @@ public final class AnimatedPlaceholderData extends PlaceholderData {
 
         final int max = this.messages.size();
         Bukkit.getScheduler().runTaskTimerAsynchronously(ItsMyConfig.getInstance(), () -> {
-            if (max < index) {
+            if (index < max - 1) {
                 index++;
             } else {
                 index = 0;
