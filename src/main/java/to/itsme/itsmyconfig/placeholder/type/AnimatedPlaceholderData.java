@@ -51,13 +51,13 @@ public final class AnimatedPlaceholderData extends PlaceholderData {
     }
 
     @Override
-    public String getResult(final String[] params) {
+    public String getResult(final String[] args) {
         final Map.Entry<String, List<Integer>> entry = this.getNextEntry();
         if (entry == null) {
             return "";
         }
 
-        return this.replaceArguments(params, entry.getKey(), entry.getValue());
+        return this.replaceArguments(args, entry.getKey(), entry.getValue());
     }
 
 }

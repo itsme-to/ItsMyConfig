@@ -17,12 +17,14 @@ public final class CommandManager {
         // set the help-writer format
         this.handler.setHelpWriter((cmd, actor) ->
                 String.format(
-                        "  <gray>● <white>/%s <aqua>%s<dark_gray>- <white>%s",
+                        "  <gray>● <white>/%s <aqua>%s",
                         cmd.getPath().toRealString(),
-                        cmd.getUsage().isEmpty() ? "" : cmd.getUsage() + " ",
-                        cmd.getDescription()
+                        cmd.getUsage().isEmpty() ? "" : cmd.getUsage() + " "
                 )
         );
+
+        this.handler.getAutoCompleter().registerSuggestion("placeholders", (args, sender, command) ->
+                plugin.getPlaceholderManager().getPlaceholdersMap().keySet());
 
         this.handler.setExceptionHandler(new ExceptionHandler());
         this.handler.getAutoCompleter();

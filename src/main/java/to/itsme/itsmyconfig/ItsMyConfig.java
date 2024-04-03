@@ -9,6 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import to.itsme.itsmyconfig.command.CommandManager;
 import to.itsme.itsmyconfig.placeholder.DynamicPlaceHolder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderData;
+import to.itsme.itsmyconfig.placeholder.PlaceholderManager;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.placeholder.type.AnimatedPlaceholderData;
 import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholderData;
@@ -21,8 +22,8 @@ import to.itsme.itsmyconfig.requirement.RequirementManager;
 public final class ItsMyConfig extends JavaPlugin {
 
     private static ItsMyConfig instance;
+    private final PlaceholderManager placeholderManager = new PlaceholderManager();
     private final ProgressBarBucket progressBarBucket = new ProgressBarBucket();
-    private DynamicPlaceHolder dynamicPlaceHolder;
     private String symbolPrefix;
     private RequirementManager requirementManager;
 
@@ -35,9 +36,7 @@ public final class ItsMyConfig extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        this.dynamicPlaceHolder = new DynamicPlaceHolder(this, progressBarBucket);
-        this.dynamicPlaceHolder.register();
-
+        new DynamicPlaceHolder(this, progressBarBucket).register();
         new CommandManager(this);
 
         this.requirementManager = new RequirementManager();
@@ -56,7 +55,7 @@ public final class ItsMyConfig extends JavaPlugin {
         this.reloadConfig();
 
         this.symbolPrefix = this.getConfig().getString("symbol-prefix");
-
+        placeholderManager.unregisterAll();
         final ConfigurationSection placeholdersSec = this.getConfig().getConfigurationSection("custom-placeholder");
         for (final String identifier : placeholdersSec.getKeys(false)) {
             final PlaceholderType type = PlaceholderType.find(placeholdersSec.getString(identifier + ".type"));
@@ -82,7 +81,6 @@ public final class ItsMyConfig extends JavaPlugin {
                     break;
             }
 
-            this.dynamicPlaceHolder.registerIdentifier(identifier, data);
             final ConfigurationSection requirementSec = placeholdersSec.getConfigurationSection(identifier + ".requirements");
             if (requirementSec != null) {
                 for (final String requirement : requirementSec.getKeys(false)) {
@@ -90,6 +88,7 @@ public final class ItsMyConfig extends JavaPlugin {
                 }
             }
 
+            this.placeholderManager.register(identifier, data);
             this.getLogger().info(String.format("Registered placeholder %s", identifier));
         }
 
@@ -118,12 +117,12 @@ public final class ItsMyConfig extends JavaPlugin {
         return symbolPrefix;
     }
 
-    public RequirementManager getRequirementManager() {
-        return requirementManager;
+    public PlaceholderManager getPlaceholderManager() {
+        return placeholderManager;
     }
 
-    public DynamicPlaceHolder getDynamicPlaceHolder() {
-        return dynamicPlaceHolder;
+    public RequirementManager getRequirementManager() {
+        return requirementManager;
     }
 
 }

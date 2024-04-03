@@ -15,10 +15,14 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import to.itsme.itsmyconfig.ItsMyConfig;
+import to.itsme.itsmyconfig.font.Font;
+import to.itsme.itsmyconfig.font.FontTag;
+import to.itsme.itsmyconfig.placeholder.PlaceholderData;
+import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholderData;
 
 import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.regex.Matcher;
@@ -33,9 +37,6 @@ public final class Utilities {
     private static final Pattern COLOR_FILTER = Pattern.compile("[§&][a-zA-Z0-9]");
     private static final Pattern ARGUMENT_PATTERN = Pattern.compile("\\{([0-9]+)}");
 
-    private static final String[] SMALL_CAPS = new String[]
-            {"ᴀ", "ʙ", "ᴄ", "ᴅ", "ᴇ", "ғ", "ɢ", "ʜ", "ɪ", "ᴊ", "ᴋ", "ʟ", "ᴍ", "ɴ", "ᴏ", "ᴘ", "ǫ", "ʀ", "s", "ᴛ", "ᴜ", "ᴠ", "ᴡ", "x", "ʏ"};
-
     private static final Field TEXT_COMPONENT_CONTENT;
 
     static {
@@ -44,11 +45,9 @@ public final class Utilities {
                         TagResolver.builder()
                                 .resolvers(
                                         StandardTags.defaults(),
-                                        smallCapsTag()
-                                )
-                                .build()
-                )
-                .build();
+                                        TagResolver.resolver("smallcaps", new FontTag(Font.SMALL_CAPS))
+                                ).build()
+                ).build();
         try {
             Class<?> textComponentImpClazz = Class.forName("net.kyori.adventure.text.TextComponentImpl");
             Field contentField = textComponentImpClazz.getDeclaredField("content");
@@ -100,8 +99,26 @@ public final class Utilities {
      */
     public static TagResolver itsMyConfigTag(final Player player) {
         return TagResolver.resolver("p", (argumentQueue, context) -> {
-            final String placeholderArg = argumentQueue.popOr("placeholder requires an argument").value();
-            final String parsed = plugin.getDynamicPlaceHolder().onPlaceholderRequest(player, placeholderArg);
+            if (!argumentQueue.hasNext()) {
+                return Tag.preProcessParsed("Unknown Placeholder");
+            }
+
+            final String name = argumentQueue.popOr("").value();
+            final PlaceholderData data = plugin.getPlaceholderManager().get(name);
+            if (data == null) {
+                return Tag.preProcessParsed("Unknown Placeholder");
+            }
+
+            if (data instanceof ColorPlaceholderData)  {
+                return Tag.styling(builder -> builder.merge(((ColorPlaceholderData) data).getStyle()));
+            }
+
+            final List<String> args = new LinkedList<>();
+            while (argumentQueue.hasNext()) {
+                args.add(argumentQueue.pop().value());
+            }
+
+            final String parsed = data.asString(player, args.toArray(new String[0]));
             final Component componentPlaceholder = MM.deserialize(parsed == null ? "" : parsed.replace("§", "&"));
             applyChatColors(componentPlaceholder);
             return Tag.selfClosingInserting(componentPlaceholder);
@@ -252,40 +269,6 @@ public final class Utilities {
 
             return Tag.selfClosingInserting(Component.empty());
         });
-    }
-
-    /**
-     * Provides a tag resolver for converting text to small caps format.
-     *
-     * @return The small caps tag resolver.
-     */
-    public static TagResolver smallCapsTag() {
-        return TagResolver.resolver("smallcaps", (argumentQueue, context) ->
-                Tag.inserting(
-                        Component.empty().content(
-                                toSmallCaps(argumentQueue.popOr("Small caps tag with no text").value())
-                        )
-                )
-        );
-    }
-
-    /**
-     * Converts the provided message to small caps format.
-     *
-     * @param message The input string to be converted to small caps.
-     * @return The converted string in small caps format.
-     */
-    public static String toSmallCaps(final String message) {
-        final byte[] bytes = message.toLowerCase().getBytes(StandardCharsets.UTF_8);
-        final StringBuilder builder = new StringBuilder();
-        for (byte messageByte : bytes) {
-            if (messageByte >= 97 && messageByte <= 122) {
-                builder.append(SMALL_CAPS[messageByte - 97]);
-            } else {
-                builder.append((char) messageByte);
-            }
-        }
-        return builder.toString();
     }
 
     /**

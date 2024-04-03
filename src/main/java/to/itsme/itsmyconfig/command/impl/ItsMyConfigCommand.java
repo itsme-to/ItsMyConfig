@@ -2,10 +2,10 @@ package to.itsme.itsmyconfig.command.impl;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import revxrsal.commands.annotation.*;
@@ -55,6 +55,7 @@ public final class ItsMyConfigCommand {
         final PluginDescriptionFile description = plugin.getDescription();
         return TagResolver.resolver("plugin", (argumentQueue, context) -> Tag.selfClosingInserting(
                 Component.text().content(description.getName())
+                        .decorate(TextDecoration.BOLD)
                         .hoverEvent(
                                 Utilities.MM.deserialize(
                                         Utilities.toString(
@@ -75,13 +76,14 @@ public final class ItsMyConfigCommand {
     private TagResolver authorInfo() {
         return TagResolver.resolver("author", (argumentQueue, context) -> Tag.selfClosingInserting(
                 Component.text().content("iiAhmedYT")
+                        .decorate(TextDecoration.UNDERLINED)
                         .hoverEvent(
                                 Utilities.MM.deserialize(
                                         Utilities.toString(
                                                 Arrays.asList(
                                                         " ",
                                                         "<white>Discord: <aqua>@iiAhmedYT</aqua>",
-                                                        "<white>GitHib: <aqua>https://github.com/iiAhmedYT</aqua>",
+                                                        "<white>Github: <aqua>https://github.com/iiAhmedYT</aqua>",
                                                         " "
                                                 )
                                         )
@@ -120,6 +122,7 @@ public final class ItsMyConfigCommand {
     }
 
     @Subcommand("config")
+    @AutoComplete("@placeholders *")
     @CommandPermission("itsmyconfig.config")
     @Description("Sets config values for placeholder")
     public void config(
@@ -127,8 +130,7 @@ public final class ItsMyConfigCommand {
             @Named("placeholder") final String placeholder,
             @Named("value") final String value
     ) {
-        final FileConfiguration config = plugin.getConfig();
-        final ConfigurationSection section = config.getConfigurationSection("custom-placeholder." + placeholder);
+        final ConfigurationSection section = plugin.getConfig().getConfigurationSection("custom-placeholder." + placeholder);
         if (section == null) {
             actor.reply(Utilities.MM.deserialize("<red>Placeholder <yellow>" + placeholder + "</yellow> was not found.</red>"));
             return;
@@ -141,6 +143,7 @@ public final class ItsMyConfigCommand {
         }
 
         section.set("value", value);
+        plugin.getConfig().set("custom-placeholder." + placeholder, section);
         plugin.saveConfig();
         plugin.loadConfig();
         actor.reply(Utilities.MM.deserialize("<green>Placeholder <yellow>" + placeholder + "</yellow>'s value was updated successfully!</green>"));
@@ -157,6 +160,7 @@ public final class ItsMyConfigCommand {
     }
 
     @Command("config")
+    @AutoComplete("@placeholders *")
     @CommandPermission("itsmyconfig.config")
     public void configCommand(
             final BukkitCommandActor actor,

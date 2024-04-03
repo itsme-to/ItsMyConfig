@@ -7,22 +7,16 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import to.itsme.itsmyconfig.ItsMyConfig;
-import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholderData;
 import to.itsme.itsmyconfig.progress.ProgressBar;
 import to.itsme.itsmyconfig.progress.ProgressBarBucket;
-import to.itsme.itsmyconfig.util.Utilities;
-
-import java.util.HashMap;
-import java.util.Map;
+import to.itsme.itsmyconfig.font.Font;
 
 public final class DynamicPlaceHolder extends PlaceholderExpansion {
 
     private final ItsMyConfig plugin;
-    private final Map<String, PlaceholderData> identifierToResult = new HashMap<>();
+    private final ProgressBarBucket progressBarBucket;
     private final int[] values = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
     private final String[] romanLiterals = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
-
-    private final ProgressBarBucket progressBarBucket;
 
     public DynamicPlaceHolder(
             final ItsMyConfig plugin,
@@ -71,7 +65,7 @@ public final class DynamicPlaceHolder extends PlaceholderExpansion {
                 }
             } else if (strings[1].equalsIgnoreCase("smallcaps")) {
                 String message = strings[2].toLowerCase();
-                return Utilities.toSmallCaps(message);
+                return Font.SMALL_CAPS.apply(message);
             }
 
             return "ERROR";
@@ -96,22 +90,14 @@ public final class DynamicPlaceHolder extends PlaceholderExpansion {
             return ChatColor.translateAlternateColorCodes('&', progressBar.render(value, maxValue));
         }
 
-        if (!identifierToResult.containsKey(strings[0])) {
+        final String placeholder = strings[0];
+        if (!plugin.getPlaceholderManager().has(placeholder)) {
             return "Placeholder not found";
         }
 
-        final PlaceholderData data = identifierToResult.get(strings[0]);
-        final String deny = this.plugin.getRequirementManager().getDenyMessage(data, player, getArgs(strings).split("::"));
-        if (deny != null) {
-            return ChatColor.translateAlternateColorCodes('&', deny);
-        }
-
-        final String result = PlaceholderAPI.setPlaceholders(player, data.getResult(getArgs(strings).split("::")));
-        if  (data instanceof ColorPlaceholderData) {
-            return result;
-        }
-
-        return ChatColor.translateAlternateColorCodes('&', result);
+        final PlaceholderData data = plugin.getPlaceholderManager().get(placeholder);
+        final String[] args = getArgs(strings).split("::");
+        return data.asString(player, args);
     }
 
     private String getArgs(String[] strings) {
@@ -119,17 +105,11 @@ public final class DynamicPlaceHolder extends PlaceholderExpansion {
             return "";
         }
 
-        StringBuilder builder = new StringBuilder(strings[1]);
-
+        final StringBuilder builder = new StringBuilder(strings[1]);
         for (int i = 2; i < strings.length; i++) {
             builder.append("_").append(strings[i]);
         }
-
         return builder.toString();
-    }
-
-    public void registerIdentifier(String key, PlaceholderData data) {
-        this.identifierToResult.put(key, data);
     }
 
     public String integerToRoman(int num) {

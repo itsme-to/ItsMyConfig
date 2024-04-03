@@ -1,7 +1,6 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.*;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import to.itsme.itsmyconfig.placeholder.PlaceholderData;
@@ -12,6 +11,7 @@ import java.util.Locale;
 
 public final class ColorPlaceholderData extends PlaceholderData {
 
+    private final Style style;
     private final ChatColor legacyColor;
     private final boolean legacy, invalid;
     private final String value, nameValue, hexValue;
@@ -20,7 +20,7 @@ public final class ColorPlaceholderData extends PlaceholderData {
     public ColorPlaceholderData(
             final ConfigurationSection properties
     ) {
-        super(PlaceholderType.STRING);
+        super(PlaceholderType.COLOR);
         this.value = properties.getString("value", "").toLowerCase();
 
         final NamedTextColor namedTextColor = NamedTextColor.NAMES.value(this.value);
@@ -48,37 +48,43 @@ public final class ColorPlaceholderData extends PlaceholderData {
         }
 
         this.legacyColor = ChatColor.valueOf(this.nameValue.toUpperCase());
-
+        final Style.Builder builder = Style.style().color(TextColor.fromHexString(hexValue));
         if (properties.getBoolean("bold")) {
             this.properties += "&l";
             this.propertiesMiniPrefix += "<bold>";
             this.propertiesMiniSuffix += "</bold>";
+            builder.decorate(TextDecoration.BOLD);
         }
 
         if (properties.getBoolean("italic")) {
             this.properties += "&o";
             this.propertiesMiniPrefix += "<italic>";
             this.propertiesMiniSuffix += "</italic>";
+            builder.decorate(TextDecoration.ITALIC);
         }
 
         if (properties.getBoolean("obfuscated")) {
             this.properties += "&k";
             this.propertiesMiniPrefix += "<obfuscated>";
             this.propertiesMiniSuffix += "</obfuscated>";
+            builder.decorate(TextDecoration.OBFUSCATED);
         }
 
         if (properties.getBoolean("underlined")) {
             this.properties += "&n";
             this.propertiesMiniPrefix += "<underlined>";
             this.propertiesMiniSuffix += "</underlined>";
+            builder.decorate(TextDecoration.UNDERLINED);
         }
 
         if (properties.getBoolean("strikethrough")) {
             this.properties += "&m";
             this.propertiesMiniPrefix += "<strikethrough>";
             this.propertiesMiniSuffix += "</strikethrough>";
+            builder.decorate(TextDecoration.STRIKETHROUGH);
         }
 
+        this.style = builder.build();
     }
 
     @Override
@@ -93,6 +99,8 @@ public final class ColorPlaceholderData extends PlaceholderData {
 
         final String firstArg = params[0].toLowerCase(Locale.ROOT);
         switch (firstArg) {
+            case "closestname":
+                return this.nameValue;
             case "legacy":
                 return (legacy ? legacyColor.toString() + this.properties : '&' + this.hexValue + this.properties).replace("§",  "&");
             case "console":
@@ -121,6 +129,10 @@ public final class ColorPlaceholderData extends PlaceholderData {
                 return prefix;
         }
         return this.value;
+    }
+
+    public Style getStyle() {
+        return this.style;
     }
 
 }

@@ -1,6 +1,11 @@
 package to.itsme.itsmyconfig.placeholder;
 
+import me.clip.placeholderapi.PlaceholderAPI;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
+import to.itsme.itsmyconfig.ItsMyConfig;
+import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholderData;
 import to.itsme.itsmyconfig.util.Utilities;
 
 import java.util.ArrayList;
@@ -8,6 +13,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public abstract class PlaceholderData {
+
+    private final ItsMyConfig plugin = ItsMyConfig.getInstance();
 
     private final PlaceholderType type;
     private final List<Integer> arguments = new ArrayList<>();
@@ -31,7 +38,21 @@ public abstract class PlaceholderData {
         this.requirements.add(new RequirementData(identifier, input, output, deny));
     }
 
-    public abstract String getResult(final String[] params);
+    public abstract String getResult(final String[] args);
+
+    public String asString(final Player player, final String[] args) {
+        final String deny = this.plugin.getRequirementManager().getDenyMessage(this, player, args);
+        if (deny != null) {
+            return ChatColor.translateAlternateColorCodes('&', deny);
+        }
+
+        final String result = PlaceholderAPI.setPlaceholders(player, getResult(args));
+        if  (this instanceof ColorPlaceholderData) {
+            return result;
+        }
+
+        return ChatColor.translateAlternateColorCodes('&', result);
+    }
 
     public String replaceArguments(final String[] params, final String message) {
         return this.replaceArguments(params, message, this.arguments);
