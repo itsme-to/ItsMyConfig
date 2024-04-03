@@ -119,7 +119,7 @@ public final class Utilities {
             }
 
             final String parsed = data.asString(player, args.toArray(new String[0]));
-            final Component componentPlaceholder = MM.deserialize(parsed == null ? "" : parsed.replace("§", "&"));
+            final Component componentPlaceholder = MM.deserialize(parsed == null ? "" : parsed.replace("§", "&"), playerTag(player));
             applyChatColors(componentPlaceholder);
             return Tag.selfClosingInserting(componentPlaceholder);
         });
@@ -135,7 +135,7 @@ public final class Utilities {
         return TagResolver.resolver("papi", (argumentQueue, context) -> {
             final String papiPlaceholder = argumentQueue.popOr("papi tag requires an argument").value();
             final String parsedPlaceholder = PlaceholderAPI.setPlaceholders(player, '%' + papiPlaceholder + '%');
-            final Component componentPlaceholder = MM.deserialize(parsedPlaceholder.replace("§", "&"));
+            final Component componentPlaceholder = MM.deserialize(parsedPlaceholder.replace("§", "&"), playerTag(player));
             applyChatColors(componentPlaceholder);
             return Tag.selfClosingInserting(componentPlaceholder);
         });
