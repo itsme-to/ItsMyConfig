@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'to.itsme'
-version = '3.0.0-BETA'
+version = '3.0.0'
 description = 'ItsMyConfig'
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
@@ -70,5 +70,8 @@ processResources {
 def shadePath = "to.itsme.itsmyconfig.shade."
 shadowJar {
     relocate("net.kyori", "${shadePath}kyori")
+    relocate("com.google.gson", "${shadePath}gson")
     relocate("revxrsal.commands", "${shadePath}lamp")
+
+    archiveFileName = "${project.name}-${project.version}.jar"
 }

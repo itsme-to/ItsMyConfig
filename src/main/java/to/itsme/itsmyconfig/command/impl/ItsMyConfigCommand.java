@@ -36,18 +36,18 @@ public final class ItsMyConfigCommand {
             final CommandHelp<String> help
     ) {
         final StringBuilder builder = new StringBuilder();
-        final String hyphen = "\n<gray><strikethrough>-----------------------------------------</strikethrough></gray>";
-        builder.append(hyphen)
-                .append('\n')
-                .append("<white>This server is running <aqua><plugin></aqua></white> <gray>(developed by <gold><author></gold>)</gray>")
-                .append('\n');
+        builder.append('\n')
+                .append("<gold><plugin></gold> | Config has never been easier");
 
         Collections.reverse(help);
         for (final String line : help) {
             builder.append('\n').append(line);
         }
 
-        builder.append(hyphen);
+        builder.append("\n\n  <gray>• <white>Project: <aqua>ItsMe.to");
+        builder.append("\n  <gray>• <white>Support: <click:open_url:'https://discord.gg/itsme-to'><green>discord.gg/itsme-to</click>");
+        builder.append("\n  <gray>• <white>Developer: <yellow><author> <gray>(").append(plugin.getDescription().getVersion()).append(")");
+        builder.append("\n");
         actor.reply(Utilities.MM.deserialize(builder.toString(), pluginInfo(), authorInfo()));
     }
 
@@ -61,9 +61,9 @@ public final class ItsMyConfigCommand {
                                         Utilities.toString(
                                                 Arrays.asList(
                                                         " ",
-                                                        "<white>Name: <aqua>" + description.getName(),
-                                                        "<white>Version: <aqua>" + description.getVersion(),
-                                                        "<white>Support Server: <aqua>" + description.getWebsite(),
+                                                        "<white>Name: <gold>" + description.getName(),
+                                                        "<white>Version: <gold>" + description.getVersion(),
+                                                        "<white>Support Server: <gold>https://discord.gg/itsme-to",
                                                         " "
                                                 )
                                         )
@@ -122,7 +122,7 @@ public final class ItsMyConfigCommand {
     }
 
     @Subcommand("config")
-    @AutoComplete("@placeholders *")
+    @AutoComplete("@singleValuePlaceholder *")
     @CommandPermission("itsmyconfig.config")
     @Description("Sets config values for placeholder")
     public void config(
@@ -160,7 +160,7 @@ public final class ItsMyConfigCommand {
     }
 
     @Command("config")
-    @AutoComplete("@placeholders *")
+    @AutoComplete("@singleValuePlaceholder *")
     @CommandPermission("itsmyconfig.config")
     public void configCommand(
             final BukkitCommandActor actor,

@@ -4,6 +4,10 @@ import revxrsal.commands.bukkit.BukkitCommandHandler;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.command.handler.ExceptionHandler;
 import to.itsme.itsmyconfig.command.impl.ItsMyConfigCommand;
+import to.itsme.itsmyconfig.placeholder.PlaceholderData;
+import to.itsme.itsmyconfig.placeholder.PlaceholderType;
+
+import java.util.stream.Collectors;
 
 public final class CommandManager {
 
@@ -17,7 +21,7 @@ public final class CommandManager {
         // set the help-writer format
         this.handler.setHelpWriter((cmd, actor) ->
                 String.format(
-                        "  <gray>● <white>/%s <aqua>%s",
+                        "  <gray>• <white>/%s <gold>%s",
                         cmd.getPath().toRealString(),
                         cmd.getUsage().isEmpty() ? "" : cmd.getUsage() + " "
                 )
@@ -25,6 +29,12 @@ public final class CommandManager {
 
         this.handler.getAutoCompleter().registerSuggestion("placeholders", (args, sender, command) ->
                 plugin.getPlaceholderManager().getPlaceholdersMap().keySet());
+
+        this.handler.getAutoCompleter().registerSuggestion("singleValuePlaceholder", (args, sender, command) ->
+                plugin.getPlaceholderManager().getPlaceholdersMap().keySet().stream().filter(name -> {
+                    final PlaceholderData data = plugin.getPlaceholderManager().get(name);
+                    return PlaceholderType.STRING.equals(data.getType()) || PlaceholderType.COLOR.equals(data.getType());
+                }).collect(Collectors.toList()));
 
         this.handler.setExceptionHandler(new ExceptionHandler());
         this.handler.getAutoCompleter();
