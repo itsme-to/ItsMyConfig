@@ -85,9 +85,9 @@ public final class Utilities {
      */
     public static TagResolver playerTag(final Player player) {
         return TagResolver.resolver(
-                papiTag(player), titleTag(player),
-                subtitleTag(player), actionbarTag(player),
-                soundTag(player), itsMyConfigTag(player)
+                itsMyConfigTag(player), papiTag(player),
+                titleTag(player), subtitleTag(player),
+                actionbarTag(player), soundTag(player)
         );
     }
 
