@@ -1,0 +1,77 @@
+plugins {
+    id 'java-library'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'to.itsme'
+version = '3.0.0'
+description = 'ItsMyConfig'
+java.sourceCompatibility = JavaVersion.VERSION_1_8
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+
+    maven {
+        name = "spigot-repo"
+        url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
+    }
+
+    maven {
+        name = "sonatype"
+        url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+    }
+
+    maven {
+        name = "jitpack"
+        url = "https://jitpack.io"
+    }
+
+    maven {
+        name = "protocollib-repo"
+        url = "https://repo.dmulloy2.net/repository/public/"
+    }
+
+    maven {
+        name = "papi-repo"
+        url = "https://repo.extendedclip.com/content/repositories/placeholderapi/"
+    }
+
+}
+
+def lampVersion = "3.1.9"
+def adventureVersion = "4.16.0"
+dependencies {
+    api "net.kyori:adventure-text-minimessage:${adventureVersion}"
+    api "net.kyori:adventure-text-serializer-gson:${adventureVersion}"
+    api "net.kyori:adventure-platform-bukkit:4.3.2"
+
+    implementation "com.github.Revxrsal.Lamp:common:${lampVersion}"
+    implementation "com.github.Revxrsal.Lamp:bukkit:${lampVersion}"
+
+    compileOnly "org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT"
+    compileOnly "com.comphenix.protocol:ProtocolLib:5.0.0"
+    compileOnly "me.clip:placeholderapi:2.11.1"
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+}
+
+processResources {
+    def props = [version: version]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand props
+    }
+}
+
+def shadePath = "to.itsme.itsmyconfig.shade."
+shadowJar {
+    relocate("net.kyori", "${shadePath}kyori")
+    relocate("com.google.gson", "${shadePath}gson")
+    relocate("revxrsal.commands", "${shadePath}lamp")
+
+    archiveFileName = "${project.name}-${project.version}.jar"
+}
