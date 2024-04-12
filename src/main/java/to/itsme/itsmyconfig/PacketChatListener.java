@@ -10,6 +10,7 @@ import com.comphenix.protocol.wrappers.AdventureComponentConverter;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -17,15 +18,19 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.util.Utilities;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public final class PacketChatListener extends PacketAdapter {
 
     private final ItsMyConfig plugin;
+    private final Method fromComponent;
+    private final Pattern colorSymbolPattern, symbolPrefixPattern;
+    private final Pattern tagPattern = Pattern.compile("<(?:\\\\.|[^<>])*>");
     private final GsonComponentSerializer gson = GsonComponentSerializer.gson();
+    private final BungeeComponentSerializer bungee = BungeeComponentSerializer.get();
     private final LegacyComponentSerializer legacy = LegacyComponentSerializer.legacySection();
 
     public PacketChatListener(
@@ -34,36 +39,74 @@ public final class PacketChatListener extends PacketAdapter {
     ) {
         super(plugin, ListenerPriority.NORMAL, types);
         this.plugin = plugin;
+        this.colorSymbolPattern = Pattern.compile(Pattern.quote("§"));
+        this.symbolPrefixPattern = Pattern.compile(Pattern.quote(plugin.getSymbolPrefix()));
+        Method fromComponent;
+        try {
+            fromComponent = AdventureComponentConverter.class.getDeclaredMethod(
+                    "fromComponent",
+                    AdventureComponentConverter.getComponentClass()
+            );
+        } catch (final Exception e) {
+            fromComponent = null;
+        }
+
+        this.fromComponent = fromComponent;
     }
 
     @Override
     public void onPacketSending(final PacketEvent event) {
         final PacketContainer packetContainer = event.getPacket();
-        final String message = this.processMessage(packetContainer);
-        if (message == null) {
+        final String message = this.processPacket(packetContainer);
+        if (message == null || message.isEmpty()) {
             return;
         }
 
-        // If colorless message doesn't start with "$" => do nothing
-        if (!Utilities.colorless(message).startsWith(plugin.getSymbolPrefix())) {
+        if (!this.startsWithSymbol(message)) {
             return;
         }
 
         event.setCancelled(true);
-        sendMessage(event.getPlayer(), message.substring(message.indexOf(plugin.getSymbolPrefix()) + 1).replaceAll("§", "&"));
-    }
-
-    private void sendMessage(
-            final Player player,
-            final String message
-    ) {
+        final Player player = event.getPlayer();
         final Component parsed = replaceClickEvent(Utilities.MM.deserialize(
-                message, Utilities.playerTag(player)
+                this.processMessage(message), Utilities.playerTag(player)
         ));
         Utilities.applyChatColors(parsed);
         if (!parsed.equals(Component.empty())) {
             plugin.adventure().player(player).sendMessage(parsed);
         }
+    }
+
+    private String processMessage(String message) {
+        Matcher tagMatcher = tagPattern.matcher(message);
+        while (tagMatcher.find()) {
+            final int index = tagMatcher.start();
+            final int behindIndex = index - 1;
+            if (behindIndex >= 0 && message.charAt(behindIndex) == '\\') {
+                message = message.substring(0, behindIndex) + message.substring(behindIndex + 1);
+                tagMatcher = tagPattern.matcher(message);
+            }
+        }
+
+        tagMatcher = tagPattern.matcher(message);
+        final StringBuffer buffer = new StringBuffer();
+        while (tagMatcher.find()) {
+            final String content = tagMatcher.group();
+            if (content.startsWith("<!") || content.contains("</!")) {
+                tagMatcher.appendReplacement(buffer, "");
+            }
+        }
+
+        tagMatcher.appendTail(buffer);
+        return colorSymbolPattern.matcher(symbolPrefixPattern.matcher(buffer.toString()).replaceFirst("")).replaceAll("&");
+    }
+
+    private boolean startsWithSymbol(final String message) {
+        if (message == null || message.isEmpty()) {
+            return false;
+        }
+
+        return tagPattern.matcher(Utilities.colorless(message)).replaceAll("").startsWith(plugin.getSymbolPrefix());
     }
 
     private Component replaceClickEvent(final Component component) {
@@ -79,26 +122,25 @@ public final class PacketChatListener extends PacketAdapter {
         return copied;
     }
 
-    private String processMessage(final PacketContainer container) {
+    private String processPacket(final PacketContainer container) {
         try {
-            StructureModifier<?> modifier = container.getModifier().withType(AdventureComponentConverter.getComponentClass());
-
+            final StructureModifier<?> modifier = container.getModifier().withType(AdventureComponentConverter.getComponentClass());
             if (modifier.size() == 1) {
-                WrappedChatComponent chatComponent = convertFromComponent(modifier.readSafely(0));
-                return legacy.serialize(gson.deserialize(chatComponent.getJson()));
+                final WrappedChatComponent wrappedComponent = (WrappedChatComponent) fromComponent.invoke(null, modifier.readSafely(0));
+                final String baseJson = wrappedComponent.getJson();
+                return Utilities.MM.serialize(gson.deserialize(baseJson));
             }
         } catch (Throwable ignored) {
         }
 
-        StructureModifier<TextComponent> textComponentModifier = container.getModifier().withType(TextComponent.class);
-
+        final StructureModifier<TextComponent> textComponentModifier = container.getModifier().withType(TextComponent.class);
         if (textComponentModifier.size() == 1) {
-            return textComponentModifier.readSafely(0).toLegacyText();
+            return processBaseComponents(textComponentModifier.readSafely(0));
         }
 
-        WrappedChatComponent chatComponent = container.getChatComponents().readSafely(0);
-        if (chatComponent != null) {
-            String jsonString = chatComponent.getJson();
+        final WrappedChatComponent wrappedComponent = container.getChatComponents().readSafely(0);
+        if (wrappedComponent != null) {
+            final String jsonString = wrappedComponent.getJson();
             try {
                 return legacy.serialize(gson.deserialize(jsonString));
             } catch (final Exception e) {
@@ -109,16 +151,7 @@ public final class PacketChatListener extends PacketAdapter {
         return parseString(container.getStrings().readSafely(0));
     }
 
-    private WrappedChatComponent convertFromComponent(Object o) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Method method = AdventureComponentConverter.class.getDeclaredMethod(
-                "fromComponent",
-                AdventureComponentConverter.getComponentClass()
-        );
-
-        return (WrappedChatComponent) method.invoke(null, o);
-    }
-
-    private String parseString(String rawMessage) {
+    private String parseString(final String rawMessage) {
         if (rawMessage == null) {
             return null;
         }
@@ -126,10 +159,10 @@ public final class PacketChatListener extends PacketAdapter {
         return processBaseComponents(net.md_5.bungee.chat.ComponentSerializer.parse(rawMessage));
     }
 
-    private String processBaseComponents(BaseComponent[] components) {
-        return Arrays.stream(components)
-                .map(component -> component.toLegacyText())
-                .reduce("", (s, s2) -> s + s2);
+    private String processBaseComponents(final BaseComponent... components) {
+        return Utilities.MM.serialize(
+                bungee.deserialize(components)
+        );
     }
 
 }

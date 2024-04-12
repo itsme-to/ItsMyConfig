@@ -49,8 +49,8 @@ public final class Utilities {
                                 ).build()
                 ).build();
         try {
-            Class<?> textComponentImpClazz = Class.forName("net.kyori.adventure.text.TextComponentImpl");
-            Field contentField = textComponentImpClazz.getDeclaredField("content");
+            final Class<?> textComponentImpClazz = Class.forName("net.kyori.adventure.text.TextComponentImpl");
+            final Field contentField = textComponentImpClazz.getDeclaredField("content");
             contentField.setAccessible(true);
             TEXT_COMPONENT_CONTENT = contentField;
         } catch (ClassNotFoundException | NoSuchFieldException e) {
