@@ -39,7 +39,7 @@ public class MinecraftComponent {
     }
 
     /**
-     * Parses a {@link Component} string to a {@link MinecraftComponent}
+     * Parses a {@link Component} into a {@link MinecraftComponent}
      *
      * @param component The parsed {@link Component}.
      * @return an instance of {@link MinecraftComponent}.
@@ -57,7 +57,7 @@ public class MinecraftComponent {
     public MinecraftComponent() {}
 
     /**
-     * {@link TextComponent} convetrer to a Minecraft Component
+     * {@link TextComponent} convetrer to a {@link MinecraftComponent}
      */
     private MinecraftComponent(final TextComponent component) {
         this.text = component.content();
