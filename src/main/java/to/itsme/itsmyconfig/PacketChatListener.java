@@ -11,15 +11,13 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
+import to.itsme.itsmyconfig.parser.MinecraftComponent;
 import to.itsme.itsmyconfig.util.Utilities;
 
 import java.lang.reflect.Method;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -29,9 +27,7 @@ public final class PacketChatListener extends PacketAdapter {
     private final Method fromComponent;
     private final Pattern colorSymbolPattern, symbolPrefixPattern;
     private final Pattern tagPattern = Pattern.compile("<(?:\\\\.|[^<>])*>");
-    private final GsonComponentSerializer gson = GsonComponentSerializer.gson();
     private final BungeeComponentSerializer bungee = BungeeComponentSerializer.get();
-    private final LegacyComponentSerializer legacy = LegacyComponentSerializer.legacySection();
 
     public PacketChatListener(
             final ItsMyConfig plugin,
@@ -77,28 +73,8 @@ public final class PacketChatListener extends PacketAdapter {
         }
     }
 
-    private String processMessage(String message) {
-        Matcher tagMatcher = tagPattern.matcher(message);
-        while (tagMatcher.find()) {
-            final int index = tagMatcher.start();
-            final int behindIndex = index - 1;
-            if (behindIndex >= 0 && message.charAt(behindIndex) == '\\') {
-                message = message.substring(0, behindIndex) + message.substring(behindIndex + 1);
-                tagMatcher = tagPattern.matcher(message);
-            }
-        }
-
-        tagMatcher = tagPattern.matcher(message);
-        final StringBuffer buffer = new StringBuffer();
-        while (tagMatcher.find()) {
-            final String content = tagMatcher.group();
-            if (content.startsWith("<!") || content.contains("</!")) {
-                tagMatcher.appendReplacement(buffer, "");
-            }
-        }
-
-        tagMatcher.appendTail(buffer);
-        return colorSymbolPattern.matcher(symbolPrefixPattern.matcher(buffer.toString()).replaceFirst("")).replaceAll("&");
+    private String processMessage(final String message) {
+        return colorSymbolPattern.matcher(symbolPrefixPattern.matcher(message).replaceFirst("")).replaceAll("&");
     }
 
     private boolean startsWithSymbol(final String message) {
@@ -106,7 +82,7 @@ public final class PacketChatListener extends PacketAdapter {
             return false;
         }
 
-        return tagPattern.matcher(Utilities.colorless(message)).replaceAll("").startsWith(plugin.getSymbolPrefix());
+        return tagPattern.matcher(Utilities.colorless(message)).replaceAll("").trim().startsWith(plugin.getSymbolPrefix());
     }
 
     private Component replaceClickEvent(final Component component) {
@@ -127,8 +103,7 @@ public final class PacketChatListener extends PacketAdapter {
             final StructureModifier<?> modifier = container.getModifier().withType(AdventureComponentConverter.getComponentClass());
             if (modifier.size() == 1) {
                 final WrappedChatComponent wrappedComponent = (WrappedChatComponent) fromComponent.invoke(null, modifier.readSafely(0));
-                final String baseJson = wrappedComponent.getJson();
-                return Utilities.MM.serialize(gson.deserialize(baseJson));
+                return MinecraftComponent.parse(wrappedComponent.getJson()).toMiniMessage();
             }
         } catch (Throwable ignored) {
         }
@@ -140,11 +115,11 @@ public final class PacketChatListener extends PacketAdapter {
 
         final WrappedChatComponent wrappedComponent = container.getChatComponents().readSafely(0);
         if (wrappedComponent != null) {
-            final String jsonString = wrappedComponent.getJson();
+            final String json = wrappedComponent.getJson();
             try {
-                return legacy.serialize(gson.deserialize(jsonString));
+                return MinecraftComponent.parse(json).toMiniMessage();
             } catch (final Exception e) {
-                throw new RuntimeException("An error happened while de/serializing " + jsonString, e);
+                throw new RuntimeException("An error happened while de/serializing " + json, e);
             }
         }
 
@@ -160,9 +135,7 @@ public final class PacketChatListener extends PacketAdapter {
     }
 
     private String processBaseComponents(final BaseComponent... components) {
-        return Utilities.MM.serialize(
-                bungee.deserialize(components)
-        );
+        return MinecraftComponent.parse(bungee.deserialize(components)).toMiniMessage();
     }
 
 }
