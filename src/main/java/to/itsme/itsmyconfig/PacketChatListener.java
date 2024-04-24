@@ -43,7 +43,7 @@ public final class PacketChatListener extends PacketAdapter {
                     "fromComponent",
                     AdventureComponentConverter.getComponentClass()
             );
-        } catch (final Exception e) {
+        } catch (final Throwable ignored) {
             fromComponent = null;
         }
 
@@ -105,8 +105,7 @@ public final class PacketChatListener extends PacketAdapter {
                 final WrappedChatComponent wrappedComponent = (WrappedChatComponent) fromComponent.invoke(null, modifier.readSafely(0));
                 return MinecraftComponent.parse(wrappedComponent.getJson()).toMiniMessage();
             }
-        } catch (Throwable ignored) {
-        }
+        } catch (Throwable ignored) {}
 
         final StructureModifier<TextComponent> textComponentModifier = container.getModifier().withType(TextComponent.class);
         if (textComponentModifier.size() == 1) {
