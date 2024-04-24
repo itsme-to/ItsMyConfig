@@ -1,6 +1,6 @@
 package to.itsme.itsmyconfig.parser;
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -8,13 +8,17 @@ import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import to.itsme.itsmyconfig.util.Utilities;
 
+import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.List;
 
 @SuppressWarnings("all")
 public class MinecraftComponent {
 
-    private static final Gson GSON = new Gson();
+    private static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapter(MinecraftComponent.class, new MinecraftComponentDeserializer())
+            .create();
+
     private static final GsonComponentSerializer GSON_SERIALIZER = GsonComponentSerializer.gson();
 
     private String text;
@@ -224,6 +228,48 @@ public class MinecraftComponent {
 
         public String toMM() {
             return "<hover:" + action + ":\"" + value + "\">";
+        }
+
+    }
+
+    public static final class MinecraftComponentDeserializer implements JsonDeserializer<MinecraftComponent> {
+
+        @Override
+        public final MinecraftComponent deserialize(
+                final JsonElement json,
+                final Type typeOfT,
+                final JsonDeserializationContext context
+        ) throws JsonParseException {
+            final JsonObject jsonObject = json.getAsJsonObject();
+            final MinecraftComponent component = new MinecraftComponent();
+            component.text = jsonObject.has("text") ? jsonObject.get("text").getAsString() : null;
+            component.color = jsonObject.has("color") ? jsonObject.get("color").getAsString() : null;
+            component.bold = jsonObject.has("bold") && jsonObject.get("bold").getAsBoolean();
+            component.italic = jsonObject.has("italic") && jsonObject.get("italic").getAsBoolean();
+            component.underlined = jsonObject.has("underlined") && jsonObject.get("underlined").getAsBoolean();
+            component.strikethrough = jsonObject.has("strikethrough") && jsonObject.get("strikethrough").getAsBoolean();
+            component.obfuscated = jsonObject.has("obfuscated") && jsonObject.get("obfuscated").getAsBoolean();
+            component.clickEvent = jsonObject.has("clickEvent") ? context.deserialize(jsonObject.get("clickEvent"), ClickEvent.class) : null;
+            component.hoverEvent = jsonObject.has("hoverEvent") ? context.deserialize(jsonObject.get("hoverEvent"), HoverEvent.class) : null;
+
+            if (jsonObject.has("extra")) {
+                final JsonArray extraArray = jsonObject.getAsJsonArray("extra");
+                component.extra = new LinkedList<>();
+                for (final JsonElement element : extraArray) {
+                    if (element.isJsonObject()) {
+                        final MinecraftComponent extraComponent = context.deserialize(element, MinecraftComponent.class);
+                        if (extraComponent != null) {
+                            component.extra.add(extraComponent);
+                        }
+                    } else if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
+                        final MinecraftComponent textComponent = new MinecraftComponent();
+                        textComponent.text = element.getAsString();
+                        component.extra.add(textComponent);
+                    }
+                }
+            }
+
+            return component;
         }
 
     }
