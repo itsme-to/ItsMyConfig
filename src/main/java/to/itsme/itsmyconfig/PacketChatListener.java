@@ -8,6 +8,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.AdventureComponentConverter;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
+import com.google.gson.JsonSyntaxException;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
@@ -140,6 +141,12 @@ public final class PacketChatListener extends PacketAdapter {
             final String json = wrappedComponent.getJson();
             try {
                 return MinecraftComponent.parse(json).toMiniMessage();
+            } catch (final IllegalStateException | JsonSyntaxException e) {
+                if (e.getMessage().contains("Not a JSON Object")) {
+                    return json;
+                } else {
+                    throw new RuntimeException("An error happened while de/serializing " + json, e);
+                }
             } catch (final Exception e) {
                 throw new RuntimeException("An error happened while de/serializing " + json, e);
             }
