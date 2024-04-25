@@ -10,6 +10,7 @@ import com.comphenix.protocol.wrappers.AdventureComponentConverter;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -64,19 +65,23 @@ public final class PacketChatListener extends PacketAdapter {
 
         event.setCancelled(true);
         final Player player = event.getPlayer();
-        final Component parsed = replaceClickEvent(Utilities.MM.deserialize(
-                this.processMessage(message), Utilities.playerTag(player)
-        ));
+        final Component parsed = fixClickEvent(
+                Utilities.EMPTY_MM.deserialize(
+                        this.processMessage(message),
+                        Utilities.itsMyConfigTag(player), Utilities.papiTag(player),
+                        StandardTags.defaults(), Utilities.playerSubtags(player)
+                )
+        );
         Utilities.applyChatColors(parsed);
         if (!parsed.equals(Component.empty())) {
             plugin.adventure().player(player).sendMessage(parsed);
         }
     }
 
-    private String processMessage(final String message) {
-        return colorSymbolPattern.matcher(symbolPrefixPattern.matcher(message).replaceFirst("")).replaceAll("&");
-    }
-
+    /**
+     * Checks if the provided message starts with the "$" symbol
+     * @param message the checked message
+     */
     private boolean startsWithSymbol(final String message) {
         if (message == null || message.isEmpty()) {
             return false;
@@ -85,7 +90,25 @@ public final class PacketChatListener extends PacketAdapter {
         return tagPattern.matcher(Utilities.colorless(message)).replaceAll("").trim().startsWith(plugin.getSymbolPrefix());
     }
 
-    private Component replaceClickEvent(final Component component) {
+    /**
+     * Removes the '§' symbol and replaces it with '&'
+     * <br>
+     * Also removes the first '$' symbol it meets
+     *
+     * @param message the provided message
+     */
+    private String processMessage(final String message) {
+        return colorSymbolPattern.matcher(symbolPrefixPattern.matcher(message).replaceFirst("")).replaceAll("&");
+    }
+
+    /**
+     * Serialized then deserialized components with a click event have their value starting with "&f"
+     * <br>
+     * This fixes it.
+     *
+     * @return  the fixed component
+     */
+    private Component fixClickEvent(final Component component) {
         final ClickEvent event = component.clickEvent();
         Component copied = component;
 
@@ -94,7 +117,7 @@ public final class PacketChatListener extends PacketAdapter {
             copied = component.clickEvent(ClickEvent.clickEvent(event.action(), event.value().substring(2)));
         }
 
-        copied = copied.children(copied.children().stream().map(this::replaceClickEvent).collect(Collectors.toList()));
+        copied = copied.children(copied.children().stream().map(this::fixClickEvent).collect(Collectors.toList()));
         return copied;
     }
 

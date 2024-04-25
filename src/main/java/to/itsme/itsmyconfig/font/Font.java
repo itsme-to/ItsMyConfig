@@ -14,7 +14,7 @@ public enum Font {
     Font(final char... characters) {
         this.characters = characters;
         final TextReplacementConfig.Builder config = TextReplacementConfig.builder();
-        config.match("[A-Za-z]").replacement((matchResult, builder) -> {
+        config.match("[A-Za-zÀ-ÿ]").replacement((matchResult, builder) -> {
             final String text = this.apply(matchResult.group());
             return Component.text().content(text);
         });
@@ -22,7 +22,7 @@ public enum Font {
     }
 
     public String apply(final String text) {
-        final byte[] bytes = text.toLowerCase().getBytes(StandardCharsets.UTF_8);
+        final byte[] bytes = englishify(text).toLowerCase().getBytes(StandardCharsets.UTF_8);
         final StringBuilder builder = new StringBuilder();
         for (byte messageByte : bytes) {
             if (messageByte >= 97 && messageByte <= 122) {
@@ -32,6 +32,19 @@ public enum Font {
             }
         }
         return builder.toString();
+    }
+
+    public String englishify(final String frenchText) {
+        return frenchText
+                .replace("à", "a")
+                .replace("â", "a")
+                .replace("é", "e")
+                .replace("è", "e")
+                .replace("ê", "e")
+                .replace("î", "i")
+                .replace("ô", "o")
+                .replace("û", "u")
+                .replace("ç", "c");
     }
 
     public Component apply(final Component component) {

@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 
 public final class Utilities {
 
-    public static final MiniMessage MM;
+    public static final MiniMessage MM, EMPTY_MM;
     public static final Pattern HEX_PATTERN = Pattern.compile("#[a-fA-F0-9]{6}");
 
     private static final ItsMyConfig plugin = ItsMyConfig.getInstance();
@@ -48,6 +48,7 @@ public final class Utilities {
                                         TagResolver.resolver("smallcaps", new FontTag(Font.SMALL_CAPS))
                                 ).build()
                 ).build();
+        EMPTY_MM = MiniMessage.builder().tags(TagResolver.empty()).build();
         try {
             final Class<?> textComponentImpClazz = Class.forName("net.kyori.adventure.text.TextComponentImpl");
             final Field contentField = textComponentImpClazz.getDeclaredField("content");
@@ -85,7 +86,18 @@ public final class Utilities {
      */
     public static TagResolver playerTag(final Player player) {
         return TagResolver.resolver(
-                itsMyConfigTag(player), papiTag(player),
+                itsMyConfigTag(player), papiTag(player), playerSubtags(player)
+        );
+    }
+
+    /**
+     * Resolves all possible tags except main ones
+     *
+     * @param player The player for whom the resolver is being created.
+     * @return All {@link TagResolver}s of th player combined.
+     */
+    public static TagResolver playerSubtags(final Player player) {
+        return TagResolver.resolver(
                 titleTag(player), subtitleTag(player),
                 actionbarTag(player), soundTag(player)
         );
@@ -109,7 +121,7 @@ public final class Utilities {
                 return Tag.preProcessParsed("Unknown Placeholder");
             }
 
-            if (data instanceof ColorPlaceholderData)  {
+            if (data instanceof ColorPlaceholderData) {
                 return Tag.styling(builder -> builder.merge(((ColorPlaceholderData) data).getStyle()));
             }
 
@@ -119,9 +131,7 @@ public final class Utilities {
             }
 
             final String parsed = data.asString(player, args.toArray(new String[0]));
-            final Component componentPlaceholder = MM.deserialize(parsed == null ? "" : parsed.replace("§", "&"), playerTag(player));
-            applyChatColors(componentPlaceholder);
-            return Tag.selfClosingInserting(componentPlaceholder);
+            return Tag.preProcessParsed(parsed == null ? "" : parsed);
         });
     }
 
@@ -135,9 +145,7 @@ public final class Utilities {
         return TagResolver.resolver("papi", (argumentQueue, context) -> {
             final String papiPlaceholder = argumentQueue.popOr("papi tag requires an argument").value();
             final String parsedPlaceholder = PlaceholderAPI.setPlaceholders(player, '%' + papiPlaceholder + '%');
-            final Component componentPlaceholder = MM.deserialize(parsedPlaceholder.replace("§", "&"), playerTag(player));
-            applyChatColors(componentPlaceholder);
-            return Tag.selfClosingInserting(componentPlaceholder);
+            return Tag.preProcessParsed(parsedPlaceholder.replace("§", "&"));
         });
     }
 
