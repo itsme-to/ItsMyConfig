@@ -139,16 +139,18 @@ public final class PacketChatListener extends PacketAdapter {
         final WrappedChatComponent wrappedComponent = container.getChatComponents().readSafely(0);
         if (wrappedComponent != null) {
             final String json = wrappedComponent.getJson();
-            try {
-                return MinecraftComponent.parse(json).toMiniMessage();
-            } catch (final IllegalStateException | JsonSyntaxException e) {
-                if (e.getMessage().contains("Not a JSON Object")) {
-                    return json;
-                } else {
+            if (!json.isEmpty()) {
+                try {
+                    return MinecraftComponent.parse(json).toMiniMessage();
+                } catch (final IllegalStateException | JsonSyntaxException e) {
+                    if (e.getMessage().contains("Not a JSON Object")) {
+                        return json;
+                    } else {
+                        throw new RuntimeException("An error happened while de/serializing " + json, e);
+                    }
+                } catch (final Exception e) {
                     throw new RuntimeException("An error happened while de/serializing " + json, e);
                 }
-            } catch (final Exception e) {
-                throw new RuntimeException("An error happened while de/serializing " + json, e);
             }
         }
 
