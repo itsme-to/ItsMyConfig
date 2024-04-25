@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -59,6 +60,35 @@ public final class Utilities {
         }
     }
 
+    /**
+     * Logs debug information to the console if the debug mode is enabled.
+     *
+     * @param text The debug information to log.
+     */
+    public static void debug(final String text) {
+        if (plugin.getConfig().getBoolean("debug")) {
+            plugin.getLogger().info(text);
+        }
+    }
+
+    /**
+     * Logs debug information along with an exception stack trace to the console if the debug mode is enabled.
+     *
+     * @param text      The debug information to log.
+     * @param exception The Exception object representing the exception to log.
+     */
+    public static void debug(final String text, final Exception exception) {
+        if (plugin.getConfig().getBoolean("debug")) {
+            plugin.getLogger().log(Level.SEVERE, text, exception);
+        }
+    }
+
+    /**
+     * Extracts integer arguments enclosed within curly braces from the given string.
+     *
+     * @param string The string from which to extract integer arguments.
+     * @return A List of Integer containing the extracted integer arguments.
+     */
     public static List<Integer> getArguments(final String string) {
         final List<Integer> args = new ArrayList<>();
         final Matcher matcher = ARGUMENT_PATTERN.matcher(string);

@@ -55,12 +55,17 @@ public final class PacketChatListener extends PacketAdapter {
     @Override
     public void onPacketSending(final PacketEvent event) {
         final PacketContainer packetContainer = event.getPacket();
+        Utilities.debug("######################################");
         final String message = this.processPacket(packetContainer);
         if (message == null || message.isEmpty()) {
+            Utilities.debug("######################################");
             return;
         }
 
+        Utilities.debug("Checking: " + message);
         if (!this.startsWithSymbol(message)) {
+            Utilities.debug("Message doesn't start the symbol: " + message);
+            Utilities.debug("######################################");
             return;
         }
 
@@ -73,6 +78,7 @@ public final class PacketChatListener extends PacketAdapter {
                         StandardTags.defaults(), Utilities.playerSubtags(player)
                 )
         );
+        Utilities.debug("######################################");
         Utilities.applyChatColors(parsed);
         if (!parsed.equals(Component.empty())) {
             plugin.adventure().player(player).sendMessage(parsed);
@@ -123,46 +129,58 @@ public final class PacketChatListener extends PacketAdapter {
     }
 
     private String processPacket(final PacketContainer container) {
+        Utilities.debug("Proccessing a packet");
         try {
             final StructureModifier<?> modifier = container.getModifier().withType(AdventureComponentConverter.getComponentClass());
             if (modifier.size() == 1) {
                 final WrappedChatComponent wrappedComponent = (WrappedChatComponent) fromComponent.invoke(null, modifier.readSafely(0));
-                return MinecraftComponent.parse(wrappedComponent.getJson()).toMiniMessage();
+                final String json = wrappedComponent.getJson();
+                Utilities.debug("Performing Server-Side Adventure for " + json);
+                return MinecraftComponent.parse(json).toMiniMessage();
+            } else {
+                Utilities.debug("Failed to use Server-Side Adventure, Trying Bungeecord TextComponent..");
             }
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+            Utilities.debug("Failed to use Server-Side Adventure, Trying Bungeecord TextComponent..");
+        }
 
         final StructureModifier<TextComponent> textComponentModifier = container.getModifier().withType(TextComponent.class);
         if (textComponentModifier.size() == 1) {
+            Utilities.debug("Using Bungeecord TextComponent..");
             return processBaseComponents(textComponentModifier.readSafely(0));
+        } else {
+            Utilities.debug("Failed to use Bungeecord TextComponent, trying ProtocolLib's WrappecChatComponent");
         }
 
         final WrappedChatComponent wrappedComponent = container.getChatComponents().readSafely(0);
         if (wrappedComponent != null) {
             final String json = wrappedComponent.getJson();
             if (!json.isEmpty()) {
+                Utilities.debug("Found String: " + json);
                 try {
+                    Utilities.debug("Trying as json");
                     return MinecraftComponent.parse(json).toMiniMessage();
                 } catch (final IllegalStateException | JsonSyntaxException e) {
+                    Utilities.debug("Failed to use " + json + " as a JSON String");
                     if (e.getMessage().contains("Not a JSON Object")) {
                         return json;
                     } else {
-                        throw new RuntimeException("An error happened while de/serializing " + json, e);
+                        Utilities.debug("Error message doesn't include \"Not a JSON Object\"", e);
                     }
                 } catch (final Exception e) {
-                    throw new RuntimeException("An error happened while de/serializing " + json, e);
+                    Utilities.debug("An error happened while de/serializing " + json + ": ", e);
                 }
             }
         }
 
-        return parseString(container.getStrings().readSafely(0));
-    }
-
-    private String parseString(final String rawMessage) {
+        final String rawMessage = container.getStrings().readSafely(0);
         if (rawMessage == null) {
+            Utilities.debug("Found nothing.. returning null.");
             return null;
         }
 
-        return processBaseComponents(net.md_5.bungee.chat.ComponentSerializer.parse(rawMessage));
+        Utilities.debug("Raw-Parsing message: " + rawMessage);
+        return MinecraftComponent.parse(rawMessage).toMiniMessage();
     }
 
     private String processBaseComponents(final BaseComponent... components) {
