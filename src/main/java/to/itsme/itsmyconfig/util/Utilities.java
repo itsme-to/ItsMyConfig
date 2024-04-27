@@ -3,6 +3,7 @@ package to.itsme.itsmyconfig.util;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
@@ -28,6 +29,7 @@ import java.util.OptionalInt;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public final class Utilities {
 
@@ -37,6 +39,7 @@ public final class Utilities {
     private static final ItsMyConfig plugin = ItsMyConfig.getInstance();
     private static final Pattern COLOR_FILTER = Pattern.compile("[§&][a-zA-Z0-9]");
     private static final Pattern ARGUMENT_PATTERN = Pattern.compile("\\{([0-9]+)}");
+    private static final TagResolver FONT_RESOLVER =  TagResolver.resolver("smallcaps", new FontTag(Font.SMALL_CAPS));
 
     private static final Field TEXT_COMPONENT_CONTENT;
 
@@ -46,7 +49,7 @@ public final class Utilities {
                         TagResolver.builder()
                                 .resolvers(
                                         StandardTags.defaults(),
-                                        TagResolver.resolver("smallcaps", new FontTag(Font.SMALL_CAPS))
+                                        FONT_RESOLVER
                                 ).build()
                 ).build();
         EMPTY_MM = MiniMessage.builder().tags(TagResolver.empty()).build();
@@ -81,6 +84,43 @@ public final class Utilities {
         if (plugin.getConfig().getBoolean("debug")) {
             plugin.getLogger().log(Level.SEVERE, text, exception);
         }
+    }
+
+    /**
+     * Translates a String into a component
+     *
+     * @param text The text to translate.
+     * @param player The player translated-for.
+     * @return The translated component.
+     */
+    public static Component translate(final String text, final Player player) {
+        return fixClickEvent(
+                EMPTY_MM.deserialize(
+                        text,
+                        Utilities.itsMyConfigTag(player), Utilities.papiTag(player),
+                        FONT_RESOLVER, StandardTags.defaults(), Utilities.playerSubtags(player)
+                )
+        );
+    }
+
+    /**
+     * Serialized then deserialized components with a click event have their value starting with "&f"
+     * <br>
+     * This fixes it.
+     *
+     * @return  the fixed component
+     */
+    private static Component fixClickEvent(final Component component) {
+        final ClickEvent event = component.clickEvent();
+        Component copied = component;
+
+        // Serialized then deserialized components with a click event have their value starting with "&f".
+        if (event != null && event.value().startsWith("&f")) {
+            copied = component.clickEvent(ClickEvent.clickEvent(event.action(), event.value().substring(2)));
+        }
+
+        copied = copied.children(copied.children().stream().map(Utilities::fixClickEvent).collect(Collectors.toList()));
+        return copied;
     }
 
     /**

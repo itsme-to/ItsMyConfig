@@ -106,15 +106,21 @@ public final class ItsMyConfigCommand {
     @Description("Sends messages to players")
     public void message(
             final BukkitCommandActor actor,
-            @Named("target") final EntitySelector<Player> players,
-            @Named("message") final String message
+            final @Named("target") EntitySelector<Player> players,
+            final @Optional @Switch("d") boolean direct,
+            final @Named("message") String message
     ) {
-        players.forEach(player -> {
+        for (final Player player : players) {
+            if (direct) {
+                plugin.adventure().player(player).sendMessage(Utilities.translate(message, player));
+                continue;
+            }
+
             final String[] strings = message.split("\\\\r?\\\\n|\\\\r");
             for (final String string : strings) {
                 player.sendMessage(this.plugin.getSymbolPrefix() + string);
             }
-        });
+        }
 
         if (actor.isPlayer()) {
             Message.MESSAGE_SENT.send(actor);
@@ -153,10 +159,11 @@ public final class ItsMyConfigCommand {
     @CommandPermission("itsmyconfig.message")
     public void msgCommand(
             final BukkitCommandActor actor,
-            @Named("target") final EntitySelector<Player> players,
-            @Named("message") final String message
+            final @Named("target") EntitySelector<Player> players,
+            final @Optional @Switch("d") boolean direct,
+            final @Named("message") String message
     ) {
-        this.message(actor, players, message);
+        this.message(actor, players, direct, message);
     }
 
     @Command("config")

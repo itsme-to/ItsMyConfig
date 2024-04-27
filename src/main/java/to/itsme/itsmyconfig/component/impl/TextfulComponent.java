@@ -1,11 +1,10 @@
-package to.itsme.itsmyconfig.parser;
+package to.itsme.itsmyconfig.component.impl;
 
 import com.google.gson.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import org.jetbrains.annotations.NotNull;
+import to.itsme.itsmyconfig.component.AbstractComponent;
 import to.itsme.itsmyconfig.util.Utilities;
 
 import java.lang.reflect.Type;
@@ -13,57 +12,38 @@ import java.util.LinkedList;
 import java.util.List;
 
 @SuppressWarnings("all")
-public class MinecraftComponent {
-
-    private static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapter(MinecraftComponent.class, new MinecraftComponentDeserializer())
-            .create();
-
-    private static final GsonComponentSerializer GSON_SERIALIZER = GsonComponentSerializer.gson();
+public final class TextfulComponent extends AbstractComponent {
 
     private String text;
     private String color;
+
     private boolean bold;
     private boolean italic;
     private boolean underlined;
     private boolean strikethrough;
     private boolean obfuscated;
+
+    private String insertion;
     private ClickEvent clickEvent;
     private HoverEvent hoverEvent;
-    private List<MinecraftComponent> extra;
-
-    /**
-     * Parses a json string to a {@link MinecraftComponent}
-     *
-     * @param json The parsed json String.
-     * @return an instance of {@link MinecraftComponent}.
-     */
-    public static MinecraftComponent parse(@NotNull final String json) {
-        return GSON.fromJson(json, MinecraftComponent.class);
-    }
-
-    /**
-     * Parses a {@link Component} into a {@link MinecraftComponent}
-     *
-     * @param component The parsed {@link Component}.
-     * @return an instance of {@link MinecraftComponent}.
-     */
-    public static MinecraftComponent parse(@NotNull final Component component) {
-        if (component instanceof TextComponent) {
-            return new MinecraftComponent((TextComponent) component);
-        }
-        return parse(GSON_SERIALIZER.serialize(component));
-    }
+    private final List<AbstractComponent> extra = new LinkedList<>();
 
     /**
      * Empty Constructor
      */
-    public MinecraftComponent() {}
+    public TextfulComponent() {}
 
     /**
-     * {@link TextComponent} convetrer to a {@link MinecraftComponent}
+     * Only String component
      */
-    private MinecraftComponent(final TextComponent component) {
+    public TextfulComponent(final String text) {
+        this.text = text;
+    }
+
+    /**
+     * {@link TextComponent} convetrer to a {@link TextfulComponent}
+     */
+    public TextfulComponent(final TextComponent component) {
         this.text = component.content();
 
         if (component.color() != null) {
@@ -76,6 +56,9 @@ public class MinecraftComponent {
         this.underlined = component.style().hasDecoration(TextDecoration.UNDERLINED);
         this.strikethrough = component.style().hasDecoration(TextDecoration.STRIKETHROUGH);
         this.obfuscated = component.style().hasDecoration(TextDecoration.OBFUSCATED);
+
+        // properties
+        this.insertion = component.insertion();
 
         // events
         if (component.clickEvent() != null) {
@@ -108,89 +91,93 @@ public class MinecraftComponent {
 
         // children
         if (!component.children().isEmpty()) {
-            this.extra = new LinkedList<>();
             for (final Component child : component.children()) {
-                if (component instanceof TextComponent) {
-                    this.extra.add(new MinecraftComponent((TextComponent) child));
-                }
+                this.extra.add(AbstractComponent.parse(child));
             }
         }
     }
 
+    @Override
     public String toMiniMessage() {
         final StringBuilder builder = new StringBuilder();
-        if (text != null && !text.isEmpty()) {
-            if (color != null) {
-                builder.append("<").append(color).append(">");
-            }
-
-            if (bold) {
-                builder.append("<bold>");
-            }
-
-            if (italic) {
-                builder.append("<italic>");
-            }
-
-            if (underlined) {
-                builder.append("<underlined>");
-            }
-
-            if (strikethrough) {
-                builder.append("<strikethrough>");
-            }
-
-            if (obfuscated) {
-                builder.append("<obfuscated>");
-            }
-
-            if (clickEvent != null) {
-                builder.append(clickEvent.toMM());
-            }
-
-            if (hoverEvent != null) {
-                builder.append(hoverEvent.toMM());
-            }
-
-            builder.append(text);
-
-            if (hoverEvent != null) {
-                builder.append("</hover>");
-            }
-
-            if (clickEvent != null) {
-                builder.append("</click>");
-            }
-
-            if (obfuscated) {
-                builder.append("</obfuscated>");
-            }
-
-            if (strikethrough) {
-                builder.append("</strikethrough>");
-            }
-
-            if (underlined) {
-                builder.append("</underlined>");
-            }
-
-            if (italic) {
-                builder.append("</italic>");
-            }
-
-            if (bold) {
-                builder.append("</bold>");
-            }
-
-            if (color != null) {
-                builder.append("</").append(color).append(">");
-            }
+        if (color != null) {
+            builder.append("<").append(color).append(">");
         }
 
-        if  (this.extra != null) {
-            for (final MinecraftComponent component : this.extra) {
-                builder.append(component.toMiniMessage());
-            }
+        if (bold) {
+            builder.append("<bold>");
+        }
+
+        if (italic) {
+            builder.append("<italic>");
+        }
+
+        if (underlined) {
+            builder.append("<underlined>");
+        }
+
+        if (strikethrough) {
+            builder.append("<strikethrough>");
+        }
+
+        if (obfuscated) {
+            builder.append("<obfuscated>");
+        }
+
+        if (insertion != null) {
+            builder.append("<insert:").append(insertion).append(">");
+        }
+
+        if (clickEvent != null) {
+            builder.append(clickEvent.toMM());
+        }
+
+        if (hoverEvent != null) {
+            builder.append(hoverEvent.toMM());
+        }
+
+        if (text != null && !text.isEmpty()) {
+            builder.append(text);
+        }
+
+        for (final AbstractComponent component : this.extra) {
+            builder.append(component.toMiniMessage());
+        }
+
+        if (hoverEvent != null) {
+            builder.append("</hover>");
+        }
+
+        if (clickEvent != null) {
+            builder.append("</click>");
+        }
+
+        if (insertion != null) {
+            builder.append("</insert>");
+        }
+
+        if (obfuscated) {
+            builder.append("</obfuscated>");
+        }
+
+        if (strikethrough) {
+            builder.append("</strikethrough>");
+        }
+
+        if (underlined) {
+            builder.append("</underlined>");
+        }
+
+        if (italic) {
+            builder.append("</italic>");
+        }
+
+        if (bold) {
+            builder.append("</bold>");
+        }
+
+        if (color != null) {
+            builder.append("</").append(color).append(">");
         }
 
         return builder.toString();
@@ -232,16 +219,16 @@ public class MinecraftComponent {
 
     }
 
-    public static final class MinecraftComponentDeserializer implements JsonDeserializer<MinecraftComponent> {
+    public static final class MinecraftComponentDeserializer implements JsonDeserializer<TextfulComponent> {
 
         @Override
-        public final MinecraftComponent deserialize(
+        public final TextfulComponent deserialize(
                 final JsonElement json,
                 final Type typeOfT,
                 final JsonDeserializationContext context
         ) throws JsonParseException {
             final JsonObject jsonObject = json.getAsJsonObject();
-            final MinecraftComponent component = new MinecraftComponent();
+            final TextfulComponent component = new TextfulComponent();
             component.text = jsonObject.has("text") ? jsonObject.get("text").getAsString() : null;
             component.color = jsonObject.has("color") ? jsonObject.get("color").getAsString() : null;
             component.bold = jsonObject.has("bold") && jsonObject.get("bold").getAsBoolean();
@@ -249,22 +236,16 @@ public class MinecraftComponent {
             component.underlined = jsonObject.has("underlined") && jsonObject.get("underlined").getAsBoolean();
             component.strikethrough = jsonObject.has("strikethrough") && jsonObject.get("strikethrough").getAsBoolean();
             component.obfuscated = jsonObject.has("obfuscated") && jsonObject.get("obfuscated").getAsBoolean();
+            component.insertion = jsonObject.has("insertion") ? jsonObject.get("insertion").getAsString() : null;
             component.clickEvent = jsonObject.has("clickEvent") ? context.deserialize(jsonObject.get("clickEvent"), ClickEvent.class) : null;
             component.hoverEvent = jsonObject.has("hoverEvent") ? context.deserialize(jsonObject.get("hoverEvent"), HoverEvent.class) : null;
 
             if (jsonObject.has("extra")) {
                 final JsonArray extraArray = jsonObject.getAsJsonArray("extra");
-                component.extra = new LinkedList<>();
                 for (final JsonElement element : extraArray) {
-                    if (element.isJsonObject()) {
-                        final MinecraftComponent extraComponent = context.deserialize(element, MinecraftComponent.class);
-                        if (extraComponent != null) {
-                            component.extra.add(extraComponent);
-                        }
-                    } else if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
-                        final MinecraftComponent textComponent = new MinecraftComponent();
-                        textComponent.text = element.getAsString();
-                        component.extra.add(textComponent);
+                    final AbstractComponent extraComponent = AbstractComponent.parse(element);
+                    if (extraComponent != null) {
+                        component.extra.add(extraComponent);
                     }
                 }
             }
