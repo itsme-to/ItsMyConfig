@@ -52,6 +52,7 @@ public final class ItsMyConfig extends JavaPlugin {
         final ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
         protocolManager.addPacketListener(new PacketChatListener(this, PacketType.Play.Server.DISGUISED_CHAT, PacketType.Play.Server.SYSTEM_CHAT));
         protocolManager.addPacketListener(new PacketChatListener(this, PacketType.Play.Server.CHAT));
+        protocolManager.addPacketListener(new PacketItemListener(this, PacketType.Play.Server.SET_SLOT, PacketType.Play.Server.WINDOW_ITEMS));
     }
 
     public void loadConfig() {
