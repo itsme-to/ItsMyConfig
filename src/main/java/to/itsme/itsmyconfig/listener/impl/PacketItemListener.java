@@ -49,6 +49,13 @@ public final class PacketItemListener extends PacketListener {
                 itemStacks.forEach(itemStack -> this.processItem(itemStack, player));
                 itemArrayModifier.write(0, itemStacks);
             }
+
+            final StructureModifier<ItemStack> itemModifier = packetContainer.getItemModifier();
+            final ItemStack itemStack = itemModifier.readSafely(0);
+            if (itemStack != null) {
+                this.processItem(itemStack, player);
+                itemModifier.write(0, itemStack);
+            }
         }
     }
 
