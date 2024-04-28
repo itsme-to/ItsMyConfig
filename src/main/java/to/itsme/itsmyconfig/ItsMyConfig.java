@@ -23,6 +23,8 @@ import to.itsme.itsmyconfig.requirement.RequirementManager;
 
 public final class ItsMyConfig extends JavaPlugin {
 
+    private static final boolean ALLOW_ITEM_EDITS = false;
+
     private static ItsMyConfig instance;
     private final PlaceholderManager placeholderManager = new PlaceholderManager();
     private final ProgressBarBucket progressBarBucket = new ProgressBarBucket();
@@ -52,7 +54,9 @@ public final class ItsMyConfig extends JavaPlugin {
 
         final ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
         protocolManager.addPacketListener(new PacketChatListener(this));
-        protocolManager.addPacketListener(new PacketItemListener(this));
+        if (ALLOW_ITEM_EDITS) {
+            protocolManager.addPacketListener(new PacketItemListener(this));
+        }
     }
 
     public void loadConfig() {
