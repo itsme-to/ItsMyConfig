@@ -100,7 +100,7 @@ public final class DynamicPlaceHolder extends PlaceholderExpansion {
         return data.asString(player, args);
     }
 
-    private String getArgs(String[] strings) {
+    private String getArgs(final String[] strings) {
         if (strings.length < 2) {
             return "";
         }

@@ -13,6 +13,7 @@ import net.kyori.adventure.util.Ticks;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import to.itsme.itsmyconfig.ItsMyConfig;
@@ -34,20 +35,51 @@ import java.util.stream.Collectors;
 public final class Utilities {
 
     public static final MiniMessage MM, EMPTY_MM;
+    public static final Pattern LETTERS_PATTERN = Pattern.compile("[A-Za-zÀ-ÿ]");
     public static final Pattern HEX_PATTERN = Pattern.compile("#[a-fA-F0-9]{6}");
+    public static final Pattern TAG_PATTERN = Pattern.compile("<(?:\\\\.|[^<>])*>");
 
     private static final ItsMyConfig plugin = ItsMyConfig.getInstance();
+
     private static final Pattern COLOR_FILTER = Pattern.compile("[§&][a-zA-Z0-9]");
     private static final Pattern ARGUMENT_PATTERN = Pattern.compile("\\{([0-9]+)}");
-    private static final TagResolver FONT_RESOLVER =  TagResolver.resolver("smallcaps", new FontTag(Font.SMALL_CAPS));
 
+    private static final TagResolver QUOTE_RESOLVER =  TagResolver.resolver("quote", (argumentQueue, context) -> {
+        final Tag.Argument argument = argumentQueue.peek();
+        if (argument == null) {
+            return Tag.preProcessParsed("");
+        }
+
+        final String text = argument.value();
+        final Matcher matcher = TAG_PATTERN.matcher(text);
+        final StringBuilder builder = new StringBuilder(text);
+
+        int offset = 0;
+        while (matcher.find()) {
+            final int foundIndex = matcher.start() + offset;
+            if (foundIndex != -1 && builder.charAt(Math.max(0, foundIndex - 1)) != '\\') {
+                builder.insert(foundIndex, '\\');
+                offset++;
+            }
+        }
+
+        return Tag.preProcessParsed(builder.toString());
+    });
+
+    private static final TagResolver FONT_RESOLVER;
     private static final Field TEXT_COMPONENT_CONTENT;
 
     static {
+        final TagResolver.Builder builder = TagResolver.builder();
+        for (final @Subst("") Font font : Font.values()) {
+            builder.tag(font.getName(), new FontTag(font));
+        }
+        FONT_RESOLVER = builder.build();
         MM = MiniMessage.builder()
                 .tags(
                         TagResolver.builder()
                                 .resolvers(
+                                        QUOTE_RESOLVER,
                                         StandardTags.defaults(),
                                         FONT_RESOLVER
                                 ).build()
@@ -97,7 +129,7 @@ public final class Utilities {
         final Component translated = fixClickEvent(
                 EMPTY_MM.deserialize(
                         text,
-                        Utilities.itsMyConfigTag(player), Utilities.papiTag(player),
+                        QUOTE_RESOLVER, Utilities.itsMyConfigTag(player), Utilities.papiTag(player),
                         FONT_RESOLVER, StandardTags.defaults(), Utilities.playerSubtags(player)
                 )
         );

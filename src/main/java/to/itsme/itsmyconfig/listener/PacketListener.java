@@ -12,11 +12,10 @@ public abstract class PacketListener extends PacketAdapter {
 
     protected final ItsMyConfig plugin;
     private final Pattern colorSymbolPattern, symbolPrefixPattern;
-    private final Pattern tagPattern = Pattern.compile("<(?:\\\\.|[^<>])*>");
 
     public PacketListener(
-            ItsMyConfig plugin,
-            PacketType... types
+            final ItsMyConfig plugin,
+            final PacketType... types
     ) {
         super(plugin, ListenerPriority.NORMAL, types);
         this.plugin = plugin;
@@ -44,7 +43,7 @@ public abstract class PacketListener extends PacketAdapter {
             return false;
         }
 
-        return tagPattern.matcher(Utilities.colorless(message)).replaceAll("").trim().startsWith(plugin.getSymbolPrefix());
+        return Utilities.TAG_PATTERN.matcher(Utilities.colorless(message)).replaceAll("").trim().startsWith(plugin.getSymbolPrefix());
     }
 
 }

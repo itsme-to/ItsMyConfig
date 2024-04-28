@@ -54,6 +54,7 @@ public final class ItsMyConfig extends JavaPlugin {
 
         final ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
         protocolManager.addPacketListener(new PacketChatListener(this));
+
         if (ALLOW_ITEM_EDITS) {
             protocolManager.addPacketListener(new PacketItemListener(this));
         }
