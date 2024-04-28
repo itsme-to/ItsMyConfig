@@ -64,7 +64,11 @@ public final class PacketItemListener extends PacketListener {
 
         final NbtCompound displayNbt = itemNbt.getCompound("display");
         if (displayNbt.containsKey("Name")) {
-            final String text = AbstractComponent.parse(displayNbt.getString("Name")).toMiniMessage();
+            final AbstractComponent component = AbstractComponent.parse(displayNbt.getString("Name"));
+            if (component instanceof TextfulComponent) {
+                ((TextfulComponent) component).forceUnitalic = true;
+            }
+            final String text = component.toMiniMessage();
             if (this.startsWithSymbol(text)) {
                 final Component translatedComponent = Utilities.translate(processMessage(text), player);
                 displayNbt.put("Name", gsonComponentSerializer.serialize(translatedComponent));
