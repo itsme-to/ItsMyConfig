@@ -94,13 +94,16 @@ public final class Utilities {
      * @return The translated component.
      */
     public static Component translate(final String text, final Player player) {
-        return fixClickEvent(
+        final Component translated = fixClickEvent(
                 EMPTY_MM.deserialize(
                         text,
                         Utilities.itsMyConfigTag(player), Utilities.papiTag(player),
                         FONT_RESOLVER, StandardTags.defaults(), Utilities.playerSubtags(player)
                 )
         );
+
+        applyChatColors(translated);
+        return translated;
     }
 
     /**

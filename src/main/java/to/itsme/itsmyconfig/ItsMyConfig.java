@@ -1,6 +1,5 @@
 package to.itsme.itsmyconfig;
 
-import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -8,6 +7,8 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
 import to.itsme.itsmyconfig.command.CommandManager;
+import to.itsme.itsmyconfig.listener.impl.PacketChatListener;
+import to.itsme.itsmyconfig.listener.impl.PacketItemListener;
 import to.itsme.itsmyconfig.placeholder.DynamicPlaceHolder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderData;
 import to.itsme.itsmyconfig.placeholder.PlaceholderManager;
@@ -50,9 +51,8 @@ public final class ItsMyConfig extends JavaPlugin {
         }
 
         final ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-        protocolManager.addPacketListener(new PacketChatListener(this, PacketType.Play.Server.DISGUISED_CHAT, PacketType.Play.Server.SYSTEM_CHAT));
-        protocolManager.addPacketListener(new PacketChatListener(this, PacketType.Play.Server.CHAT));
-        protocolManager.addPacketListener(new PacketItemListener(this, PacketType.Play.Server.SET_SLOT, PacketType.Play.Server.WINDOW_ITEMS));
+        protocolManager.addPacketListener(new PacketChatListener(this));
+        protocolManager.addPacketListener(new PacketItemListener(this));
     }
 
     public void loadConfig() {

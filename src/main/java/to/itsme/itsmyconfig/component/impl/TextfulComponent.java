@@ -23,6 +23,8 @@ public final class TextfulComponent extends AbstractComponent {
     private boolean strikethrough;
     private boolean obfuscated;
 
+    public boolean forceUnitalic;
+
     private String insertion;
     private ClickEvent clickEvent;
     private HoverEvent hoverEvent;
@@ -110,6 +112,8 @@ public final class TextfulComponent extends AbstractComponent {
 
         if (italic) {
             builder.append("<italic>");
+        } else if (forceUnitalic) {
+            builder.append("<!italic>");
         }
 
         if (underlined) {
@@ -170,6 +174,8 @@ public final class TextfulComponent extends AbstractComponent {
 
         if (italic) {
             builder.append("</italic>");
+        } else if (forceUnitalic) {
+            builder.append("</!italic>");
         }
 
         if (bold) {

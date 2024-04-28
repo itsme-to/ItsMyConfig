@@ -1,8 +1,6 @@
-package to.itsme.itsmyconfig;
+package to.itsme.itsmyconfig.listener.impl;
 
 import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
@@ -13,29 +11,23 @@ import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
+import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.component.AbstractComponent;
+import to.itsme.itsmyconfig.listener.PacketListener;
 import to.itsme.itsmyconfig.util.Utilities;
 
 import java.lang.reflect.Method;
-import java.util.regex.Pattern;
 
-public final class PacketChatListener extends PacketAdapter {
+public final class PacketChatListener extends PacketListener {
 
-    private final ItsMyConfig plugin;
     private final Method fromComponent;
     private final boolean internalAdventure;
-    private final Pattern colorSymbolPattern, symbolPrefixPattern;
-    private final Pattern tagPattern = Pattern.compile("<(?:\\\\.|[^<>])*>");
     private final BungeeComponentSerializer bungee = BungeeComponentSerializer.get();
 
     public PacketChatListener(
-            final ItsMyConfig plugin,
-            final PacketType... types
+            final ItsMyConfig plugin
     ) {
-        super(plugin, ListenerPriority.NORMAL, types);
-        this.plugin = plugin;
-        this.colorSymbolPattern = Pattern.compile(Pattern.quote("§"));
-        this.symbolPrefixPattern = Pattern.compile(Pattern.quote(plugin.getSymbolPrefix()));
+        super(plugin, PacketType.Play.Server.CHAT, PacketType.Play.Server.DISGUISED_CHAT, PacketType.Play.Server.SYSTEM_CHAT);
         Method fromComponent;
         try {
             fromComponent = AdventureComponentConverter.class.getDeclaredMethod(
@@ -52,52 +44,28 @@ public final class PacketChatListener extends PacketAdapter {
 
     @Override
     public void onPacketSending(final PacketEvent event) {
+        Utilities.debug("################# CHAT PACKET #################");
         final PacketContainer packetContainer = event.getPacket();
-        Utilities.debug("######################################");
         final String message = this.processPacket(packetContainer);
         if (message == null || message.isEmpty()) {
-            Utilities.debug("######################################");
+            Utilities.debug("###############################################");
             return;
         }
 
         Utilities.debug("Checking: " + message);
         if (!this.startsWithSymbol(message)) {
             Utilities.debug("Message doesn't start w/ the symbol-prefix: " + message);
-            Utilities.debug("######################################");
+            Utilities.debug("###############################################");
             return;
         }
 
         event.setCancelled(true);
         final Player player = event.getPlayer();
         final Component parsed = Utilities.translate(this.processMessage(message), player);
-        Utilities.debug("######################################");
-        Utilities.applyChatColors(parsed);
+        Utilities.debug("###############################################");
         if (!parsed.equals(Component.empty())) {
             plugin.adventure().player(player).sendMessage(parsed);
         }
-    }
-
-    /**
-     * Checks if the provided message starts with the "$" symbol
-     * @param message the checked message
-     */
-    private boolean startsWithSymbol(final String message) {
-        if (message == null || message.isEmpty()) {
-            return false;
-        }
-
-        return tagPattern.matcher(Utilities.colorless(message)).replaceAll("").trim().startsWith(plugin.getSymbolPrefix());
-    }
-
-    /**
-     * Removes the '§' symbol and replaces it with '&'
-     * <br>
-     * Also removes the first '$' symbol it meets
-     *
-     * @param message the provided message
-     */
-    private String processMessage(final String message) {
-        return colorSymbolPattern.matcher(symbolPrefixPattern.matcher(message).replaceFirst("")).replaceAll("&");
     }
 
     private String processPacket(final PacketContainer container) {
