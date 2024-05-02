@@ -39,15 +39,37 @@ public final class KeybindedComponent extends AbstractComponent {
     }
 
 
-    public static final class KeybindedComponentDeserializer implements JsonDeserializer<KeybindedComponent> {
+    public static final class Adapter implements JsonSerializer<KeybindedComponent>, JsonDeserializer<KeybindedComponent> {
+
+        @Override
+        public JsonElement serialize(
+                final KeybindedComponent component,
+                final Type type,
+                final JsonSerializationContext context
+        ) {
+            final JsonObject jsonObject = new JsonObject();
+
+            // add whether it's null or not to make sure it's a keybind component
+            jsonObject.addProperty("keybind", component.keybind);
+
+            if (!component.extra.isEmpty()) {
+                final JsonArray extraArray = new JsonArray();
+                for (final AbstractComponent extraComponent : component.extra) {
+                    extraArray.add(context.serialize(extraComponent));
+                }
+                jsonObject.add("extra", extraArray);
+            }
+
+            return jsonObject;
+        }
 
         @Override
         public KeybindedComponent deserialize(
-                final JsonElement jsonElement,
+                final JsonElement json,
                 final Type type,
                 final JsonDeserializationContext jsonDeserializationContext
         ) throws JsonParseException {
-            final JsonObject jsonObject = jsonElement.getAsJsonObject();
+            final JsonObject jsonObject = json.getAsJsonObject();
             final KeybindedComponent component = new KeybindedComponent();
             component.keybind = jsonObject.has("keybind") ? jsonObject.get("keybind").getAsString() : null;
 

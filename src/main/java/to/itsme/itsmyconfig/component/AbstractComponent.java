@@ -5,9 +5,9 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.KeybindComponent;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import to.itsme.itsmyconfig.component.impl.KeybindedComponent;
+import to.itsme.itsmyconfig.component.impl.PseudoComponent;
 import to.itsme.itsmyconfig.component.impl.TextfulComponent;
 import to.itsme.itsmyconfig.component.impl.TranslatingComponent;
 
@@ -17,13 +17,23 @@ import java.util.List;
 public abstract class AbstractComponent {
 
     private static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapter(TextfulComponent.class, new TextfulComponent.MinecraftComponentDeserializer())
-            .registerTypeAdapter(KeybindedComponent.class, new KeybindedComponent.KeybindedComponentDeserializer())
-            .registerTypeAdapter(TranslatingComponent.class, new TranslatingComponent.TranslatingComponentDeserializer())
+            .registerTypeAdapter(TextfulComponent.class, new TextfulComponent.Adapter())
+            .registerTypeAdapter(KeybindedComponent.class, new KeybindedComponent.Adapter())
+            .registerTypeAdapter(TranslatingComponent.class, new TranslatingComponent.Adapter())
             .create();
 
     private static final JsonParser PARSER = new JsonParser();
-    private static final GsonComponentSerializer GSON_SERIALIZER = GsonComponentSerializer.gson();
+
+    /**
+     * Translates {@link AbstractComponent} to a JSON String
+     *
+     * @param component The parsed {@link AbstractComponent}.
+     * @return a JSON string representing the component.
+     */
+    @SuppressWarnings("unused")
+    public static String toJson(@NotNull final AbstractComponent component) {
+        return GSON.toJson(component);
+    }
 
     /**
      * Parses a json string to an {@link AbstractComponent}
@@ -35,7 +45,7 @@ public abstract class AbstractComponent {
         try {
             return parse(PARSER.parse(json));
         } catch (final Throwable ignored) {
-            return new TextfulComponent(json);
+            return new PseudoComponent(json);
         }
     }
 
@@ -53,7 +63,7 @@ public abstract class AbstractComponent {
         } else if (component instanceof TranslatableComponent) {
             return new TranslatingComponent((TranslatableComponent) component);
         }
-        return parse(GSON_SERIALIZER.serialize(component));
+        return new PseudoComponent(component);
     }
 
     /**
@@ -74,7 +84,8 @@ public abstract class AbstractComponent {
         } else if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
             return new TextfulComponent(element.getAsString());
         }
-        return null;
+
+        return new PseudoComponent(element.getAsString());
     }
 
     protected final List<AbstractComponent> extra = new LinkedList<>();

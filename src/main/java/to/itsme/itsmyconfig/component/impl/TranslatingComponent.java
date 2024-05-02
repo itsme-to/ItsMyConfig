@@ -68,15 +68,49 @@ public class TranslatingComponent extends AbstractComponent {
         return builder.toString();
     }
 
-    public static final class TranslatingComponentDeserializer implements JsonDeserializer<TranslatingComponent> {
+    public static final class Adapter implements JsonSerializer<TranslatingComponent>, JsonDeserializer<TranslatingComponent> {
+
+        @Override
+        public JsonElement serialize(
+                final TranslatingComponent component,
+                final Type type,
+                final JsonSerializationContext context
+        ) {
+            final JsonObject jsonObject = new JsonObject();
+
+            // add whether it's null or not to make sure it's a translatable component
+            jsonObject.addProperty("translate", component.key);
+
+            if (component.color != null) {
+                jsonObject.addProperty("color", component.color);
+            }
+
+            if (!component.with.isEmpty()) {
+                final JsonArray extraArray = new JsonArray();
+                for (final AbstractComponent extraComponent : component.with) {
+                    extraArray.add(context.serialize(extraComponent));
+                }
+                jsonObject.add("with", extraArray);
+            }
+
+            if (!component.extra.isEmpty()) {
+                final JsonArray extraArray = new JsonArray();
+                for (final AbstractComponent extraComponent : component.extra) {
+                    extraArray.add(context.serialize(extraComponent));
+                }
+                jsonObject.add("extra", extraArray);
+            }
+
+            return jsonObject;
+        }
 
         @Override
         public TranslatingComponent deserialize(
-                final JsonElement jsonElement,
+                final JsonElement json,
                 final Type type,
                 final JsonDeserializationContext jsonDeserializationContext
         ) throws JsonParseException {
-            final JsonObject jsonObject = jsonElement.getAsJsonObject();
+            final JsonObject jsonObject = json.getAsJsonObject();
             final TranslatingComponent component = new TranslatingComponent();
             component.key = jsonObject.has("translate") ? jsonObject.get("translate").getAsString() : null;
             component.color = jsonObject.has("color") ? jsonObject.get("color").getAsString() : null;

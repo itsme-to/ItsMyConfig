@@ -3,15 +3,13 @@ package to.itsme.itsmyconfig.component.impl;
 import com.google.gson.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import to.itsme.itsmyconfig.component.AbstractComponent;
 import to.itsme.itsmyconfig.util.Utilities;
 
 import java.lang.reflect.Type;
-import java.util.LinkedList;
-import java.util.List;
 
-@SuppressWarnings("all")
 public final class TextfulComponent extends AbstractComponent {
 
     private String text;
@@ -28,7 +26,6 @@ public final class TextfulComponent extends AbstractComponent {
     private String insertion;
     private ClickEvent clickEvent;
     private HoverEvent hoverEvent;
-    private final List<AbstractComponent> extra = new LinkedList<>();
 
     /**
      * Empty Constructor
@@ -45,11 +42,13 @@ public final class TextfulComponent extends AbstractComponent {
     /**
      * {@link TextComponent} convetrer to a {@link TextfulComponent}
      */
+    @SuppressWarnings("all")
     public TextfulComponent(final TextComponent component) {
         this.text = component.content();
 
-        if (component.color() != null) {
-            this.color = component.color().asHexString();
+        final TextColor color = component.color();
+        if (color != null) {
+            this.color = color.asHexString();
         }
 
         // decorations
@@ -225,12 +224,71 @@ public final class TextfulComponent extends AbstractComponent {
 
     }
 
-    public static final class MinecraftComponentDeserializer implements JsonDeserializer<TextfulComponent> {
+    public static final class Adapter implements JsonSerializer<TextfulComponent>, JsonDeserializer<TextfulComponent> {
 
         @Override
-        public final TextfulComponent deserialize(
+        public JsonElement serialize(
+                final TextfulComponent component,
+                final Type type,
+                final JsonSerializationContext context
+        ) {
+            final JsonObject jsonObject = new JsonObject();
+
+            if (component.text != null) {
+                jsonObject.addProperty("text", component.text);
+            }
+
+            if (component.color != null) {
+                jsonObject.addProperty("color", component.color);
+            }
+
+            if (component.bold) {
+                jsonObject.addProperty("bold", true);
+            }
+
+            if (component.italic || component.forceUnitalic) {
+                jsonObject.addProperty("italic", component.italic);
+            }
+
+            if (component.underlined) {
+                jsonObject.addProperty("underlined", true);
+            }
+
+            if (component.strikethrough) {
+                jsonObject.addProperty("strikethrough", true);
+            }
+
+            if (component.obfuscated) {
+                jsonObject.addProperty("obfuscated", true);
+            }
+
+            if (component.insertion != null) {
+                jsonObject.addProperty("insertion", component.insertion);
+            }
+
+            if (component.clickEvent != null) {
+                jsonObject.add("clickEvent", context.serialize(component.clickEvent));
+            }
+
+            if (component.hoverEvent != null) {
+                jsonObject.add("hoverEvent", context.serialize(component.hoverEvent));
+            }
+
+            if (!component.extra.isEmpty()) {
+                final JsonArray extraArray = new JsonArray();
+                for (final AbstractComponent extraComponent : component.extra) {
+                    extraArray.add(context.serialize(extraComponent));
+                }
+                jsonObject.add("extra", extraArray);
+            }
+
+            return jsonObject;
+        }
+
+        @Override
+        public TextfulComponent deserialize(
                 final JsonElement json,
-                final Type typeOfT,
+                final Type type,
                 final JsonDeserializationContext context
         ) throws JsonParseException {
             final JsonObject jsonObject = json.getAsJsonObject();

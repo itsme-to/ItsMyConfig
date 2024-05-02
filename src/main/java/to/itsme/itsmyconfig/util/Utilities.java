@@ -1,6 +1,7 @@
 package to.itsme.itsmyconfig.util;
 
 import me.clip.placeholderapi.PlaceholderAPI;
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -23,15 +24,13 @@ import to.itsme.itsmyconfig.placeholder.PlaceholderData;
 import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholderData;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.OptionalInt;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("all")
 public final class Utilities {
 
     public static final MiniMessage MM, EMPTY_MM;
@@ -43,28 +42,7 @@ public final class Utilities {
 
     private static final Pattern COLOR_FILTER = Pattern.compile("[§&][a-zA-Z0-9]");
     private static final Pattern ARGUMENT_PATTERN = Pattern.compile("\\{([0-9]+)}");
-
-    private static final TagResolver QUOTE_RESOLVER =  TagResolver.resolver("quote", (argumentQueue, context) -> {
-        final Tag.Argument argument = argumentQueue.peek();
-        if (argument == null) {
-            return Tag.preProcessParsed("");
-        }
-
-        final String text = argument.value();
-        final Matcher matcher = TAG_PATTERN.matcher(text);
-        final StringBuilder builder = new StringBuilder(text);
-
-        int offset = 0;
-        while (matcher.find()) {
-            final int foundIndex = matcher.start() + offset;
-            if (foundIndex != -1 && builder.charAt(Math.max(0, foundIndex - 1)) != '\\') {
-                builder.insert(foundIndex, '\\');
-                offset++;
-            }
-        }
-
-        return Tag.preProcessParsed(builder.toString());
-    });
+    private static final Pattern QUOTE_PATTERN = Pattern.compile("<quote(?::([^>]*))?>(.*)<\\/quote>");
 
     private static final TagResolver FONT_RESOLVER;
     private static final Field TEXT_COMPONENT_CONTENT;
@@ -79,7 +57,6 @@ public final class Utilities {
                 .tags(
                         TagResolver.builder()
                                 .resolvers(
-                                        QUOTE_RESOLVER,
                                         StandardTags.defaults(),
                                         FONT_RESOLVER
                                 ).build()
@@ -125,17 +102,111 @@ public final class Utilities {
      * @param player The player translated-for.
      * @return The translated component.
      */
-    public static Component translate(final String text, final Player player) {
+    public static Component translate(
+            final String text,
+            final Player player,
+            final TagResolver... placeholders
+    ) {
         final Component translated = fixClickEvent(
                 EMPTY_MM.deserialize(
-                        text,
-                        QUOTE_RESOLVER, Utilities.itsMyConfigTag(player), Utilities.papiTag(player),
-                        FONT_RESOLVER, StandardTags.defaults(), Utilities.playerSubtags(player)
+                        quote(text),
+                        itsMyConfigTag(player), papiTag(player),
+                        FONT_RESOLVER, StandardTags.defaults(), playerSubtags(player),
+                        TagResolver.resolver(placeholders)
                 )
         );
 
         applyChatColors(translated);
         return translated;
+    }
+
+    /**
+     * Processes a given text and escapes tags based on specified properties.
+     *
+     * @param text The text to be processed for escaping tags.
+     * @return A string with escaped tags based on the given text.
+     */
+    public static String quote(final String text) {
+        final Matcher matcher = QUOTE_PATTERN.matcher(text);
+        final StringBuilder result = new StringBuilder(text);
+
+        while (matcher.find()) {
+            final String properties = matcher.group(1) != null ? matcher.group(1) : "";
+            final String matchedText = matcher.group(2) != null ? matcher.group(2) : "";
+            final String escapedText = escapeTags(matchedText, Arrays.asList(
+                    properties.toLowerCase().split(":"))
+            );
+
+            int start = matcher.start();
+            int end = matcher.end();
+            result.replace(start, end, escapedText);
+
+            int offset = escapedText.length() - (end - start);
+            matcher.region(end + offset, text.length() + offset);
+        }
+
+        return result.toString();
+    }
+
+    /**
+     * Escapes Tags based on the special properties provided.
+     *
+     * @param tagContent The content of the tag to be checked for color.
+     * @return {@code true} if the tag content represents a color, {@code false} otherwise.
+     */
+    private static String escapeTags(
+            final String text,
+            final List<String> properties
+    ) {
+        final Matcher matcher = TAG_PATTERN.matcher(text);
+        final StringBuilder builder = new StringBuilder(text);
+
+        int offset = 0;
+        while (matcher.find()) {
+            if (!properties.isEmpty()) {
+                final String found = matcher.group();
+                final String content = found.substring(1, found.length() - 1);
+                if (properties.contains("ignorecolors")) {
+                    if (isColor(content)) continue;
+                }
+                if (properties.contains("ignoredecorations")) {
+                    if (isDecoration(content)) continue;
+                }
+            }
+            final int foundIndex = matcher.start() + offset;
+            if (foundIndex != -1 && builder.charAt(Math.max(0, foundIndex - 1)) != '\\') {
+                builder.insert(foundIndex, '\\');
+                offset++;
+            }
+        }
+
+        return builder.toString();
+    }
+
+    /**
+     * Checks if the provided tag content represents a color.
+     *
+     * @param tagContent The content of the tag to be checked for color.
+     * @return {@code true} if the tag content represents a color, {@code false} otherwise.
+     */
+    public static boolean isColor(final String tagContent) {
+        for (final String split : tagContent.split(":")) {
+            if (StandardTags.color().has(split)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the provided tag content represents a decoration.
+     *
+     * @param tagContent The content of the tag to be checked for decoration.
+     * @return {@code true} if the tag content represents a decoration, {@code false} otherwise.
+     */
+    public static boolean isDecoration(final String tagContent) {
+        for (final String split : tagContent.split(":")) {
+            if (StandardTags.decorations().has(split)) return true;
+        }
+        return false;
     }
 
     /**
@@ -204,7 +275,8 @@ public final class Utilities {
     public static TagResolver playerSubtags(final Player player) {
         return TagResolver.resolver(
                 titleTag(player), subtitleTag(player),
-                actionbarTag(player), soundTag(player)
+                actionbarTag(player), soundTag(player),
+                bossbarTag(player)
         );
     }
 
@@ -301,7 +373,7 @@ public final class Utilities {
                 return Tag.preProcessParsed("Invalid title tag arguments");
             }
 
-            return Tag.selfClosingInserting(Component.empty());
+            return Tag.preProcessParsed("");
         });
     }
 
@@ -337,7 +409,7 @@ public final class Utilities {
                 return Tag.preProcessParsed("Invalid subtitle tag arguments");
             }
 
-            return Tag.selfClosingInserting(Component.empty());
+            return Tag.preProcessParsed("");
         });
     }
 
@@ -380,7 +452,51 @@ public final class Utilities {
                 return Tag.preProcessParsed("Invalid sound tag arguments");
             }
 
-            return Tag.selfClosingInserting(Component.empty());
+            return Tag.preProcessParsed("");
+        });
+    }
+
+    /**
+     * Provides an action bar tag resolver.
+     *
+     * @param player The player for whom the resolver is being created.
+     * @return The action bar tag resolver.
+     */
+    public static TagResolver bossbarTag(final Player player) {
+        return TagResolver.resolver("bossbar", (argumentQueue, context) -> {
+            final List<Tag.Argument> args = new LinkedList<>();
+            while (argumentQueue.hasNext()) {
+                args.add(argumentQueue.pop());
+            }
+
+            long delay = 20;
+            final BossBar bar;
+
+            if (args.size() > 3) {
+                final Component component = translate(args.get(0).value(), player);
+                final double progress = args.get(1).asDouble().orElse(1.0F);
+                final BossBar.Color color = BossBar.Color.NAMES.value(args.get(2).value());
+                final BossBar.Overlay overlay = BossBar.Overlay.NAMES.value(args.get(3).value());
+                bar = BossBar.bossBar(
+                        component,
+                        (float) Math.min(progress, 1.0F),
+                        color == null ? BossBar.Color.PINK : color,
+                        overlay == null ? BossBar.Overlay.PROGRESS : overlay
+                );
+
+                if (args.size() > 4) {
+                    delay = args.get(4).asInt().orElse(20);
+                }
+            } else {
+                bar = null;
+            }
+
+            if (bar != null) {
+                plugin.adventure().player(player).showBossBar(bar);
+                plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, () ->
+                        plugin.adventure().player(player).hideBossBar(bar), delay);
+            }
+            return Tag.preProcessParsed("");
         });
     }
 
