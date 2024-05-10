@@ -5,15 +5,39 @@ import to.itsme.itsmyconfig.util.Utilities;
 
 import java.util.Arrays;
 
+/**
+ * The StringRequirement class is a final class that extends the Requirement class. It represents a requirement
+ * for strings. It provides methods to add syntax rules for string comparison and validation of input and output.
+ */
 public final class StringRequirement extends Requirement<String> {
 
     public StringRequirement() {
-        this.syntax("equals", String::equals);
-        this.syntax("contains", String::contains);
+        this.addSyntaxRule("equals", String::equals);
+        this.addSyntaxRule("contains", String::contains);
     }
 
     @Override
-    public boolean validate(String identifier, final String inputString, final String outputString) {
+    public boolean validate(String identifier, final String inputString,
+                            final String outputString) {
+        String[] modifiedValues = handleSpecialIdentifiers(identifier,
+                inputString,
+                outputString);
+        identifier = modifiedValues[0];
+        String input = modifiedValues[1];
+        String output = modifiedValues[2];
+
+        final boolean reverse = identifier.startsWith("!");
+        String[] syntaxArguments = identifier.split(" ");
+        syntaxArguments = Arrays.copyOfRange(syntaxArguments, 1,
+                syntaxArguments.length);
+
+        return validateStrings(reverse, syntaxArguments, input, output);
+    }
+
+    // Handle special identifiers and return the modified values
+    private String[] handleSpecialIdentifiers(String identifier,
+                                              String inputString,
+                                              String outputString) {
         String input = inputString;
         String output = outputString;
 
@@ -29,20 +53,26 @@ public final class StringRequirement extends Requirement<String> {
             output = Utilities.colorless(outputString);
         }
 
-        final boolean reverse = identifier.startsWith("!");
-        String[] syntaxArguments = identifier.split(" ");
-        syntaxArguments = Arrays.copyOfRange(syntaxArguments, 1, syntaxArguments.length);
+        return new String[]{identifier, input, output};
+    }
+
+    // Validate input and output strings based on syntaxArguments and 'reverse' flag
+    private boolean validateStrings(boolean reverse, String[] syntaxArguments,
+                                    String input, String output) {
+
         boolean result = true;
+
         for (String syntax : syntaxArguments) {
             result = reverse != this.isValid(syntax, input, output);
             if (!result) break;
         }
+
         return result;
     }
 
     @Override
     public String[] identifiers() {
-        return new String[] {
+        return new String[]{
                 "string",
                 "!string"
         };

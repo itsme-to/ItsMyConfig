@@ -61,60 +61,84 @@ public final class ItsMyConfig extends JavaPlugin {
     }
 
     public void loadConfig() {
+
         progressBarBucket.clearProgressBar();
         this.saveDefaultConfig();
         this.reloadConfig();
+        this.loadSymbolPrefix();
+        this.loadPlaceholders();
+        this.loadProgressBars();
+    }
 
+    private void loadSymbolPrefix() {
         this.symbolPrefix = this.getConfig().getString("symbol-prefix");
+    }
+
+    private void loadPlaceholders() {
         placeholderManager.unregisterAll();
-        final ConfigurationSection placeholdersSec = this.getConfig().getConfigurationSection("custom-placeholder");
-        for (final String identifier : placeholdersSec.getKeys(false)) {
-            final PlaceholderType type = PlaceholderType.find(placeholdersSec.getString(identifier + ".type"));
-            final PlaceholderData data;
-            switch (type) {
-                case RANDOM:
-                    data = new RandomPlaceholderData(placeholdersSec.getStringList(identifier + ".values"));
-                    break;
-                case ANIMATION:
-                    data = new AnimatedPlaceholderData(
-                            placeholdersSec.getStringList(identifier + ".values"),
-                            placeholdersSec.getInt(identifier + ".interval", 20)
-                    );
-                    break;
-                case COLOR:
-                    data = new ColorPlaceholderData(
-                            placeholdersSec.getConfigurationSection(identifier)
-                    );
-                    break;
-                default:
-                case STRING:
-                    data = new StringPlaceholderData(placeholdersSec.getString(identifier + ".value", ""));
-                    break;
-            }
-
-            final ConfigurationSection requirementSec = placeholdersSec.getConfigurationSection(identifier + ".requirements");
-            if (requirementSec != null) {
-                for (final String requirement : requirementSec.getKeys(false)) {
-                    data.registerRequirement(requirementSec.getConfigurationSection(requirement));
-                }
-            }
-
-            this.placeholderManager.register(identifier, data);
+        final ConfigurationSection placeholdersConfigSection =
+                this.getConfig().getConfigurationSection("custom-placeholder");
+        for (final String identifier : placeholdersConfigSection.getKeys(false)) {
+            PlaceholderData data = getPlaceholderData(placeholdersConfigSection, identifier);
+            registerPlaceholder(placeholdersConfigSection, identifier, data);
             this.getLogger().info(String.format("Registered placeholder %s", identifier));
         }
+    }
 
-        final ConfigurationSection customProgressSec = this.getConfig().getConfigurationSection("custom-progress");
-        for (final String identifier : customProgressSec.getKeys(false)) {
-            final ConfigurationSection configurationSection = customProgressSec.getConfigurationSection(identifier);
-            progressBarBucket.registerProgressBar(new ProgressBar(
-                    identifier,
-                    configurationSection.getString("symbol"),
-                    configurationSection.getString("completed-color"),
-                    configurationSection.getString("progress-color"),
-                    configurationSection.getString("remaining-color")
-            ));
+    private PlaceholderData getPlaceholderData(ConfigurationSection placeholdersConfigSection, String identifier) {
+        final String placeholderTypeProperty = identifier + ".type";
+        final PlaceholderType type = PlaceholderType.find(placeholdersConfigSection.getString(placeholderTypeProperty));
+        final String valuesProperty = identifier + ".values";
+        final String valueProperty = identifier + ".value";
+
+        switch (type) {
+            case RANDOM:
+                return new RandomPlaceholderData(placeholdersConfigSection.getStringList(valuesProperty));
+            case ANIMATION:
+                final int intervalPropertyDefaultValue = 20;
+                return new AnimatedPlaceholderData(placeholdersConfigSection.getStringList(valuesProperty),
+                        placeholdersConfigSection.getInt(identifier + ".interval", intervalPropertyDefaultValue));
+            case COLOR:
+                return new ColorPlaceholderData(placeholdersConfigSection.getConfigurationSection(identifier));
+            default:
+            case STRING:
+                final String defaultValue = "";
+                return new StringPlaceholderData(placeholdersConfigSection.getString(valueProperty, defaultValue));
         }
+    }
 
+    private void registerPlaceholder(
+            final ConfigurationSection placeholdersConfigSection,
+            final String identifier,
+            final PlaceholderData data
+    ) {
+        final ConfigurationSection requirementsConfigSection =
+                placeholdersConfigSection.getConfigurationSection(identifier + ".requirements");
+        if (requirementsConfigSection != null) {
+            for (final String req : requirementsConfigSection.getKeys(false)) {
+                data.registerRequirement(requirementsConfigSection.getConfigurationSection(req));
+            }
+        }
+        this.placeholderManager.register(identifier, data);
+    }
+
+    private void loadProgressBars() {
+        final ConfigurationSection progressBarConfigSection =
+                this.getConfig().getConfigurationSection("custom-progress");
+        for (final String identifier : progressBarConfigSection.getKeys(false)) {
+            final ConfigurationSection configurationSection =
+                    progressBarConfigSection
+                            .getConfigurationSection(identifier);
+            progressBarBucket.registerProgressBar(
+                    new ProgressBar(
+                            identifier,
+                            configurationSection.getString("symbol"),
+                            configurationSection.getString("completed-color"),
+                            configurationSection.getString("progress-color"),
+                            configurationSection.getString("remaining-color")
+                    )
+            );
+        }
     }
 
     public BukkitAudiences adventure() {
