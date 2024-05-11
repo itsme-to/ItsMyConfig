@@ -61,7 +61,7 @@ public final class AnimatedPlaceholderData extends PlaceholderData {
      * @return The result of the placeholder evaluation as a string.
      */
     @Override
-    public String getResult(String[] args) {
+    public String getResult(final String[] args) {
         Map.Entry<String, List<Integer>> entry = queue.peek();
 
         if (entry == null) {
