@@ -16,12 +16,8 @@ import java.util.concurrent.ConcurrentMap;
  * Represents an animated placeholder data object that rotates between different messages at a specified interval.
  * Extends the PlaceholderData class.
  */
-// TO TEST
 public final class AnimatedPlaceholderData extends PlaceholderData {
 
-    /**
-     *
-     */
     private final BlockingQueue<Map.Entry<String, List<Integer>>> queue;
 
     /**
@@ -72,7 +68,6 @@ public final class AnimatedPlaceholderData extends PlaceholderData {
             return "";
         }
 
-        System.out.println(entry.getKey());
         return this.replaceArguments(args, entry.getKey(), entry.getValue());
     }
 }
