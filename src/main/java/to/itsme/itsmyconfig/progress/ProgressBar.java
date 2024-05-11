@@ -99,7 +99,7 @@ public final class ProgressBar {
      * @param completed The level of completion, represented as an integer between 0 and the length of the pattern.
      * @return The progress bar as a string.
      */
-    private String buildProgressBar(int completed) {
+    private String buildProgressBar(final int completed) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(completedColor);
         if (completed != 0) {
