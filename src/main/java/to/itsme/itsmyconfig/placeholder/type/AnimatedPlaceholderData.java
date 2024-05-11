@@ -6,58 +6,68 @@ import to.itsme.itsmyconfig.placeholder.PlaceholderData;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Utilities;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Represents an animated placeholder data object that rotates between different messages at a specified interval.
+ * Extends the PlaceholderData class.
+ */
 public final class AnimatedPlaceholderData extends PlaceholderData {
 
-    private final Map<String, List<Integer>> messages = Collections.synchronizedMap(new LinkedHashMap<>());
-    private int index = 0;
+    private final BlockingQueue<Map.Entry<String, List<Integer>>> queue;
 
+    /**
+     * Represents an animated placeholder data object that rotates between different messages at a specified interval.
+     * Extends the PlaceholderData class.
+     */
     public AnimatedPlaceholderData(
             final List<String> messages,
             final int interval
     ) {
         super(PlaceholderType.ANIMATION);
+
+        queue = new ArrayBlockingQueue<>(messages.size());
+
+        if (messages.isEmpty()) return;
+
         for (final String message : messages) {
-            this.messages.put(message, Utilities.getArguments(message));
+            queue.add(new AbstractMap.SimpleEntry<>(message, Utilities.getArguments(message)));
         }
 
-        final int max = this.messages.size();
-        Bukkit.getScheduler().runTaskTimerAsynchronously(ItsMyConfig.getInstance(), () -> {
-            if (index < max - 1) {
-                index++;
-            } else {
-                index = 0;
-            }
-        }, interval, interval);
+        if (messages.size() > 1)
+            Bukkit.getScheduler().runTaskTimerAsynchronously(ItsMyConfig.getInstance(), this::rotateMessage, interval, interval);
     }
 
-    public Map.Entry<String, List<Integer>> getNextEntry() {
-        if (messages.isEmpty()) {
-            return null;
-        }
+    /**
+     * Rotates the current message in the queue by moving the first message to the back of the queue.
+     * If the queue is empty, no action is taken.
+     */
+    private void rotateMessage() {
+        Map.Entry<String, List<Integer>> entry = queue.poll();
 
-        int currentIndex = 0;
-        for (Map.Entry<String, List<Integer>> entry : messages.entrySet()) {
-            if (currentIndex == index) {
-                return entry;
-            }
-            currentIndex++;
+        if (entry != null) {
+            queue.add(entry);
         }
-        return null;
     }
 
+    /**
+     * Retrieves the result of the placeholder evaluation as a string.
+     *
+     * @param args The arguments used for the placeholder evaluation.
+     * @return The result of the placeholder evaluation as a string.
+     */
     @Override
     public String getResult(final String[] args) {
-        final Map.Entry<String, List<Integer>> entry = this.getNextEntry();
+        Map.Entry<String, List<Integer>> entry = queue.peek();
+
         if (entry == null) {
             return "";
         }
 
         return this.replaceArguments(args, entry.getKey(), entry.getValue());
     }
-
 }

@@ -30,6 +30,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * The Utilities class provides various utility methods for performing common tasks.
+ */
 @SuppressWarnings("all")
 public final class Utilities {
 

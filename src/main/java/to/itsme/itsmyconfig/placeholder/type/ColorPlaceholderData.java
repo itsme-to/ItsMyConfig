@@ -7,16 +7,66 @@ import to.itsme.itsmyconfig.placeholder.PlaceholderData;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Utilities;
 
-import java.util.Locale;
+import java.util.*;
 
+/**
+ * Represents a color placeholder data that can be used in placeholders.
+ */
 public final class ColorPlaceholderData extends PlaceholderData {
 
-    private final Style style;
+    /**
+     * Represents the style of a variable.
+     */
+    private Style style;
+    /**
+     * Represents a legacy color value.
+     */
     private final ChatColor legacyColor;
-    private final boolean legacy, invalid;
-    private final String value, nameValue, hexValue;
-    private String properties = "", propertiesMiniPrefix = "", propertiesMiniSuffix = "";
+    /**
+     * Represents a boolean value indicating whether the variable is a legacy value.
+     */
+    private final boolean legacy, /**
+     *
+     */
+    invalid;
+    /**
+     * Represents a private final String variable in the ColorPlaceholderData class.
+     */
+    private final String value, /**
+     * Represents a value for a name.
+     *
+     * @see ColorPlaceholderData
+     * @see PlaceholderData
+     */
+    nameValue, /**
+     * Represents a color placeholder data object.
+     */
+    hexValue;
+    /***/
+    private String properties = "", /**
+     * Represents a placeholder data object with a mini prefix property.
+     */
+    propertiesMiniPrefix = "", /**
+     *
+     */
+    propertiesMiniSuffix = "";
 
+    /**
+     * Represents a map of decoration properties.
+     */
+    private final static Map<String, String> DECORATIONS_PROPERTIES = new HashMap<String, String>() {
+        {
+            put("bold", "&l");
+            put("italic", "&o");
+            put("obfuscated", "&k");
+            put("underlined", "&n");
+            put("strikethrough", "&m");
+        }
+    };
+
+    /**
+     * Represents a color placeholder data object.
+     */
     public ColorPlaceholderData(
             final ConfigurationSection properties
     ) {
@@ -47,46 +97,44 @@ public final class ColorPlaceholderData extends PlaceholderData {
             this.hexValue = "#ff0000";
         }
 
+
         this.legacyColor = ChatColor.valueOf(this.nameValue.toUpperCase());
+        initializeStyle(properties);
+    }
+
+    /**
+     * Initializes the style for the ColorPlaceholderData object.
+     * Uses a ConfigurationSection to determine the style properties.
+     *
+     * @param configurationSection The ConfigurationSection containing the style properties.
+     */
+    private void initializeStyle(ConfigurationSection configurationSection) {
         final Style.Builder builder = Style.style().color(TextColor.fromHexString(hexValue));
-        if (properties.getBoolean("bold")) {
-            this.properties += "&l";
-            this.propertiesMiniPrefix += "<bold>";
-            this.propertiesMiniSuffix += "</bold>";
-            builder.decorate(TextDecoration.BOLD);
+
+        StringBuilder propertiesBuilder = new StringBuilder();
+        StringBuilder propertiesPrefixBuilder = new StringBuilder();
+        StringBuilder propertiesSuffixBuilder = new StringBuilder();
+
+        for (String decorationType : DECORATIONS_PROPERTIES.keySet()) {
+            if (configurationSection.getBoolean(decorationType)) {
+                propertiesBuilder.append(DECORATIONS_PROPERTIES.get(decorationType));
+                propertiesPrefixBuilder.append("<").append(decorationType).append(">");
+                propertiesSuffixBuilder.append("</").append(decorationType).append(">");
+            }
         }
 
-        if (properties.getBoolean("italic")) {
-            this.properties += "&o";
-            this.propertiesMiniPrefix += "<italic>";
-            this.propertiesMiniSuffix += "</italic>";
-            builder.decorate(TextDecoration.ITALIC);
-        }
-
-        if (properties.getBoolean("obfuscated")) {
-            this.properties += "&k";
-            this.propertiesMiniPrefix += "<obfuscated>";
-            this.propertiesMiniSuffix += "</obfuscated>";
-            builder.decorate(TextDecoration.OBFUSCATED);
-        }
-
-        if (properties.getBoolean("underlined")) {
-            this.properties += "&n";
-            this.propertiesMiniPrefix += "<underlined>";
-            this.propertiesMiniSuffix += "</underlined>";
-            builder.decorate(TextDecoration.UNDERLINED);
-        }
-
-        if (properties.getBoolean("strikethrough")) {
-            this.properties += "&m";
-            this.propertiesMiniPrefix += "<strikethrough>";
-            this.propertiesMiniSuffix += "</strikethrough>";
-            builder.decorate(TextDecoration.STRIKETHROUGH);
-        }
-
+        this.properties = propertiesBuilder.toString();
+        this.propertiesMiniPrefix = propertiesPrefixBuilder.toString();
+        this.propertiesMiniSuffix = propertiesSuffixBuilder.toString();
         this.style = builder.build();
     }
 
+    /**
+     * This method is used to retrieve the result of a placeholder evaluation.
+     *
+     * @param params The arguments used for the placeholder evaluation.
+     * @return The result of the placeholder evaluation as a string.
+     */
     @Override
     public String getResult(final String[] params) {
         if (this.invalid) {
@@ -102,17 +150,17 @@ public final class ColorPlaceholderData extends PlaceholderData {
             case "closestname":
                 return this.nameValue;
             case "legacy":
-                return (legacy ? legacyColor.toString() + this.properties : '&' + this.hexValue + this.properties).replace("§",  "&");
+                return (legacy ? legacyColor.toString() + this.properties : '&' + this.hexValue + this.properties).replace("§", "&");
             case "console":
                 if (legacy) {
-                    return legacyColor + this.properties.replaceAll("&",  "§");
+                    return legacyColor + this.properties.replaceAll("&", "§");
                 }
                 final String hexColor = this.hexValue.substring(1);
                 final StringBuilder minecraftFormat = new StringBuilder("§x");
                 for (int i = 0; i < hexColor.length(); i++) {
                     minecraftFormat.append("§").append(hexColor.charAt(i));
                 }
-                return minecraftFormat + this.properties.replaceAll("&",  "§");
+                return minecraftFormat + this.properties.replaceAll("&", "§");
             case "mini":
                 final String prefix = "<" + this.value + ">" + propertiesMiniPrefix;
                 if (params.length > 1) {
@@ -131,6 +179,11 @@ public final class ColorPlaceholderData extends PlaceholderData {
         return this.value;
     }
 
+    /**
+     * Retrieves the style associated with this instance.
+     *
+     * @return The style of this instance.
+     */
     public Style getStyle() {
         return this.style;
     }
