@@ -29,21 +29,32 @@ public final class StringRequirement extends Requirement<String> {
      * @return true if the input and output strings pass the validation against the identifier and syntax rules, false otherwise.
      */
     @Override
-    public boolean validate(String identifier, final String inputString,
-                            final String outputString) {
-        String[] modifiedValues = handleSpecialIdentifiers(identifier,
-                inputString,
-                outputString);
+    public boolean validate(
+            String identifier,
+            final String inputString,
+            final String outputString
+    ) {
+        final String[] modifiedValues = handleSpecialIdentifiers(
+                identifier, inputString, outputString
+        );
+
         identifier = modifiedValues[0];
-        String input = modifiedValues[1];
-        String output = modifiedValues[2];
+        final String input = modifiedValues[1];
+        final String output = modifiedValues[2];
 
         final boolean reverse = identifier.startsWith("!");
-        String[] syntaxArguments = identifier.split(" ");
-        syntaxArguments = Arrays.copyOfRange(syntaxArguments, 1,
-                syntaxArguments.length);
+        final String[] syntaxArguments = identifier.split(" ");
 
-        return validateStrings(reverse, syntaxArguments, input, output);
+        return validateStrings(
+                reverse,
+                Arrays.copyOfRange(
+                        identifier.split(" "),
+                        1,
+                        syntaxArguments.length
+                ),
+                input,
+                output
+        );
     }
 
     /**
@@ -55,9 +66,11 @@ public final class StringRequirement extends Requirement<String> {
      * @return an array of strings containing the modified identifier, input, and output
      */
     // Handle special identifiers and return the modified values
-    private String[] handleSpecialIdentifiers(String identifier,
-                                              String inputString,
-                                              String outputString) {
+    private String[] handleSpecialIdentifiers(
+            String identifier,
+            final String inputString,
+            final String outputString
+    ) {
         String input = inputString;
         String output = outputString;
 
@@ -87,9 +100,12 @@ public final class StringRequirement extends Requirement<String> {
      * @return true if the input and output strings satisfy the requirements, false otherwise
      */
     // Validate input and output strings based on syntaxArguments and 'reverse' flag
-    private boolean validateStrings(boolean reverse, String[] syntaxArguments,
-                                    String input, String output) {
-
+    private boolean validateStrings(
+            final boolean reverse,
+            final String[] syntaxArguments,
+            final String input,
+            final String output
+    ) {
         boolean result = true;
 
         for (String syntax : syntaxArguments) {

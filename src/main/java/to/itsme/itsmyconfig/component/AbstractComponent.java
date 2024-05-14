@@ -6,6 +6,8 @@ import net.kyori.adventure.text.KeybindComponent;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
 import org.jetbrains.annotations.NotNull;
+import to.itsme.itsmyconfig.component.event.ClickEvent;
+import to.itsme.itsmyconfig.component.event.HoverEvent;
 import to.itsme.itsmyconfig.component.impl.KeybindedComponent;
 import to.itsme.itsmyconfig.component.impl.PseudoComponent;
 import to.itsme.itsmyconfig.component.impl.TextfulComponent;
@@ -17,6 +19,8 @@ import java.util.List;
 public abstract class AbstractComponent {
 
     private static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapter(ClickEvent.class, new ClickEvent.Adapter())
+            .registerTypeAdapter(HoverEvent.class, new HoverEvent.Adapter())
             .registerTypeAdapter(TextfulComponent.class, new TextfulComponent.Adapter())
             .registerTypeAdapter(KeybindedComponent.class, new KeybindedComponent.Adapter())
             .registerTypeAdapter(TranslatingComponent.class, new TranslatingComponent.Adapter())
@@ -91,5 +95,13 @@ public abstract class AbstractComponent {
     protected final List<AbstractComponent> extra = new LinkedList<>();
 
     public abstract String toMiniMessage();
+
+    public String toJson() {
+        return GSON.toJson(this);
+    }
+
+    public JsonElement toJsonElement() {
+        return GSON.toJsonTree(this);
+    }
 
 }

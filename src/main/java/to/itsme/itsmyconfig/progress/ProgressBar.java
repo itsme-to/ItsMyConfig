@@ -12,22 +12,22 @@ public final class ProgressBar {
      */
     pattern, /**
      * The completedColor variable represents the color used to display the completed part of the progress bar.
-     *
+     * <p>
      * It is a private instance variable of the ProgressBar class.
-     *
+     * <p>
      * Example usage:
      * ProgressBar progressBar = new ProgressBar("key", "pattern", "completedColor", "progressColor", "remainingColor");
      * String color = progressBar.completedColor;
      */
     completedColor, /**
      * The progressColor variable holds the color used to represent the progress in a ProgressBar object.
-     *
+     * <p>
      * Possible values can be any valid color string supported by the application.
      * This color will be used to render the portion of the progress bar that represents the completed progress.
-     *
+     * <p>
      * The progressColor is set during the initialization of a ProgressBar object through the constructor.
      * It cannot be changed once the object is created.
-     *
+     * <p>
      * This variable is used internally by the ProgressBar class in the calculation and rendering of the progress bar.
      *
      * @see ProgressBar
@@ -72,7 +72,10 @@ public final class ProgressBar {
      * @param max The maximum value of the progress bar.
      * @return The rendered progress bar as a string.
      */
-    public String render(final double value, final double max) {
+    public String render(
+            final double value,
+            final double max
+    ) {
         int completed = calculateCompleted(value, max);
         return buildProgressBar(completed);
     }

@@ -11,7 +11,6 @@ public interface RequirementChecker<T> {
     /**
      * Checks if the given input and output satisfy a specific requirement.
      *
-     * @param <T>    the type of the input and output
      * @param input  the input value to check against the requirement
      * @param output the output value to check against the requirement
      * @return true if the input and output satisfy the requirement, false otherwise

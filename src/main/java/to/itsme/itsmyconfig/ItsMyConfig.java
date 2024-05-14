@@ -20,6 +20,7 @@ import to.itsme.itsmyconfig.placeholder.type.StringPlaceholderData;
 import to.itsme.itsmyconfig.progress.ProgressBar;
 import to.itsme.itsmyconfig.progress.ProgressBarBucket;
 import to.itsme.itsmyconfig.requirement.RequirementManager;
+import to.itsme.itsmyconfig.util.Utilities;
 
 /**
  * ItsMyConfig class represents the main configuration class for the plugin.
@@ -29,6 +30,7 @@ import to.itsme.itsmyconfig.requirement.RequirementManager;
 public final class ItsMyConfig extends JavaPlugin {
 
     private static final boolean ALLOW_ITEM_EDITS = false;
+    private static final String HYPHEN = "#########################################################";
 
     private static ItsMyConfig instance;
     private final PlaceholderManager placeholderManager = new PlaceholderManager();
@@ -44,6 +46,8 @@ public final class ItsMyConfig extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        this.getLogger().info("\n\n" + HYPHEN + "\n" + Utilities.getACSIIArt() + "\nLoading ItsMyConfig...");
+        final long start = System.currentTimeMillis();
         instance = this;
         new DynamicPlaceHolder(this, progressBarBucket).register();
         new CommandManager(this);
@@ -53,9 +57,7 @@ public final class ItsMyConfig extends JavaPlugin {
 
         loadConfig();
 
-        if (getConfig().getBoolean("bstats", true)) {
-            new Metrics(this, 21713);
-        }
+        new Metrics(this, 21713);
 
         final ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
         protocolManager.addPacketListener(new PacketChatListener(this));
@@ -63,12 +65,14 @@ public final class ItsMyConfig extends JavaPlugin {
         if (ALLOW_ITEM_EDITS) {
             protocolManager.addPacketListener(new PacketItemListener(this));
         }
+
+        this.getLogger().info("ItsMyConfig loaded in " + (System.currentTimeMillis() - start) + "ms\n" + HYPHEN + "\n\n");
     }
 
     /**
      * The loadConfig method is responsible for loading the configuration file and initializing various settings and data.
      * It performs the following steps:
-     *
+     * <p>
      * 1. Clears all progress bars in the ProgressBarBucket.
      * 2. Saves the default configuration file if it does not exist.
      * 3. Reloads the configuration file.
@@ -77,7 +81,6 @@ public final class ItsMyConfig extends JavaPlugin {
      * 6. Loads the custom progress bars from the configuration and registers them.
      */
     public void loadConfig() {
-
         progressBarBucket.clearAllProgressBars();
         this.saveDefaultConfig();
         this.reloadConfig();
@@ -103,9 +106,10 @@ public final class ItsMyConfig extends JavaPlugin {
         final ConfigurationSection placeholdersConfigSection =
                 this.getConfig().getConfigurationSection("custom-placeholder");
         for (final String identifier : placeholdersConfigSection.getKeys(false)) {
-            PlaceholderData data = getPlaceholderData(placeholdersConfigSection, identifier);
+            final long currentTime = System.currentTimeMillis();
+            final PlaceholderData data = getPlaceholderData(placeholdersConfigSection, identifier);
             registerPlaceholder(placeholdersConfigSection, identifier, data);
-            this.getLogger().info(String.format("Registered placeholder %s", identifier));
+            this.getLogger().info(String.format("Registered placeholder %s in %dms", identifier, System.currentTimeMillis() - currentTime));
         }
     }
 

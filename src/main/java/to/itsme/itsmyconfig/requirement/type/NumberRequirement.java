@@ -14,10 +14,10 @@ public final class NumberRequirement extends Requirement<Double> {
     /**
      * The GREATER_IDENTIFIER variable represents the syntax rule ">" in the context of number requirements.
      * It is a private static final String initialized with the value ">".
-     *
+     * <p>
      * The GREATER_IDENTIFIER is used in the NumberRequirement class to define a syntax rule for checking if an input number is greater than an output number.
      * It is added as a syntax rule to the syntaxRules map in the NumberRequirement class using the addSyntaxRule method.
-     *
+     * <p>
      * Example usage:
      * NumberRequirement requirement = new NumberRequirement();
      * boolean isValid = requirement.validate(GREATER_IDENTIFIER, "10", "5");
@@ -45,17 +45,17 @@ public final class NumberRequirement extends Requirement<Double> {
     /**
      * The NOT_EQUAL_IDENTIFIER variable represents the syntax rule for the "not equal" comparison operator, which is "!=".
      * It is a private static final String variable.
-     *
+     * <p>
      * The syntaxRules variable in the containing class NumberRequirement is a Map that stores the syntax rules for a Requirement object.
      * Each syntax rule consists of a String representing the syntax, and an array of RequirementChecker objects.
      * The NOT_EQUAL_IDENTIFIER is added to the syntaxRules map in the constructor of NumberRequirement.
-     *
+     * <p>
      * The NOT_EQUAL_IDENTIFIER can be accessed by calling the identifiers() method of the NumberRequirement class, which returns an array of Strings representing the required identifiers
      * .
-     *
+     * <p>
      * The NOT_EQUAL_IDENTIFIER is used in the validate() method of NumberRequirement to check if the given input and output satisfy the "not equal" requirement.
      * It is also used in the isValid() method to check if a given syntax, input and output combination satisfy the syntax rules.
-     *
+     * <p>
      * The NOT_EQUAL_IDENTIFIER is a constant value and should not be modified.
      */
     private static final String NOT_EQUAL_IDENTIFIER = "!=";
@@ -64,24 +64,24 @@ public final class NumberRequirement extends Requirement<Double> {
      * The IDENTIFIERS variable is a private final array of Strings that contains the syntax identifiers for a NumberRequirement object.
      * The identifiers represent different types of number requirements, such as equal, greater than, lesser than, greater than or equal to,
      * lesser than or equal to, and not equal to.
-     *
+     * <p>
      * The IDENTIFIERS array can be accessed by the NumberRequirement class and is used to validate if a given identifier matches any of the required identifiers.
-     *
+     * <p>
      * The NumberRequirement class initializes the IDENTIFIERS array with the syntax identifiers in the constructor.
-     *
+     * <p>
      * The identifiers() method returns the IDENTIFIERS array.
-     *
+     * <p>
      * The validate() method is overridden from the Requirement class and takes an identifier, inputString, and outputString as parameters.
      * It transforms the inputString and outputString into Double values and checks if both values are not null.
      * If both values are not null, it checks if the identifier matches any of the required identifiers and checks if the input and output values satisfy
      * the specific requirement by calling the isValid() method.
      * If the requirement is satisfied, the method returns true. Otherwise, it returns false.
-     *
+     * <p>
      * The transformString() method is a private helper method that takes a value as a String and tries to convert it into a Double value.
      * It first tries to convert the value using Double.parseDouble(). If it fails, it tries to convert the value to an Integer using Integer.parseInt().
      * If that fails, it tries to convert the value to a Float using Float.parseFloat().
      * If all conversion attempts fail, it returns 0.0.
-     *
+     * <p>
      * The areBothValuesNotNull() method is a private helper method that takes two Double values, input and output, and checks if both values are not null.
      * If both values are not null, it returns true. Otherwise, it returns false.
      */
@@ -115,7 +115,11 @@ public final class NumberRequirement extends Requirement<Double> {
      * @return true if the validation is successful, false otherwise
      */
     @Override
-    public boolean validate(String identifier, String inputString, String outputString) {
+    public boolean validate(
+            final String identifier,
+            final String inputString,
+            final String outputString
+    ) {
         final Double input = this.transformString(inputString);
         final Double output = this.transformString(outputString);
         return areBothValuesNotNull(input, output) && this.isValid(identifier, input, output);
@@ -139,7 +143,7 @@ public final class NumberRequirement extends Requirement<Double> {
      * @param value the string value to be converted
      * @return the converted double value or 0.0 if parsing fails
      */
-    private Double transformString(String value) {
+    private Double transformString(final String value) {
         Double convertedValue = 0.0;
         try {
             convertedValue = Double.parseDouble(value);

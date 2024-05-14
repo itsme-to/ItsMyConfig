@@ -14,33 +14,33 @@ public abstract class Requirement<V> {
      * The syntaxRules variable is a protected final Map that stores the syntax rules for a Requirement object.
      * The key of the map is a String representing the syntax, and the value is an array of RequirementChecker objects.
      * Each RequirementChecker is used to check if a given input and output satisfy a specific requirement.
-     *
+     * <p>
      * The map is initialized with an empty HashMap.
-     *
+     * <p>
      * The syntaxRules map can be accessed by subclasses of the Requirement class, allowing them to add and retrieve syntax rules.
-     *
+     * <p>
      * The syntaxRules map can be modified by calling the addSyntaxRule() method, which takes a syntax String as the first parameter,
      * and an array of RequirementChecker objects as the second parameter. These syntax rules will be stored in the syntaxRules map
      * with the given syntax as the key.
-     *
+     * <p>
      * The isValid() method can be used to check if a given syntax, input and output combination satisfy the syntax rules.
      * If the given syntax does not exist in the syntaxRules map, the method will return true.
      * Otherwise, it will iterate over the RequirementChecker objects associated with the given syntax.
      * If any of the RequirementCheckers return true when called with the given input and output, the method will return true.
      * Otherwise, it will return false.
-     *
+     * <p>
      * The matchIdentifier() method checks if the given identifier matches any of the required identifiers specified by subclasses
      * of the Requirement class. It splits the input identifier by spaces and compares the first value with the required identifiers.
      * If a match is found, the method will return true.
      * Otherwise, it will return false.
-     *
+     * <p>
      * The validate() method is an abstract method that needs to be implemented by subclasses of the Requirement class.
      * It takes an identifier, input and output as parameters and returns a boolean value indicating whether the identifier,
      * input and output satisfy the specific requirement.
-     *
+     * <p>
      * The identifiers() method is an abstract method that needs to be implemented by subclasses of the Requirement class.
      * It returns an array of Strings representing the required identifiers.
-     *
+     * <p>
      * The syntaxRules, patternMatchesIdentifier(), checkRequirement(), and check() declarations reflected
      * in the given code blocks were extracted from the containing class of the initial symbol, and are not directly related
      * to the syntaxRules variable.

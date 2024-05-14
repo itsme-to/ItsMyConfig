@@ -13,19 +13,19 @@ public final class ProgressBarBucket {
      * It represents a collection of ProgressBar objects stored as key-value pairs, where the key is of type String and the value is of type ProgressBar.
      * Each ProgressBar object represents a progress bar with customizable colors and pattern.
      * The map is initialized using the HashMap() constructor.
-     *
+     * <p>
      * Example usage:
      * ProgressBarBucket progressBarBucket = new ProgressBarBucket();
      * ProgressBar progressBar1 = new ProgressBar("key1", "pattern1", "completedColor1", "progressColor1", "remainingColor1");
      * ProgressBar progressBar2 = new ProgressBar("key2", "pattern2", "completedColor2", "progressColor2", "remainingColor2");
      * progressBarBucket.registerProgressBar(progressBar1);
      * progressBarBucket.registerProgressBar(progressBar2);
-     *
+     * <p>
      * ProgressBar progressBar = progressBarBucket.getProgressBar("key1");
      * String progressBarKey = progressBar.getKey();
-     *
+     * <p>
      * progressBarBucket.clearAllProgressBars();
-     *
+     * <p>
      * progressBarByKey.put(progressBar.getKey(), progressBar);
      * progressBarByKey.get("key1");
      */

@@ -32,8 +32,6 @@ public final class StringPlaceholderData extends PlaceholderData {
      * Replaces arguments in a given message string.
      *
      * @param params     The array of parameters to use for replacement.
-     * @param message    The message string to replace arguments in.
-     * @param arguments  The list of argument positions to replace.
      * @return The message string with replaced arguments.
      */
     @Override

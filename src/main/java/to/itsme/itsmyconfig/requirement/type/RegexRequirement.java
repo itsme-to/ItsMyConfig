@@ -7,8 +7,6 @@ import java.util.regex.Pattern;
 /**
  * The RegexRequirement class is a concrete implementation of the Requirement class.
  * It represents a requirement that checks if a regular expression matches a given string input.
- *
- * @param <V> the type of the input and output, which is String in this case
  */
 public final class RegexRequirement extends Requirement<String> {
 

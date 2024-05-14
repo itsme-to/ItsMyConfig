@@ -34,7 +34,7 @@ public final class DynamicPlaceHolder extends PlaceholderExpansion {
     /**
      * Class: DynamicPlaceHolder
      * Variable: romanLiterals
-     *
+     * <p>
      * Description:
      * The `romanLiterals` variable is an array of strings representing the Roman numerals.
      * It contains the following literals: ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"].

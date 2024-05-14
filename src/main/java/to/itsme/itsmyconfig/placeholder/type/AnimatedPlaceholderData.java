@@ -9,8 +9,6 @@ import to.itsme.itsmyconfig.util.Utilities;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Represents an animated placeholder data object that rotates between different messages at a specified interval.

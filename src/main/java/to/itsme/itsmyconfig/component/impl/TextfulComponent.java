@@ -6,7 +6,8 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import to.itsme.itsmyconfig.component.AbstractComponent;
-import to.itsme.itsmyconfig.util.Utilities;
+import to.itsme.itsmyconfig.component.event.ClickEvent;
+import to.itsme.itsmyconfig.component.event.HoverEvent;
 
 import java.lang.reflect.Type;
 
@@ -63,31 +64,11 @@ public final class TextfulComponent extends AbstractComponent {
 
         // events
         if (component.clickEvent() != null) {
-            this.clickEvent = new ClickEvent();
-            this.clickEvent.setValue(component.clickEvent().value());
-            this.clickEvent.setAction(component.clickEvent().action().toString());
+            this.clickEvent = new ClickEvent(component.clickEvent());
         }
 
         if (component.hoverEvent() != null) {
-            this.hoverEvent = new HoverEvent();
-            this.hoverEvent.setAction(component.hoverEvent().action().toString());
-
-            switch (hoverEvent.action) {
-                case "show_text":
-                    this.hoverEvent.setValue(Utilities.MM.serialize((Component) component.hoverEvent().value()));
-                    break;
-                case "show_achievement":
-                    this.hoverEvent.setValue(component.hoverEvent().value().toString());
-                    break;
-                case "show_item":
-                    final net.kyori.adventure.text.event.HoverEvent.ShowItem item = (net.kyori.adventure.text.event.HoverEvent.ShowItem) component.hoverEvent().value();
-                    this.hoverEvent.setValue(item.item().value());
-                    break;
-                case "show_entity":
-                    final net.kyori.adventure.text.event.HoverEvent.ShowEntity entity = (net.kyori.adventure.text.event.HoverEvent.ShowEntity) component.hoverEvent().value();
-                    this.hoverEvent.setValue(entity.type().value());
-                    break;
-            }
+            this.hoverEvent = new HoverEvent(component.hoverEvent());
         }
 
         // children
@@ -132,11 +113,11 @@ public final class TextfulComponent extends AbstractComponent {
         }
 
         if (clickEvent != null) {
-            builder.append(clickEvent.toMM());
+            builder.append(clickEvent.toMiniMessage());
         }
 
         if (hoverEvent != null) {
-            builder.append(hoverEvent.toMM());
+            builder.append(hoverEvent.toMiniMessage());
         }
 
         if (text != null && !text.isEmpty()) {
@@ -186,42 +167,6 @@ public final class TextfulComponent extends AbstractComponent {
         }
 
         return builder.toString();
-    }
-
-    public static class ClickEvent {
-        private String action;
-        private String value;
-
-        public void setAction(final String action) {
-            this.action = action;
-        }
-
-        public void setValue(final String value) {
-            this.value = value;
-        }
-
-        public String toMM() {
-            return "<click:" + action + ":\"" + value + "\">";
-        }
-
-    }
-
-    public static class HoverEvent {
-        private String action;
-        private String value;
-
-        public void setAction(final String action) {
-            this.action = action;
-        }
-
-        public void setValue(final String value) {
-            this.value = value;
-        }
-
-        public String toMM() {
-            return "<hover:" + action + ":\"" + value + "\">";
-        }
-
     }
 
     public static final class Adapter implements JsonSerializer<TextfulComponent>, JsonDeserializer<TextfulComponent> {
