@@ -239,11 +239,16 @@ public final class Utilities {
      * @return A List of Integer containing the extracted integer arguments.
      */
     public static List<Integer> getArguments(final String string) {
+        if (string == null || string.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         final List<Integer> args = new ArrayList<>();
         final Matcher matcher = ARGUMENT_PATTERN.matcher(string);
         while (matcher.find()) {
             args.add(Integer.parseInt(matcher.group(1)));
         }
+
         return args;
     }
 
@@ -527,22 +532,6 @@ public final class Utilities {
      */
     public static String toString(final @NotNull List<?> list) {
         return String.join(System.lineSeparator(), list.stream().map(Object::toString).toArray(String[]::new));
-    }
-
-    /**
-     * Retrieves ASCII art representing the text "ItsMyConfig".
-     * This method returns ASCII art as a string representing the text "ItsMyConfig" in a stylized format.
-     *
-     * @return a string containing ASCII art representing the text "ItsMyConfig".
-     */
-    public static String getACSIIArt() {
-        return  "  ___ _       __  __        ____             __ _       \n" +
-                " |_ _| |_ ___|  \\/  |_   _ / ___|___  _ __  / _(_) __ _ \n" +
-                "  | || __/ __| |\\/| | | | | |   / _ \\| '_ \\| |_| |/ _` |\n" +
-                "  | || |_\\__ \\ |  | | |_| | |__| (_) | | | |  _| | (_| |\n" +
-                " |___|\\__|___/_|  |_|\\__, |\\____\\___/|_| |_|_| |_|\\__, |\n" +
-                "                     |___/                        |___/ \n" +
-                "\n";
     }
 
     /**

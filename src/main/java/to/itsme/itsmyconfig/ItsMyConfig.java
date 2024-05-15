@@ -20,7 +20,6 @@ import to.itsme.itsmyconfig.placeholder.type.StringPlaceholderData;
 import to.itsme.itsmyconfig.progress.ProgressBar;
 import to.itsme.itsmyconfig.progress.ProgressBarBucket;
 import to.itsme.itsmyconfig.requirement.RequirementManager;
-import to.itsme.itsmyconfig.util.Utilities;
 
 /**
  * ItsMyConfig class represents the main configuration class for the plugin.
@@ -30,7 +29,6 @@ import to.itsme.itsmyconfig.util.Utilities;
 public final class ItsMyConfig extends JavaPlugin {
 
     private static final boolean ALLOW_ITEM_EDITS = false;
-    private static final String HYPHEN = "#########################################################";
 
     private static ItsMyConfig instance;
     private final PlaceholderManager placeholderManager = new PlaceholderManager();
@@ -46,7 +44,7 @@ public final class ItsMyConfig extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        this.getLogger().info("\n\n" + HYPHEN + "\n" + Utilities.getACSIIArt() + "\nLoading ItsMyConfig...");
+        this.getLogger().info("Loading ItsMyConfig...");
         final long start = System.currentTimeMillis();
         instance = this;
         new DynamicPlaceHolder(this, progressBarBucket).register();
@@ -66,7 +64,7 @@ public final class ItsMyConfig extends JavaPlugin {
             protocolManager.addPacketListener(new PacketItemListener(this));
         }
 
-        this.getLogger().info("ItsMyConfig loaded in " + (System.currentTimeMillis() - start) + "ms\n" + HYPHEN + "\n\n");
+        this.getLogger().info("ItsMyConfig loaded in " + (System.currentTimeMillis() - start) + "ms");
     }
 
     /**
