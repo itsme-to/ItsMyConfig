@@ -8,31 +8,25 @@ group = 'to.itsme'
 version = '3.0.2-BETA'
 description = 'ItsMyConfig'
 java.sourceCompatibility = JavaVersion.VERSION_1_8
-
 repositories {
     mavenLocal()
     mavenCentral()
-
     maven {
         name = "spigot-repo"
         url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
     }
-
     maven {
         name = "sonatype"
         url = "https://oss.sonatype.org/content/repositories/snapshots/"
     }
-
     maven {
         name = "jitpack"
         url = "https://jitpack.io"
     }
-
     maven {
         name = "protocollib-repo"
         url = "https://repo.dmulloy2.net/repository/public/"
     }
-
     maven {
         name = "papi-repo"
         url = "https://repo.extendedclip.com/content/repositories/placeholderapi/"
@@ -47,8 +41,8 @@ publishing {
             url = uri("https://maven.pkg.github.com/itsme-to/ItsMyConfig")
 
             credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
             }
         }
     }
@@ -74,12 +68,10 @@ dependencies {
     compileOnly "com.comphenix.protocol:ProtocolLib:5.0.0"
     compileOnly "me.clip:placeholderapi:2.11.1"
 }
-
 tasks.withType(JavaCompile).configureEach {
     options.encoding = "UTF-8"
     options.compilerArgs += ["-parameters"]
 }
-
 processResources {
     def props = [version: version]
     inputs.properties props
@@ -88,13 +80,11 @@ processResources {
         expand props
     }
 }
-
 def shadePath = "to.itsme.itsmyconfig.shade."
 shadowJar {
     relocate("net.kyori", "${shadePath}kyori")
-    relocate("org.bstats", "${shadePath}bstats")
     relocate("com.google.gson", "${shadePath}gson")
     relocate("revxrsal.commands", "${shadePath}lamp")
-
+    relocate("org.bstats", "${shadePath}bstats")
     archiveFileName = "${project.name}-${project.version}.jar"
 }
