@@ -92,9 +92,9 @@ processResources {
 def shadePath = "to.itsme.itsmyconfig.shade."
 shadowJar {
     relocate("net.kyori", "${shadePath}kyori")
+    relocate("org.bstats", "${shadePath}bstats")
     relocate("com.google.gson", "${shadePath}gson")
     relocate("revxrsal.commands", "${shadePath}lamp")
-    relocate("org.bstats", "${shadePath}bstats")
 
     archiveFileName = "${project.name}-${project.version}.jar"
 }
