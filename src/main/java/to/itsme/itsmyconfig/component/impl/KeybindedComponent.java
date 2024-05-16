@@ -67,7 +67,7 @@ public final class KeybindedComponent extends AbstractComponent {
         public KeybindedComponent deserialize(
                 final JsonElement json,
                 final Type type,
-                final JsonDeserializationContext jsonDeserializationContext
+                final JsonDeserializationContext context
         ) throws JsonParseException {
             final JsonObject jsonObject = json.getAsJsonObject();
             final KeybindedComponent component = new KeybindedComponent();

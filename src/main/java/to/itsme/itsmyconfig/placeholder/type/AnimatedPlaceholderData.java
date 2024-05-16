@@ -45,7 +45,7 @@ public final class AnimatedPlaceholderData extends PlaceholderData {
      * If the queue is empty, no action is taken.
      */
     private void rotateMessage() {
-        Map.Entry<String, List<Integer>> entry = queue.poll();
+        final Map.Entry<String, List<Integer>> entry = queue.poll();
 
         if (entry != null) {
             queue.add(entry);
@@ -60,7 +60,7 @@ public final class AnimatedPlaceholderData extends PlaceholderData {
      */
     @Override
     public String getResult(final String[] args) {
-        Map.Entry<String, List<Integer>> entry = queue.peek();
+        final Map.Entry<String, List<Integer>> entry = queue.peek();
 
         if (entry == null) {
             return "";

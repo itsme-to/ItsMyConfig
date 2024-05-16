@@ -105,7 +105,7 @@ public final class ItsMyConfig extends JavaPlugin {
                 this.getConfig().getConfigurationSection("custom-placeholder");
         for (final String identifier : placeholdersConfigSection.getKeys(false)) {
             final long currentTime = System.currentTimeMillis();
-            final PlaceholderData data = getPlaceholderData(placeholdersConfigSection, identifier);
+            final PlaceholderData data = this.getPlaceholderData(placeholdersConfigSection.getConfigurationSection(identifier));
             registerPlaceholder(placeholdersConfigSection, identifier, data);
             this.getLogger().info(String.format("Registered placeholder %s in %dms", identifier, System.currentTimeMillis() - currentTime));
         }
@@ -114,29 +114,28 @@ public final class ItsMyConfig extends JavaPlugin {
     /**
      * Retrieves the placeholder data based on the provided configuration section and identifier.
      *
-     * @param placeholdersConfigSection The configuration section containing the placeholder data.
-     * @param identifier                The identifier of the placeholder.
+     * @param placeholderSection The configuration section containing the placeholder data.
      * @return The placeholder data object.
      */
-    private PlaceholderData getPlaceholderData(ConfigurationSection placeholdersConfigSection, String identifier) {
-        final String placeholderTypeProperty = identifier + ".type";
-        final PlaceholderType type = PlaceholderType.find(placeholdersConfigSection.getString(placeholderTypeProperty));
-        final String valuesProperty = identifier + ".values";
-        final String valueProperty = identifier + ".value";
+    private PlaceholderData getPlaceholderData(final ConfigurationSection placeholderSection) {
+        final PlaceholderType type = PlaceholderType.find(placeholderSection.getString("type"));
+
+        final String valueProperty = "value";
+        final String valuesProperty = "values";
 
         switch (type) {
             case RANDOM:
-                return new RandomPlaceholderData(placeholdersConfigSection.getStringList(valuesProperty));
+                return new RandomPlaceholderData(placeholderSection.getStringList(valuesProperty));
             case ANIMATION:
-                final int intervalPropertyDefaultValue = 20;
-                return new AnimatedPlaceholderData(placeholdersConfigSection.getStringList(valuesProperty),
-                        placeholdersConfigSection.getInt(identifier + ".interval", intervalPropertyDefaultValue));
+                return new AnimatedPlaceholderData(
+                        placeholderSection.getStringList(valuesProperty),
+                        placeholderSection.getInt("interval", 20)
+                );
             case COLOR:
-                return new ColorPlaceholderData(placeholdersConfigSection.getConfigurationSection(identifier));
+                return new ColorPlaceholderData(placeholderSection);
             default:
             case STRING:
-                final String defaultValue = "";
-                return new StringPlaceholderData(placeholdersConfigSection.getString(valueProperty, defaultValue));
+                return new StringPlaceholderData(placeholderSection.getString(valueProperty, ""));
         }
     }
 

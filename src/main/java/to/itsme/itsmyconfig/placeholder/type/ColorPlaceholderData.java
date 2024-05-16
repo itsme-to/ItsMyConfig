@@ -67,9 +67,7 @@ public final class ColorPlaceholderData extends PlaceholderData {
     /**
      * Represents a color placeholder data object.
      */
-    public ColorPlaceholderData(
-            final ConfigurationSection properties
-    ) {
+    public ColorPlaceholderData(final ConfigurationSection properties) {
         super(PlaceholderType.COLOR);
         this.value = properties.getString("value", "").toLowerCase();
 
@@ -96,7 +94,6 @@ public final class ColorPlaceholderData extends PlaceholderData {
             this.nameValue = "white";
             this.hexValue = "#ff0000";
         }
-
 
         this.legacyColor = ChatColor.valueOf(this.nameValue.toUpperCase());
         initializeStyle(properties);

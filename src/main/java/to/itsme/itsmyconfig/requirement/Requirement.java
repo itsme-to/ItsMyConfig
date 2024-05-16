@@ -52,7 +52,6 @@ public abstract class Requirement<V> {
      *
      * @param syntax              the syntax rule to add
      * @param requirementCheckers the requirement checkers for the syntax rule
-     * @param <V>                 the type of the input and output
      */
     @SafeVarargs
     protected final void addSyntaxRule(final String syntax, final RequirementChecker<V>... requirementCheckers) {
@@ -104,9 +103,9 @@ public abstract class Requirement<V> {
      * @param identifier The identifier to be checked.
      * @return true if the first value of the identifier matches any of the required identifiers, false otherwise.
      */
-    private boolean patternMatchesIdentifier(String identifier) {
-        String firstValueOfIdentifier = identifier.split(" ")[0];
-        for (String requiredIdentifier : this.identifiers()) {
+    private boolean patternMatchesIdentifier(final String identifier) {
+        final String firstValueOfIdentifier = identifier.split(" ")[0];
+        for (final String requiredIdentifier : this.identifiers()) {
             if (firstValueOfIdentifier.equals(requiredIdentifier)) return true;
         }
         return false;
@@ -120,12 +119,16 @@ public abstract class Requirement<V> {
      * @param output the output value to check against the requirement
      * @return true if the input and output satisfy the requirement, false otherwise
      */
-    private boolean checkRequirement(String syntax, V input, V output) {
-        RequirementChecker<V>[] checkers = this.syntaxRules.get(syntax);
+    private boolean checkRequirement(
+            final String syntax,
+            final V input,
+            final V output
+    ) {
+        final RequirementChecker<V>[] checkers = this.syntaxRules.get(syntax);
         if (checkers == null) {
             return true;
         }
-        for (RequirementChecker<V> checker : checkers) {
+        for (final RequirementChecker<V> checker : checkers) {
             if (checker.check(input, output)) {
                 return true;
             }
