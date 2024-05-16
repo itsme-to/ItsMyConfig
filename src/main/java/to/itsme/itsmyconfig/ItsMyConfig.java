@@ -5,6 +5,7 @@ import com.comphenix.protocol.ProtocolManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import to.itsme.itsmyconfig.command.CommandManager;
 import to.itsme.itsmyconfig.listener.impl.PacketChatListener;
@@ -21,6 +22,7 @@ import to.itsme.itsmyconfig.progress.ProgressBar;
 import to.itsme.itsmyconfig.progress.ProgressBarBucket;
 import to.itsme.itsmyconfig.requirement.RequirementManager;
 
+import java.io.File;
 /**
  * ItsMyConfig class represents the main configuration class for the plugin.
  * It extends the JavaPlugin class and provides methods to manage the plugin configuration.
@@ -28,12 +30,13 @@ import to.itsme.itsmyconfig.requirement.RequirementManager;
  */
 public final class ItsMyConfig extends JavaPlugin {
 
-    private static final boolean ALLOW_ITEM_EDITS = false;
+    //private static final boolean ALLOW_ITEM_EDITS = true;
 
     private static ItsMyConfig instance;
     private final PlaceholderManager placeholderManager = new PlaceholderManager();
     private final ProgressBarBucket progressBarBucket = new ProgressBarBucket();
     private String symbolPrefix;
+    private boolean allowItemEdits;
     private RequirementManager requirementManager;
 
     private BukkitAudiences adventure;
@@ -60,7 +63,7 @@ public final class ItsMyConfig extends JavaPlugin {
         final ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
         protocolManager.addPacketListener(new PacketChatListener(this));
 
-        if (ALLOW_ITEM_EDITS) {
+        if (allowItemEdits) {
             protocolManager.addPacketListener(new PacketItemListener(this));
         }
 
@@ -75,16 +78,20 @@ public final class ItsMyConfig extends JavaPlugin {
      * 2. Saves the default configuration file if it does not exist.
      * 3. Reloads the configuration file.
      * 4. Loads the symbol prefix from the configuration.
-     * 5. Loads the custom placeholders from the configuration and registers them.
-     * 6. Loads the custom progress bars from the configuration and registers them.
+     * 5. Load the allow item edits
+     * 6. Loads the custom placeholders from the configuration and registers them.
+     * 7. Loads the custom progress bars from the configuration and registers them.
+     * 8. Load de custom yaml files
      */
     public void loadConfig() {
         progressBarBucket.clearAllProgressBars();
         this.saveDefaultConfig();
         this.reloadConfig();
         this.loadSymbolPrefix();
+        this.loadAllowItemEdits();
         this.loadPlaceholders();
         this.loadProgressBars();
+        this.loadCustomYmlFiles();
     }
 
     /**
@@ -92,6 +99,13 @@ public final class ItsMyConfig extends JavaPlugin {
      */
     private void loadSymbolPrefix() {
         this.symbolPrefix = this.getConfig().getString("symbol-prefix");
+    }
+
+    /**
+     * Loads the allow-item-edits setting from the configuration.
+     */
+    private void loadAllowItemEdits() {
+        this.allowItemEdits = this.getConfig().getBoolean("allow-item-edits");
     }
 
     /**
@@ -185,6 +199,121 @@ public final class ItsMyConfig extends JavaPlugin {
     }
 
     /**
+     * Loads custom .yml files from the plugin's data folder recursively.
+     * It checks for the existence of the data folder, then proceeds to load .yml files using the `loadYmlFiles` method.
+     */
+    private void loadCustomYmlFiles() {
+        File dataFolder = getDataFolder();
+        if (dataFolder.exists()) {
+            loadYmlFiles(dataFolder);
+        }
+    }
+
+    /**
+     * Recursively loads .yml files from the specified folder.
+     * It iterates through the files in the folder, loading each .yml file using the `loadCustomYml` method if it meets the criteria.
+     *
+     * @param folder The folder from which to load .yml files.
+     */
+    private void loadYmlFiles(File folder) {
+        File[] files = folder.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    loadYmlFiles(file);
+                } else if (file.isFile() && file.getName().endsWith(".yml") && !file.getName().equals("config.yml")) {
+                    loadCustomYml(file);
+                }
+            }
+        }
+    }
+
+    /**
+     * Loads custom data from a .yml file.
+     * It reads the file using `YamlConfiguration` and extracts custom progress bars and placeholders if they exist.
+     *
+     * @param file The .yml file to load custom data from.
+     */
+    private void loadCustomYml(File file) {
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+        if (config.contains("custom-progress")) {
+            loadProgressBarsFromYml(config.getConfigurationSection("custom-progress"), file.getName());
+        }
+        if (config.contains("custom-placeholder")) {
+            loadPlaceholdersFromYml(config.getConfigurationSection("custom-placeholder"), file.getName());
+        }
+    }
+
+    /**
+     * Loads custom progress bars from a YAML configuration section.
+     * It iterates over each progress bar defined in the section, constructs a `ProgressBar` object, and registers it with the `progressBarBucket`.
+     *
+     * @param section  The YAML configuration section containing progress bar data.
+     * @param fileName The name of the file from which the data is loaded.
+     */
+    private void loadProgressBarsFromYml(ConfigurationSection section, String fileName) {
+        for (String identifier : section.getKeys(false)) {
+            long currentTime = System.currentTimeMillis(); // Capture current time
+            ConfigurationSection progressBarSection = section.getConfigurationSection(identifier);
+            progressBarBucket.registerProgressBar(
+                    new ProgressBar(
+                            identifier,
+                            progressBarSection.getString("symbol"),
+                            progressBarSection.getString("completed-color"),
+                            progressBarSection.getString("progress-color"),
+                            progressBarSection.getString("remaining-color")
+                    )
+            );
+            getLogger().info(String.format("Registered progress bar %s from file %s in %dms", identifier, fileName, System.currentTimeMillis() - currentTime));
+        }
+    }
+
+    /**
+     * Loads custom placeholders from a YAML configuration section.
+     * It iterates over each placeholder defined in the section, constructs a corresponding `PlaceholderData` object, and registers it with the `placeholderManager`.
+     * Additionally, it registers any associated requirements for each placeholder.
+     *
+     * @param section  The YAML configuration section containing placeholder data.
+     * @param fileName The name of the file from which the data is loaded.
+     */
+    private void loadPlaceholdersFromYml(ConfigurationSection section, String fileName) {
+        if (section == null) {
+            getLogger().warning(String.format("No custom placeholders found in file %s", fileName));
+            return;
+        }
+
+        for (String identifier : section.getKeys(false)) {
+            ConfigurationSection placeholderSection = section.getConfigurationSection(identifier);
+            if (placeholderSection == null) {
+                getLogger().warning(String.format("Invalid placeholder configuration for %s in file %s", identifier, fileName));
+                continue;
+            }
+
+            // Use getPlaceholderData to retrieve PlaceholderData
+            PlaceholderData placeholderData = getPlaceholderData(placeholderSection);
+
+            // Load requirements if they exist
+            if (placeholderSection.isConfigurationSection("requirements")) {
+                ConfigurationSection requirementsSection = placeholderSection.getConfigurationSection("requirements");
+                if (requirementsSection != null) {
+                    for (String reqIdentifier : requirementsSection.getKeys(false)) {
+                        ConfigurationSection reqSection = requirementsSection.getConfigurationSection(reqIdentifier);
+                        if (reqSection != null) {
+                            placeholderData.registerRequirement(reqSection);
+                        } else {
+                            getLogger().warning(String.format("Invalid requirement configuration for %s in placeholder %s from file %s", reqIdentifier, identifier, fileName));
+                        }
+                    }
+                }
+            }
+
+            placeholderManager.register(identifier, placeholderData);
+            long currentTime = System.currentTimeMillis(); // Capture current time
+            getLogger().info(String.format("Registered placeholder %s from file %s in %dms", identifier, fileName, System.currentTimeMillis() - currentTime));
+        }
+    }
+
+    /**
      * Retrieves the instance of the `BukkitAudiences` class used for sending chat messages and titles.
      *
      * @return The instance of the `BukkitAudiences` class.
@@ -223,6 +352,10 @@ public final class ItsMyConfig extends JavaPlugin {
      */
     public RequirementManager getRequirementManager() {
         return requirementManager;
+    }
+
+    public boolean isAllowItemEdits() {
+        return allowItemEdits;
     }
 
 }
