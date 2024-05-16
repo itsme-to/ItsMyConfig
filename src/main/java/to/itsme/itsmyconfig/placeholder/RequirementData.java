@@ -8,9 +8,9 @@ public final class RequirementData {
 
     /**
      * The identifier represents the unique identifier of a requirement.
-     *
+     * <p>
      * This identifier is used to uniquely identify a requirement in the system.
-     *
+     * <p>
      * Example Usage:
      * <pre>
      *     RequirementData requirement = new RequirementData("R001", "Input", "Output", "Deny Message");
@@ -27,10 +27,10 @@ public final class RequirementData {
     /**
      * The output variable represents the output of a RequirementData object.
      * It is a string value that contains the output data.
-     *
+     * <p>
      * This variable is a private final field and is accessible only within the containing class.
      * It is initialized through the constructor of the RequirementData class.
-     *
+     * <p>
      * Example usage:
      * RequirementData requirement = new RequirementData("REQ1", "input", "output", "deny");
      * System.out.println(requirement.getOutput()); // prints "output"

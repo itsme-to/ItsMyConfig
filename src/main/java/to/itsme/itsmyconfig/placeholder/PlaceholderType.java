@@ -17,16 +17,16 @@ public enum PlaceholderType {
     COLOR,
     /**
      * Represents a placeholder type for generating random values.
-     *
+     * <p>
      * This class is an enumeration that defines different types of placeholders.
      * The RANDOM placeholder type can be used to generate random values.
-     *
+     * <p>
      * Example usage:
-     *
+     * <p>
      * PlaceholderType type = PlaceholderType.RANDOM;
-     *
+     * <p>
      * PlaceholderType findType = PlaceholderType.find("RANDOM");
-     *
+     * <p>
      * The PlaceholderType enum is defined in the PlaceholderType class.
      */
     RANDOM,
