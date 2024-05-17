@@ -8,7 +8,6 @@ import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 import com.comphenix.protocol.wrappers.nbt.NbtFactory;
 import com.comphenix.protocol.wrappers.nbt.NbtList;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -23,8 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class PacketItemListener extends PacketListener {
-
-    private final GsonComponentSerializer gsonComponentSerializer = GsonComponentSerializer.gson();
 
     public PacketItemListener(
             final ItsMyConfig plugin
