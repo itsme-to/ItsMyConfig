@@ -3,6 +3,7 @@ package to.itsme.itsmyconfig.listener;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.util.Utilities;
 
@@ -12,6 +13,8 @@ public abstract class PacketListener extends PacketAdapter {
 
     protected final ItsMyConfig plugin;
     private final Pattern colorSymbolPattern, symbolPrefixPattern;
+    private final Pattern linePattern = Pattern.compile("(?<!\\\\)<configline>");
+    protected final GsonComponentSerializer gsonComponentSerializer = GsonComponentSerializer.gson();
 
     public PacketListener(
             final ItsMyConfig plugin,
@@ -31,7 +34,9 @@ public abstract class PacketListener extends PacketAdapter {
      * @param message the provided message
      */
     protected String processMessage(final String message) {
-        return colorSymbolPattern.matcher(symbolPrefixPattern.matcher(message).replaceFirst("")).replaceAll("&");
+        return linePattern.matcher(
+                colorSymbolPattern.matcher(symbolPrefixPattern.matcher(message).replaceFirst("")).replaceAll("&")
+        ).replaceAll("<br>");
     }
 
     /**
