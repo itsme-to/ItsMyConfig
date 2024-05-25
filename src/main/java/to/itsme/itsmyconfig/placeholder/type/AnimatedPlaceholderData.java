@@ -1,9 +1,8 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
-import org.bukkit.Bukkit;
-import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.placeholder.PlaceholderData;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
+import to.itsme.itsmyconfig.util.Scheduler;
 import to.itsme.itsmyconfig.util.Utilities;
 
 import java.util.*;
@@ -36,8 +35,9 @@ public final class AnimatedPlaceholderData extends PlaceholderData {
             queue.add(new AbstractMap.SimpleEntry<>(message, Utilities.getArguments(message)));
         }
 
-        if (messages.size() > 1)
-            Bukkit.getScheduler().runTaskTimerAsynchronously(ItsMyConfig.getInstance(), this::rotateMessage, interval, interval);
+        if (messages.size() > 1) {
+            Scheduler.runTimerAsync(this::rotateMessage, interval, interval);
+        }
     }
 
     /**

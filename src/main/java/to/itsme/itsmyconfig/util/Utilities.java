@@ -501,8 +501,7 @@ public final class Utilities {
 
             if (bar != null) {
                 plugin.adventure().player(player).showBossBar(bar);
-                plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, () ->
-                        plugin.adventure().player(player).hideBossBar(bar), delay);
+                Scheduler.runLaterAsync(() -> plugin.adventure().player(player).hideBossBar(bar), delay);
             }
             return Tag.preProcessParsed("");
         });
