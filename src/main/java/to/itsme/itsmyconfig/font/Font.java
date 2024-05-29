@@ -23,7 +23,7 @@ public enum Font {
 
     private final Map<Character, Character> characterMap;
     private final TextReplacementConfig config;
-    @TagPattern private final String name;
+    private final @TagPattern String name;
 
     Font(
             @TagPattern final String name,
@@ -35,8 +35,7 @@ public enum Font {
         this.config = createConfig();
     }
 
-    @TagPattern
-    public String getName() {
+    public @TagPattern String getName() {
         return name;
     }
 

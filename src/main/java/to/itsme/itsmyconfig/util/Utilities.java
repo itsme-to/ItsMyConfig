@@ -1,7 +1,6 @@
 package to.itsme.itsmyconfig.util;
 
 import me.clip.placeholderapi.PlaceholderAPI;
-import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -22,6 +21,7 @@ import to.itsme.itsmyconfig.font.Font;
 import to.itsme.itsmyconfig.font.FontTag;
 import to.itsme.itsmyconfig.placeholder.PlaceholderData;
 import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholderData;
+import to.itsme.itsmyconfig.tag.TagManager;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 /**
  * The Utilities class provides various utility methods for performing common tasks.
  */
-@SuppressWarnings("all")
 public final class Utilities {
 
     public static final MiniMessage MM, EMPTY_MM;
@@ -45,7 +44,7 @@ public final class Utilities {
 
     private static final Pattern COLOR_FILTER = Pattern.compile("[§&][a-zA-Z0-9]");
     private static final Pattern ARGUMENT_PATTERN = Pattern.compile("\\{([0-9]+)}");
-    private static final Pattern QUOTE_PATTERN = Pattern.compile("<quote(?::([^>]*))?>(.*)<\\/quote>");
+    private static final Pattern QUOTE_PATTERN = Pattern.compile("<quote(?::([^>]*))?>(.*)</quote>");
 
     private static final TagResolver FONT_RESOLVER;
     private static final Field TEXT_COMPONENT_CONTENT;
@@ -112,7 +111,7 @@ public final class Utilities {
     ) {
         final Component translated = fixClickEvent(
                 EMPTY_MM.deserialize(
-                        quote(text),
+                        quote(TagManager.process(player, text)),
                         itsMyConfigTag(player), papiTag(player),
                         FONT_RESOLVER, StandardTags.defaults(), playerSubtags(player),
                         TagResolver.resolver(placeholders)
@@ -154,8 +153,10 @@ public final class Utilities {
     /**
      * Escapes Tags based on the special properties provided.
      *
-     * @param tagContent The content of the tag to be checked for color.
-     * @return {@code true} if the tag content represents a color, {@code false} otherwise.
+     * @param text The text that contains tags to be escaped.
+     * @param properties The properties that the method should follow.
+     *
+     * @return The text after escaping tags.
      */
     private static String escapeTags(
             final String text,
@@ -283,8 +284,7 @@ public final class Utilities {
     public static TagResolver playerSubtags(final Player player) {
         return TagResolver.resolver(
                 titleTag(player), subtitleTag(player),
-                actionbarTag(player), soundTag(player),
-                bossbarTag(player)
+                actionbarTag(player), soundTag(player)
         );
     }
 
@@ -460,49 +460,6 @@ public final class Utilities {
                 return Tag.preProcessParsed("Invalid sound tag arguments");
             }
 
-            return Tag.preProcessParsed("");
-        });
-    }
-
-    /**
-     * Provides an action bar tag resolver.
-     *
-     * @param player The player for whom the resolver is being created.
-     * @return The action bar tag resolver.
-     */
-    public static TagResolver bossbarTag(final Player player) {
-        return TagResolver.resolver("bossbar", (argumentQueue, context) -> {
-            final List<Tag.Argument> args = new LinkedList<>();
-            while (argumentQueue.hasNext()) {
-                args.add(argumentQueue.pop());
-            }
-
-            long delay = 20;
-            final BossBar bar;
-
-            if (args.size() > 3) {
-                final Component component = translate(args.get(0).value(), player);
-                final double progress = args.get(1).asDouble().orElse(1.0F);
-                final BossBar.Color color = BossBar.Color.NAMES.value(args.get(2).value());
-                final BossBar.Overlay overlay = BossBar.Overlay.NAMES.value(args.get(3).value());
-                bar = BossBar.bossBar(
-                        component,
-                        (float) Math.min(progress, 1.0F),
-                        color == null ? BossBar.Color.PINK : color,
-                        overlay == null ? BossBar.Overlay.PROGRESS : overlay
-                );
-
-                if (args.size() > 4) {
-                    delay = args.get(4).asInt().orElse(20);
-                }
-            } else {
-                bar = null;
-            }
-
-            if (bar != null) {
-                plugin.adventure().player(player).showBossBar(bar);
-                Scheduler.runLaterAsync(() -> plugin.adventure().player(player).hideBossBar(bar), delay);
-            }
             return Tag.preProcessParsed("");
         });
     }
