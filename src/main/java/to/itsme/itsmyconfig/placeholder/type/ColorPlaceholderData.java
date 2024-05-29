@@ -108,15 +108,16 @@ public final class ColorPlaceholderData extends PlaceholderData {
     private void initializeStyle(ConfigurationSection configurationSection) {
         final Style.Builder builder = Style.style().color(TextColor.fromHexString(hexValue));
 
-        StringBuilder propertiesBuilder = new StringBuilder();
-        StringBuilder propertiesPrefixBuilder = new StringBuilder();
-        StringBuilder propertiesSuffixBuilder = new StringBuilder();
+        final StringBuilder propertiesBuilder = new StringBuilder();
+        final StringBuilder propertiesPrefixBuilder = new StringBuilder();
+        final StringBuilder propertiesSuffixBuilder = new StringBuilder();
 
-        for (String decorationType : DECORATIONS_PROPERTIES.keySet()) {
+        for (final String decorationType : DECORATIONS_PROPERTIES.keySet()) {
             if (configurationSection.getBoolean(decorationType)) {
                 propertiesBuilder.append(DECORATIONS_PROPERTIES.get(decorationType));
                 propertiesPrefixBuilder.append("<").append(decorationType).append(">");
                 propertiesSuffixBuilder.append("</").append(decorationType).append(">");
+                builder.decorate(TextDecoration.valueOf(decorationType.toUpperCase(Locale.ENGLISH)));
             }
         }
 

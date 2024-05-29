@@ -107,18 +107,32 @@ public final class ItsMyConfigCommand {
     public void message(
             final BukkitCommandActor actor,
             final @Named("target") EntitySelector<Player> players,
-            final @Optional @Switch("d") boolean direct,
             final @Named("message") String message
     ) {
         for (final Player player : players) {
-            if (direct) {
-                plugin.adventure().player(player).sendMessage(Utilities.translate(message, player));
-                continue;
-            }
-
             final String[] strings = message.split("\\\\r?\\\\n|\\\\r");
             for (final String string : strings) {
                 player.sendMessage(this.plugin.getSymbolPrefix() + string);
+            }
+        }
+
+        if (actor.isPlayer()) {
+            Message.MESSAGE_SENT.send(actor);
+        }
+    }
+
+    @Subcommand("parse")
+    @CommandPermission("itsmyconfig.parse")
+    @Description("Parses messages to players")
+    public void parse(
+            final BukkitCommandActor actor,
+            final @Named("target") EntitySelector<Player> players,
+            final @Named("message") String message
+    ) {
+        for (final Player player : players) {
+            final Component component = Utilities.translate(message, player);
+            if (Component.empty().equals(component)) {
+                plugin.adventure().player(player).sendMessage(component);
             }
         }
 
@@ -160,10 +174,9 @@ public final class ItsMyConfigCommand {
     public void msgCommand(
             final BukkitCommandActor actor,
             final @Named("target") EntitySelector<Player> players,
-            final @Optional @Switch("d") boolean direct,
             final @Named("message") String message
     ) {
-        this.message(actor, players, direct, message);
+        this.message(actor, players, message);
     }
 
     @Command("config")

@@ -38,7 +38,7 @@ public final class Utilities {
     public static final MiniMessage MM, EMPTY_MM;
     public static final Pattern LETTERS_PATTERN = Pattern.compile("[A-Za-zÀ-ÿ]");
     public static final Pattern HEX_PATTERN = Pattern.compile("#[a-fA-F0-9]{6}");
-    public static final Pattern TAG_PATTERN = Pattern.compile("<(?:\\\\.|[^<>])*>");
+    public static final Pattern TAG_PATTERN = Pattern.compile("<(\\w+)(?::\"([^\"]*)\"|:([^<]*))*>");
 
     private static final ItsMyConfig plugin = ItsMyConfig.getInstance();
 
