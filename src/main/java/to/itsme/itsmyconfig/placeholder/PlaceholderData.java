@@ -6,7 +6,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholderData;
-import to.itsme.itsmyconfig.util.Utilities;
+import to.itsme.itsmyconfig.util.Strings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,7 +124,6 @@ public abstract class PlaceholderData {
      *
      * @param params     The array of parameters to use for replacement.
      * @param message    The message string to replace arguments in.
-     * @param arguments  The list of argument positions to replace.
      * @return The message string with replaced arguments.
      */
     public String replaceArguments(final String[] params, final String message) {
@@ -176,7 +175,7 @@ public abstract class PlaceholderData {
      * @param string The string containing the arguments to be registered.
      */
     protected void registerArguments(final String string) {
-        this.arguments.addAll(Utilities.getArguments(string));
+        this.arguments.addAll(Strings.getArguments(string));
     }
 
     /**

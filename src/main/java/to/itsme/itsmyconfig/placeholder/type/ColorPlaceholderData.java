@@ -5,7 +5,7 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import to.itsme.itsmyconfig.placeholder.PlaceholderData;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
-import to.itsme.itsmyconfig.util.Utilities;
+import to.itsme.itsmyconfig.util.Strings;
 
 import java.util.*;
 
@@ -77,7 +77,7 @@ public final class ColorPlaceholderData extends PlaceholderData {
             this.invalid = false;
             this.nameValue = this.value;
             this.hexValue = namedTextColor.asHexString();
-        } else if (Utilities.HEX_PATTERN.matcher(this.value).matches()) {
+        } else if (Strings.HEX_PATTERN.matcher(this.value).matches()) {
             this.legacy = false;
             this.invalid = false;
             final TextColor textColor = TextColor.fromHexString(this.value);

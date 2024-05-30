@@ -3,7 +3,7 @@ package to.itsme.itsmyconfig.util;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public final class AdventureUtil {
+public final class Reflections {
 
     private static Object SERIALIZER;
     private static Method DESERIALIZE;
@@ -20,7 +20,7 @@ public final class AdventureUtil {
         } catch (final Throwable ignored) {}
     }
 
-    public static Object fromJson(final String json) {
+    public static Object fromJsonToComponent(final String json) {
         try {
             return DESERIALIZE.invoke(SERIALIZER, json);
         } catch (IllegalAccessException | InvocationTargetException e) {

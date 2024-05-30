@@ -131,7 +131,7 @@ public final class ItsMyConfigCommand {
     ) {
         for (final Player player : players) {
             final Component component = Utilities.translate(message, player);
-            if (Component.empty().equals(component)) {
+            if (!Component.empty().equals(component)) {
                 plugin.adventure().player(player).sendMessage(component);
             }
         }

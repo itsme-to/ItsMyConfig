@@ -3,11 +3,11 @@ package to.itsme.itsmyconfig.tag;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import to.itsme.itsmyconfig.tag.api.ArgumentsTag;
+import to.itsme.itsmyconfig.tag.api.Cancellable;
 import to.itsme.itsmyconfig.tag.api.Tag;
 import to.itsme.itsmyconfig.tag.impl.BossbarTag;
 import to.itsme.itsmyconfig.tag.impl.DelayTag;
 import to.itsme.itsmyconfig.tag.impl.RepeatTag;
-import to.itsme.itsmyconfig.util.Utilities;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -69,6 +69,13 @@ public final class TagManager {
                 }
             }
 
+            if (args.size() == 1 && args.get(0).equals("cancel")) {
+                if (tag instanceof Cancellable) {
+                    ((Cancellable) tag).cancelFor(player);
+                    return "";
+                }
+            }
+
             final String replaced;
             final ArgumentsTag argumentsTag = (ArgumentsTag) tag;
             if (args.size() < argumentsTag.minArguments()) {
@@ -80,7 +87,6 @@ public final class TagManager {
             }
 
             text = text.substring(0, index) + replaced + text.substring(matcher.end());
-            Utilities.debug("text now: " + text);
             matcher = ARG_TAG_PATTERN.matcher(text);
         }
 

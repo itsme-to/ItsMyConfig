@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.component.AbstractComponent;
 import to.itsme.itsmyconfig.listener.PacketListener;
-import to.itsme.itsmyconfig.util.AdventureUtil;
+import to.itsme.itsmyconfig.util.Reflections;
 import to.itsme.itsmyconfig.util.Utilities;
 
 import java.lang.reflect.Method;
@@ -90,7 +90,7 @@ public final class PacketChatListener extends PacketListener {
             case SERVER_ADVENTURE:
                 final StructureModifier<Object> modifier = container.getModifier().withType(AdventureComponentConverter.getComponentClass());
                 final String json = gsonComponentSerializer.serialize(parsed);
-                modifier.write(0, AdventureUtil.fromJson(json));
+                modifier.write(0, Reflections.fromJsonToComponent(json));
                 break;
         }
 

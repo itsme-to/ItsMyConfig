@@ -3,7 +3,7 @@ package to.itsme.itsmyconfig.font;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.minimessage.tag.TagPattern;
-import to.itsme.itsmyconfig.util.Utilities;
+import to.itsme.itsmyconfig.util.Strings;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -41,7 +41,7 @@ public enum Font {
 
     private TextReplacementConfig createConfig() {
         final TextReplacementConfig.Builder config = TextReplacementConfig.builder();
-        config.match(Utilities.LETTERS_PATTERN).replacement((matchResult, builder) -> {
+        config.match(Strings.LETTERS_PATTERN).replacement((matchResult, builder) -> {
             final String text = this.apply(matchResult.group());
             return Component.text().content(text);
         });
