@@ -2,7 +2,7 @@ package to.itsme.itsmyconfig.placeholder.type;
 
 import to.itsme.itsmyconfig.placeholder.PlaceholderData;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
-import to.itsme.itsmyconfig.util.Utilities;
+import to.itsme.itsmyconfig.util.Strings;
 
 import java.util.*;
 
@@ -29,7 +29,7 @@ public final class RandomPlaceholderData extends PlaceholderData {
     public RandomPlaceholderData(final List<String> messages) {
         super(PlaceholderType.RANDOM);
         for (final String message : messages) {
-            this.messages.add(new AbstractMap.SimpleEntry<>(message, Utilities.getArguments(message)));
+            this.messages.add(new AbstractMap.SimpleEntry<>(message, Strings.getArguments(message)));
         }
     }
 

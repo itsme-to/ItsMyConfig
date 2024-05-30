@@ -23,11 +23,7 @@ public enum Message {
     }
 
     public void send(final Player player, final TagResolver... resolvers) {
-        final Component component = Utilities.MM.deserialize(
-                toString(),
-                Utilities.playerTag(player),
-                TagResolver.resolver(resolvers)
-        );
+        final Component component = Utilities.translate(this.toString(), player, resolvers);
         plugin.adventure().player(player).sendMessage(component);
     }
 

@@ -5,7 +5,7 @@ import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import to.itsme.itsmyconfig.ItsMyConfig;
-import to.itsme.itsmyconfig.util.Utilities;
+import to.itsme.itsmyconfig.util.Strings;
 
 import java.util.regex.Pattern;
 
@@ -48,7 +48,7 @@ public abstract class PacketListener extends PacketAdapter {
             return false;
         }
 
-        return Utilities.TAG_PATTERN.matcher(Utilities.colorless(message)).replaceAll("").trim().startsWith(plugin.getSymbolPrefix());
+        return Strings.TAG_PATTERN.matcher(Strings.colorless(message)).replaceAll("").trim().startsWith(plugin.getSymbolPrefix());
     }
 
 }

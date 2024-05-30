@@ -4,6 +4,7 @@ authors: [ iiAhmedYT, RealAlphaUA ]
 website: https://builtbybit.com/resources/24606/
 main: to.itsme.itsmyconfig.ItsMyConfig
 api-version: 1.13
+folia-supported: true
 depend:
   - ProtocolLib
   - PlaceholderAPI

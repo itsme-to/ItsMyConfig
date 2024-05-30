@@ -5,7 +5,7 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import to.itsme.itsmyconfig.placeholder.PlaceholderData;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
-import to.itsme.itsmyconfig.util.Utilities;
+import to.itsme.itsmyconfig.util.Strings;
 
 import java.util.*;
 
@@ -77,7 +77,7 @@ public final class ColorPlaceholderData extends PlaceholderData {
             this.invalid = false;
             this.nameValue = this.value;
             this.hexValue = namedTextColor.asHexString();
-        } else if (Utilities.HEX_PATTERN.matcher(this.value).matches()) {
+        } else if (Strings.HEX_PATTERN.matcher(this.value).matches()) {
             this.legacy = false;
             this.invalid = false;
             final TextColor textColor = TextColor.fromHexString(this.value);
@@ -108,15 +108,16 @@ public final class ColorPlaceholderData extends PlaceholderData {
     private void initializeStyle(ConfigurationSection configurationSection) {
         final Style.Builder builder = Style.style().color(TextColor.fromHexString(hexValue));
 
-        StringBuilder propertiesBuilder = new StringBuilder();
-        StringBuilder propertiesPrefixBuilder = new StringBuilder();
-        StringBuilder propertiesSuffixBuilder = new StringBuilder();
+        final StringBuilder propertiesBuilder = new StringBuilder();
+        final StringBuilder propertiesPrefixBuilder = new StringBuilder();
+        final StringBuilder propertiesSuffixBuilder = new StringBuilder();
 
-        for (String decorationType : DECORATIONS_PROPERTIES.keySet()) {
+        for (final String decorationType : DECORATIONS_PROPERTIES.keySet()) {
             if (configurationSection.getBoolean(decorationType)) {
                 propertiesBuilder.append(DECORATIONS_PROPERTIES.get(decorationType));
                 propertiesPrefixBuilder.append("<").append(decorationType).append(">");
                 propertiesSuffixBuilder.append("</").append(decorationType).append(">");
+                builder.decorate(TextDecoration.valueOf(decorationType.toUpperCase(Locale.ENGLISH)));
             }
         }
 

@@ -14,37 +14,31 @@ import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.component.AbstractComponent;
 import to.itsme.itsmyconfig.listener.PacketListener;
+import to.itsme.itsmyconfig.util.Reflections;
 import to.itsme.itsmyconfig.util.Utilities;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public final class PacketChatListener extends PacketListener {
 
     private final boolean internalAdventure;
-    private final Method fromJson, fromComponent;
+    private final Method fromComponent;
     private final BungeeComponentSerializer bungee = BungeeComponentSerializer.get();
 
     public PacketChatListener(
             final ItsMyConfig plugin
     ) {
         super(plugin, PacketType.Play.Server.CHAT, PacketType.Play.Server.DISGUISED_CHAT, PacketType.Play.Server.SYSTEM_CHAT);
-        Method fromComponent, fromJson;
+        Method fromComponent;
         try {
-            fromJson = AdventureComponentConverter.class.getDeclaredMethod(
-                    "fromJsonAsObject",
-                    String.class
-            );
             fromComponent = AdventureComponentConverter.class.getDeclaredMethod(
                     "fromComponent",
                     AdventureComponentConverter.getComponentClass()
             );
         } catch (final Throwable ignored) {
             fromComponent = null;
-            fromJson = null;
         }
 
-        this.fromJson = fromJson;
         this.fromComponent = fromComponent;
         this.internalAdventure = this.fromComponent != null;
     }
@@ -53,6 +47,7 @@ public final class PacketChatListener extends PacketListener {
     public void onPacketSending(final PacketEvent event) {
         Utilities.debug("################# CHAT PACKET #################");
         final PacketContainer container = event.getPacket();
+        Utilities.debug("Analyzing packet " + container.getType().name());
         final PacketResponse response = this.processPacket(container);
         if (response == null || response.message.isEmpty()) {
             Utilities.debug("###############################################");
@@ -71,7 +66,9 @@ public final class PacketChatListener extends PacketListener {
         final Component parsed = Utilities.translate(this.processMessage(message), player);
 
         if (parsed.equals(Component.empty())) {
+            Utilities.debug("Component is empty, cancelling...");
             event.setCancelled(true);
+            Utilities.debug("###############################################");
             return;
         }
 
@@ -92,12 +89,8 @@ public final class PacketChatListener extends PacketListener {
                 break;
             case SERVER_ADVENTURE:
                 final StructureModifier<Object> modifier = container.getModifier().withType(AdventureComponentConverter.getComponentClass());
-                final String jsonComponent = gsonComponentSerializer.serialize(parsed);
-                try {
-                    modifier.write(0, fromJson.invoke(null, jsonComponent));
-                } catch (final IllegalAccessException | InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                }
+                final String json = gsonComponentSerializer.serialize(parsed);
+                modifier.write(0, Reflections.fromJsonToComponent(json));
                 break;
         }
 

@@ -120,12 +120,14 @@ public final class DynamicPlaceHolder extends PlaceholderExpansion {
     @Override
     public @Nullable String onPlaceholderRequest(final Player player, @NotNull String params) {
         params = PlaceholderAPI.setPlaceholders(player, params.replaceAll("\\$\\((.*?)\\)\\$", "%$1%"));
+        params = PlaceholderAPI.setBracketPlaceholders(player, params);
+
         final String[] splitParams = params.split("_");
         if (splitParams.length == 0) {
             return ILLEGAL_ARGUMENT_MSG;
         }
-        String firstParam = splitParams[0].toLowerCase();
 
+        final String firstParam = splitParams[0].toLowerCase();
         if ("font".equals(firstParam) && splitParams.length >= 3) {
             return handleFont(splitParams);
         } else if ("progress".equals(firstParam) && splitParams.length >= 4) {
@@ -162,8 +164,8 @@ public final class DynamicPlaceHolder extends PlaceholderExpansion {
      * @param splitParams The array of parameters containing the identifier, value, and maxValue of the progress bar.
      * @return The rendered progress bar as a string, or an error message if the progress bar is not found or the parameters are invalid.
      */
-    private String handleProgress(String[] splitParams) {
-        String identifier = splitParams[1];
+    private String handleProgress(final String[] splitParams) {
+        final String identifier = splitParams[1];
         try {
             double value = Double.parseDouble(splitParams[2]);
             double maxValue = Double.parseDouble(splitParams[3]);
@@ -219,7 +221,7 @@ public final class DynamicPlaceHolder extends PlaceholderExpansion {
      * @return The Roman numeral representation of the given integer.
      */
     public String integerToRoman(int num) {
-        StringBuilder roman = new StringBuilder();
+        final StringBuilder roman = new StringBuilder();
         for (int i = 0; i < values.length; i++) {
             while (num >= values[i]) {
                 num -= values[i];

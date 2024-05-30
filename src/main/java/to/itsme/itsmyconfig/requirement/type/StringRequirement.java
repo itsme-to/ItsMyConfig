@@ -1,6 +1,7 @@
 package to.itsme.itsmyconfig.requirement.type;
 
 import to.itsme.itsmyconfig.requirement.Requirement;
+import to.itsme.itsmyconfig.util.Strings;
 import to.itsme.itsmyconfig.util.Utilities;
 
 import java.util.Arrays;
@@ -82,8 +83,8 @@ public final class StringRequirement extends Requirement<String> {
 
         if (identifier.contains("ignorecolor")) {
             identifier = identifier.replace("ignorecolor", "");
-            input = Utilities.colorless(inputString);
-            output = Utilities.colorless(outputString);
+            input = Strings.colorless(inputString);
+            output = Strings.colorless(outputString);
         }
 
         return new String[]{identifier, input, output};

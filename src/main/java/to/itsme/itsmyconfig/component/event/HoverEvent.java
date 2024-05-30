@@ -137,17 +137,20 @@ public class HoverEvent {
                         } else if (element.isJsonObject()) {
                             event.value = context.deserialize(element, TextfulComponent.class);
                         }
-                        return event;
+                        break;
                     case "show_achievement":
                         event.value = element.getAsString();
-                        return event;
+                        break;
                     case "show_item":
                         event.value = context.deserialize(element, HoverEvent.ShowItem.class);
-                        return event;
+                        break;
                     case "show_entity":
+                        event.value = context.deserialize(element, HoverEvent.ShowEntity.class);
                         break;
                 }
-                event.value = context.deserialize(element, HoverEvent.ShowEntity.class);
+            } else if (jsonObject.has("contents")) {
+                final JsonElement element = jsonObject.get("contents");
+                event.value = context.deserialize(element, TextfulComponent.class);
             }
             return event;
         }
