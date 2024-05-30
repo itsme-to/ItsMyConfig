@@ -13,7 +13,7 @@ public abstract class PacketListener extends PacketAdapter {
 
     protected final ItsMyConfig plugin;
     private final Pattern colorSymbolPattern, symbolPrefixPattern;
-    private final Pattern linePattern = Pattern.compile("(?<!\\\\)<configline>");
+    private final Pattern linePattern = Pattern.compile("(?<!\\\\)<new_line>");
     protected final GsonComponentSerializer gsonComponentSerializer = GsonComponentSerializer.gson();
 
     public PacketListener(
