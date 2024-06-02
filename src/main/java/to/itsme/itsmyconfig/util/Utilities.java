@@ -11,7 +11,6 @@ import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.util.Ticks;
 import org.bukkit.ChatColor;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
@@ -106,7 +105,7 @@ public final class Utilities {
                                 player, Strings.quote(text)
                         ),
                         itsMyConfigTag(player), papiTag(player),
-                        FONT_RESOLVER, StandardTags.defaults(), playerSubtags(player),
+                        FONT_RESOLVER, StandardTags.defaults(),
                         TagResolver.resolver(placeholders)
                 )
         );
@@ -133,31 +132,6 @@ public final class Utilities {
 
         copied = copied.children(copied.children().stream().map(Utilities::fixClickEvent).collect(Collectors.toList()));
         return copied;
-    }
-
-    /**
-     * Resolves all possible tags
-     *
-     * @param player The player for whom the resolver is being created.
-     * @return All {@link TagResolver}s of th player combined.
-     */
-    public static TagResolver playerTag(final Player player) {
-        return TagResolver.resolver(
-                itsMyConfigTag(player), papiTag(player), playerSubtags(player)
-        );
-    }
-
-    /**
-     * Resolves all possible tags except main ones
-     *
-     * @param player The player for whom the resolver is being created.
-     * @return All {@link TagResolver}s of th player combined.
-     */
-    public static TagResolver playerSubtags(final Player player) {
-        return TagResolver.resolver(
-                titleTag(player), subtitleTag(player),
-                actionbarTag(player), soundTag(player)
-        );
     }
 
     /**
@@ -203,136 +177,6 @@ public final class Utilities {
             final String papiPlaceholder = argumentQueue.popOr("papi tag requires an argument").value();
             final String parsedPlaceholder = PlaceholderAPI.setPlaceholders(player, '%' + papiPlaceholder + '%');
             return Tag.preProcessParsed(parsedPlaceholder.replace("§", "&"));
-        });
-    }
-
-    /**
-     * Provides a title tag resolver.
-     *
-     * @param player The player for whom the resolver is being created.
-     * @return The title tag resolver.
-     */
-    public static TagResolver titleTag(final Player player) {
-        return TagResolver.resolver("title", (argumentQueue, context) -> {
-            final List<Tag.Argument> args = new ArrayList<>();
-            while (argumentQueue.hasNext()) {
-                args.add(argumentQueue.pop());
-            }
-
-            if (args.size() == 1) {
-                final Title title = Title.title(MM.deserialize(args.get(0).value(), playerTag(player)), Component.empty());
-                plugin.adventure().player(player).showTitle(title);
-            } else if (args.size() == 2) {
-                final Title title = Title.title(MM.deserialize(args.get(0).value()), MM.deserialize(args.get(1).value(), playerTag(player)));
-                plugin.adventure().player(player).showTitle(title);
-            } else if (args.size() == 4) {
-                final Title.Times times = createTimes(
-                        args.get(0).asInt(),
-                        args.get(1).asInt(),
-                        args.get(2).asInt()
-                );
-                final Title title = Title.title(
-                        MM.deserialize(args.get(3).value(), playerTag(player)),
-                        Component.empty(),
-                        times
-                );
-                plugin.adventure().player(player).showTitle(title);
-            } else if (args.size() == 5) {
-                final Title.Times times = createTimes(
-                        args.get(0).asInt(),
-                        args.get(1).asInt(),
-                        args.get(2).asInt()
-                );
-                final Title title = Title.title(
-                        MM.deserialize(args.get(3).value(), playerTag(player)),
-                        MM.deserialize(args.get(4).value(), playerTag(player)),
-                        times
-                );
-                plugin.adventure().player(player).showTitle(title);
-            } else {
-                return Tag.preProcessParsed("Invalid title tag arguments");
-            }
-
-            return Tag.preProcessParsed("");
-        });
-    }
-
-    /**
-     * Provides a subtitle tag resolver.
-     *
-     * @param player The player for whom the resolver is being created.
-     * @return The subtitle tag resolver.
-     */
-    public static TagResolver subtitleTag(final Player player) {
-        return TagResolver.resolver("subtitle", (argumentQueue, context) -> {
-            final List<Tag.Argument> args = new ArrayList<>();
-            while (argumentQueue.hasNext()) {
-                args.add(argumentQueue.pop());
-            }
-
-            if (args.size() == 1) {
-                final Title title = Title.title(Component.empty(), MM.deserialize(args.get(0).value(), playerTag(player)));
-                plugin.adventure().player(player).showTitle(title);
-            } else if (args.size() == 4) {
-                final Title.Times times = createTimes(
-                        args.get(0).asInt(),
-                        args.get(1).asInt(),
-                        args.get(2).asInt()
-                );
-                final Title title = Title.title(
-                        Component.empty(),
-                        MM.deserialize(args.get(3).value(), playerTag(player)),
-                        times
-                );
-                plugin.adventure().player(player).showTitle(title);
-            } else {
-                return Tag.preProcessParsed("Invalid subtitle tag arguments");
-            }
-
-            return Tag.preProcessParsed("");
-        });
-    }
-
-    /**
-     * Provides an action bar tag resolver.
-     *
-     * @param player The player for whom the resolver is being created.
-     * @return The action bar tag resolver.
-     */
-    public static TagResolver actionbarTag(final Player player) {
-        return TagResolver.resolver("actionbar", (argumentQueue, context) -> {
-            final String bar = argumentQueue.popOr("Invalid actionbar value").value();
-            plugin.adventure().player(player).sendActionBar(MM.deserialize(bar, playerTag(player)));
-            return Tag.selfClosingInserting(Component.empty());
-        });
-    }
-
-    /**
-     * Provides a sound player tag resolver.
-     *
-     * @param player The player for whom the resolver is being created.
-     * @return The sound tag resolver.
-     */
-    public static TagResolver soundTag(final Player player) {
-        return TagResolver.resolver("sound", (argumentQueue, context) -> {
-            final List<Tag.Argument> args = new ArrayList<>();
-            while (argumentQueue.hasNext()) {
-                args.add(argumentQueue.pop());
-            }
-
-            if (args.size() == 1) {
-                final Sound sound = Sound.valueOf(args.get(0).value());
-                player.playSound(player.getLocation(), sound, 1.0F, 1.0F);
-            } else if (args.size() == 3) {
-                final Sound sound = Sound.valueOf(args.get(0).value());
-                final float volume = (float) args.get(1).asDouble().orElse(1.0D);
-                final float pitch = (float) args.get(2).asDouble().orElse(1.0D);
-                player.playSound(player.getLocation(), sound, volume, pitch);
-            } else {
-                return Tag.preProcessParsed("Invalid sound tag arguments");
-            }
-
-            return Tag.preProcessParsed("");
         });
     }
 

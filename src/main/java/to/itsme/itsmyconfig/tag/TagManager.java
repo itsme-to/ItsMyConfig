@@ -5,9 +5,9 @@ import org.jetbrains.annotations.NotNull;
 import to.itsme.itsmyconfig.tag.api.ArgumentsTag;
 import to.itsme.itsmyconfig.tag.api.Cancellable;
 import to.itsme.itsmyconfig.tag.api.Tag;
-import to.itsme.itsmyconfig.tag.impl.BossbarTag;
-import to.itsme.itsmyconfig.tag.impl.DelayTag;
-import to.itsme.itsmyconfig.tag.impl.RepeatTag;
+import to.itsme.itsmyconfig.tag.impl.*;
+import to.itsme.itsmyconfig.tag.impl.title.SubtitleTag;
+import to.itsme.itsmyconfig.tag.impl.title.TitleTag;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,7 +23,9 @@ public final class TagManager {
 
     static {
         Arrays.asList(
-                new BossbarTag(), new RepeatTag(), new DelayTag()
+                new RepeatTag(), new DelayTag(),
+                new BossbarTag(), new ActiobarTag(),
+                new TitleTag(), new SubtitleTag(), new SoundTag()
         ).forEach(tag -> tags.put(tag.name(), tag));
     }
 
