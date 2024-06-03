@@ -1,8 +1,12 @@
 package to.itsme.itsmyconfig.tag.impl;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
+import net.md_5.bungee.api.ChatMessageType;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.tag.api.ArgumentsTag;
 import to.itsme.itsmyconfig.util.Utilities;
+import to.itsme.itsmyconfig.util.Versions;
 
 public class ActiobarTag extends ArgumentsTag {
 
@@ -27,7 +31,17 @@ public class ActiobarTag extends ArgumentsTag {
             final String[] arguments
     ) {
         final String bar = arguments[0];
-        plugin.adventure().player(player).sendActionBar(Utilities.translate(bar, player));
+        final Component component = Utilities.translate(bar, player);
+
+        if (Versions.INT_VER > 19) {
+            player.spigot().sendMessage(
+                    ChatMessageType.ACTION_BAR,
+                    BungeeComponentSerializer.get().serialize(component)
+            );
+        } else {
+            plugin.adventure().player(player).sendActionBar(component);
+        }
+
         return "";
     }
 
