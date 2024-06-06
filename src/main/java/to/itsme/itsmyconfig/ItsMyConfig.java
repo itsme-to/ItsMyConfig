@@ -105,6 +105,7 @@ public final class ItsMyConfig extends JavaPlugin {
      * 18. Send the placeholders loaded message.
      */
     public void loadConfig() {
+        // 0: Cache time before loading placeholders
         final long time = System.currentTimeMillis();
 
         // 1 - 2: cache old placeholder and bar names
@@ -174,6 +175,8 @@ public final class ItsMyConfig extends JavaPlugin {
         // 17: delete all cache from memory
         placeholderPaths.clear();
         progressBarPaths.clear();
+        previousPlaceholders.clear();
+        previousProgressBars.clear();
 
         // 18: Send the placeholders loaded message
         this.getLogger().info(
