@@ -1,5 +1,6 @@
 package to.itsme.itsmyconfig.tag.impl;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.tag.api.ArgumentsTag;
 import to.itsme.itsmyconfig.util.Scheduler;
@@ -30,10 +31,12 @@ public class DelayTag extends ArgumentsTag {
     ) {
         final int delayInTicks = Strings.intOrDefault(arguments[0], 0);
         final String text = arguments[1];
-
-        Scheduler.runLaterAsync(() -> plugin.adventure().player(player).sendMessage(
-                Utilities.translate(text, player)
-        ), delayInTicks);
+        final Component component = Utilities.translate(text, player);
+        if (!Component.empty().equals(component)) {
+            Scheduler.runLaterAsync(() -> plugin.adventure().player(player).sendMessage(
+                    component
+            ), delayInTicks);
+        }
         return "";
     }
 

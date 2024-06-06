@@ -11,11 +11,11 @@ import to.itsme.itsmyconfig.util.Scheduler;
 import to.itsme.itsmyconfig.util.Strings;
 import to.itsme.itsmyconfig.util.Utilities;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class BossbarTag extends ArgumentsTag implements Cancellable {
@@ -28,15 +28,9 @@ public class BossbarTag extends ArgumentsTag implements Cancellable {
             if (player == null || !player.isOnline()) return true;
 
             final List<BossBar> bars = entry.getValue();
-            if (bars == null || bars.isEmpty()) return true;
+            if (bars == null) return true;
 
-            for (final BossBar bar : bars) {
-                if (!bar.viewers().iterator().hasNext()) {
-                    return true;
-                }
-            }
-
-            return false;
+            return bars.isEmpty();
         }), 10, 10);
     }
 
@@ -99,14 +93,15 @@ public class BossbarTag extends ArgumentsTag implements Cancellable {
         );
 
 
-        barMap.computeIfAbsent(player.getUniqueId(), id -> new ArrayList<>()).add(bar);
+        barMap.computeIfAbsent(player.getUniqueId(), id -> new CopyOnWriteArrayList<>()).add(bar);
         plugin.adventure().player(player).showBossBar(bar);
 
         final AtomicInteger atomicTicks = new AtomicInteger();
         Scheduler.runTimerAsync((task) -> {
             final List<BossBar> barList = barMap.get(player.getUniqueId());
-            if (!barList.contains(bar)) {
+            if (barList == null || !barList.contains(bar)) {
                 task.cancel();
+                plugin.adventure().player(player).hideBossBar(bar);
                 return;
             }
 

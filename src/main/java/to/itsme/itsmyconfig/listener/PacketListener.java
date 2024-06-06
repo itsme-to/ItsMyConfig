@@ -13,7 +13,6 @@ public abstract class PacketListener extends PacketAdapter {
 
     protected final ItsMyConfig plugin;
     private final Pattern colorSymbolPattern, symbolPrefixPattern;
-    private final Pattern linePattern = Pattern.compile("(?<!\\\\)<configline>");
     protected final GsonComponentSerializer gsonComponentSerializer = GsonComponentSerializer.gson();
 
     public PacketListener(
@@ -34,9 +33,7 @@ public abstract class PacketListener extends PacketAdapter {
      * @param message the provided message
      */
     protected String processMessage(final String message) {
-        return linePattern.matcher(
-                colorSymbolPattern.matcher(symbolPrefixPattern.matcher(message).replaceFirst("")).replaceAll("&")
-        ).replaceAll("<br>");
+        return colorSymbolPattern.matcher(symbolPrefixPattern.matcher(message).replaceFirst("")).replaceAll("&");
     }
 
     /**
