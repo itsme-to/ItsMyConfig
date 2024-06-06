@@ -76,7 +76,7 @@ public final class ProgressBarBucket {
      * After calling this method, the ProgressBarBucket will be empty.
      * Use this method to clear all progress bars and start fresh.
      */
-    public void clearAllProgressBars() {
+    public void unregisterAll() {
         this.progressBarByKey.clear();
     }
 

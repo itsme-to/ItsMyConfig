@@ -84,7 +84,7 @@ public final class ItsMyConfig extends JavaPlugin {
     @Override
     public void onDisable() {
         this.placeholderManager.unregisterAll();
-        this.progressBarBucket.clearAllProgressBars();
+        this.progressBarBucket.unregisterAll();
         if (this.adventure != null) {
             this.adventure.close();
             this.adventure = null;
@@ -108,25 +108,56 @@ public final class ItsMyConfig extends JavaPlugin {
      * 17-18-19. Print all logs in the correct order.
      */
     public void loadConfig() {
-        Set<String> previousPlaceholders = new HashSet<>(placeholderManager.getPlaceholderKeys());
-        Set<String> previousProgressBars = new HashSet<>(progressBarBucket.getProgressBarKeys());
+        // cache old placeholder and bar names
+        final Set<String> previousPlaceholders = new HashSet<>(placeholderManager.getPlaceholderKeys());
+        final Set<String> previousProgressBars = new HashSet<>(progressBarBucket.getProgressBarKeys());
+
+        // unregister all placeholders and bars
         this.placeholderManager.unregisterAll();
-        this.progressBarBucket.clearAllProgressBars();
+        this.progressBarBucket.unregisterAll();
+
+        // load config.yml
         this.saveDefaultConfig();
         this.reloadConfig();
         this.loadSymbolPrefix();
+
+        // load placeholders
         final Map<String, String> registeredPlaceholders = new HashMap<>();
         final Map<String, String> registeredProgressBars = new HashMap<>();
-        List<String> registeredLogs = new ArrayList<>();
-        List<String> duplicateLogs = new ArrayList<>();
-        List<String> unregisterLogs = new ArrayList<>();
-        this.loadPlaceholders(registeredPlaceholders, "ItsMyConfig\\config.yml", registeredLogs, duplicateLogs, unregisterLogs);
-        this.loadProgressBars(registeredProgressBars, "ItsMyConfig\\config.yml", registeredLogs, duplicateLogs, unregisterLogs);
-        this.loadCustomYmlFiles(registeredPlaceholders, registeredProgressBars, registeredLogs, duplicateLogs, unregisterLogs);
-        this.unregisterNonExistingPlaceholdersAndProgressBars(previousPlaceholders, registeredPlaceholders, previousProgressBars, registeredProgressBars, unregisterLogs);
+        final List<String> registeredLogs = new ArrayList<>();
+        final List<String> duplicateLogs = new ArrayList<>();
+        final List<String> unregisterLogs = new ArrayList<>();
+
+        if (getConfig().isConfigurationSection("custom-placeholder")) {
+            loadPlaceholdersSection(getConfig().getConfigurationSection("custom-placeholder"), "ItsMyConfig\\config.yml", registeredPlaceholders, registeredLogs, duplicateLogs, unregisterLogs);
+        }
+        if (getConfig().isConfigurationSection("custom-progress")) {
+            loadProgressBarsSection(getConfig().getConfigurationSection("custom-progress"), "ItsMyConfig\\config.yml", registeredProgressBars, registeredLogs, duplicateLogs, unregisterLogs);
+        }
+
+        this.loadFolder(this.getDataFolder(), true, registeredPlaceholders, registeredProgressBars, registeredLogs, duplicateLogs, unregisterLogs);
+
         registeredLogs.forEach(this.getLogger()::info);
         duplicateLogs.forEach(this.getLogger()::warning);
+
+        previousPlaceholders.removeAll(registeredPlaceholders.keySet());
+        for (final String identifier : previousPlaceholders) {
+            this.getLogger().info(String.format("Unregistering placeholder %s as it no longer exists in the configuration.", identifier));
+        }
+
+        previousProgressBars.removeAll(registeredProgressBars.keySet());
+        for (final String identifier : previousProgressBars) {
+            this.getLogger().info(String.format("Unregistering progress bar %s as it no longer exists in the configuration.", identifier));
+        }
+
         unregisterLogs.forEach(this.getLogger()::info);
+
+        // delete all logs from memory
+        registeredPlaceholders.clear();
+        registeredProgressBars.clear();
+        registeredLogs.clear();
+        duplicateLogs.clear();
+        unregisterLogs.clear();
     }
 
     /**
@@ -134,90 +165,6 @@ public final class ItsMyConfig extends JavaPlugin {
      */
     private void loadSymbolPrefix() {
         this.symbolPrefix = this.getConfig().getString("symbol-prefix");
-    }
-
-    /**
-     * Loads the placeholders from the configuration file and registers them with the placeholder manager.
-     * This method iterates over the placeholders configuration section, retrieves the placeholder data,
-     * registers any associated requirements, and finally registers the placeholder with the placeholder manager.
-     *
-     * @param registeredPlaceholders A map of registered placeholders to avoid duplicates.
-     * @param currentFile            The current file being loaded.
-     * @param registeredLogs         The list to store registered log messages.
-     * @param duplicateLogs          The list to store duplicate log messages.
-     * @param unregisterLogs         The list to store unregister log messages.
-     */
-    private void loadPlaceholders(final Map<String, String> registeredPlaceholders, final String currentFile, List<String> registeredLogs, List<String> duplicateLogs, List<String> unregisterLogs) {
-        final ConfigurationSection placeholdersConfigSection = this.getConfig().getConfigurationSection("custom-placeholder");
-        if (placeholdersConfigSection != null) {
-            for (final String identifier : placeholdersConfigSection.getKeys(false)) {
-                if (registeredPlaceholders.containsKey(identifier)) {
-                    duplicateLogs.add(String.format("Duplicate placeholder '%s' detected in files %s and %s. Unregistering.", identifier, formatPath(registeredPlaceholders.get(identifier)), formatPath(currentFile)));
-                    placeholderManager.unregister(identifier);
-                    unregisterLogs.add(String.format("Unregistering placeholder %s due to duplication.", identifier));
-                } else {
-                    final long currentTime = System.currentTimeMillis();
-                    final PlaceholderData data = this.getPlaceholderData(placeholdersConfigSection.getConfigurationSection(identifier));
-                    registerPlaceholder(placeholdersConfigSection, identifier, data);
-                    registeredPlaceholders.put(identifier, currentFile);
-                    registeredLogs.add(String.format("Registered placeholder %s from %s in %dms", identifier, formatPath(currentFile), System.currentTimeMillis() - currentTime));
-                }
-            }
-        }
-    }
-
-    /**
-     * Loads progress bars from the configuration file.
-     * Each progress bar is registered in the ProgressBarBucket.
-     *
-     * @param registeredProgressBars A map of registered progress bars to avoid duplicates.
-     * @param currentFile            The current file being loaded.
-     * @param registeredLogs         The list to store registered log messages.
-     * @param duplicateLogs          The list to store duplicate log messages.
-     * @param unregisterLogs         The list to store unregister log messages.
-     */
-    private void loadProgressBars(final Map<String, String> registeredProgressBars, final String currentFile, List<String> registeredLogs, List<String> duplicateLogs, List<String> unregisterLogs) {
-        final ConfigurationSection progressBarConfigSection = this.getConfig().getConfigurationSection("custom-progress");
-        if (progressBarConfigSection != null) {
-            for (final String identifier : progressBarConfigSection.getKeys(false)) {
-                if (registeredProgressBars.containsKey(identifier)) {
-                    duplicateLogs.add(String.format("Duplicate progress bar '%s' detected in files %s and %s. Unregistering.", identifier, formatPath(registeredProgressBars.get(identifier)), formatPath(currentFile)));
-                    progressBarBucket.unregisterProgressBar(identifier);
-                    unregisterLogs.add(String.format("Unregistering progress bar %s due to duplication.", identifier));
-                } else {
-                    final long currentTime = System.currentTimeMillis();
-                    final ConfigurationSection configurationSection = progressBarConfigSection.getConfigurationSection(identifier);
-                    progressBarBucket.registerProgressBar(
-                            new ProgressBar(
-                                    identifier,
-                                    configurationSection.getString("symbol"),
-                                    configurationSection.getString("completed-color"),
-                                    configurationSection.getString("progress-color"),
-                                    configurationSection.getString("remaining-color")
-                            )
-                    );
-                    registeredProgressBars.put(identifier, currentFile);
-                    registeredLogs.add(String.format("Registered progress bar %s from %s in %dms", identifier, formatPath(currentFile), System.currentTimeMillis() - currentTime));
-                }
-            }
-        }
-    }
-
-    /**
-     * Loads custom .yml files from the plugin's data folder recursively.
-     * It checks for the existence of the data folder, then proceeds to load .yml files using the `loadYmlFiles` method.
-     *
-     * @param registeredPlaceholders A map of registered placeholders to avoid duplicates.
-     * @param registeredProgressBars A map of registered progress bars to avoid duplicates.
-     * @param registeredLogs         The list to store registered log messages.
-     * @param duplicateLogs          The list to store duplicate log messages.
-     * @param unregisterLogs         The list to store unregister log messages.
-     */
-    private void loadCustomYmlFiles(final Map<String, String> registeredPlaceholders, final Map<String, String> registeredProgressBars, List<String> registeredLogs, List<String> duplicateLogs, List<String> unregisterLogs) {
-        final File dataFolder = getDataFolder();
-        if (dataFolder.exists()) {
-            loadYmlFiles(dataFolder, registeredPlaceholders, registeredProgressBars, registeredLogs, duplicateLogs, unregisterLogs);
-        }
     }
 
     /**
@@ -231,15 +178,29 @@ public final class ItsMyConfig extends JavaPlugin {
      * @param duplicateLogs          The list to store duplicate log messages.
      * @param unregisterLogs         The list to store unregister log messages.
      */
-    private void loadYmlFiles(final File folder, final Map<String, String> registeredPlaceholders, final Map<String, String> registeredProgressBars, List<String> registeredLogs, List<String> duplicateLogs, List<String> unregisterLogs) {
+    private void loadFolder(
+            final File folder,
+            final boolean parent,
+            final Map<String, String> registeredPlaceholders,
+            final Map<String, String> registeredProgressBars,
+            final List<String> registeredLogs,
+            final List<String> duplicateLogs,
+            final List<String> unregisterLogs
+    ) {
+        if (folder == null || !folder.isDirectory()) {
+            return;
+        }
+
         final File[] files = folder.listFiles();
-        if (files != null) {
-            for (final File file : files) {
-                if (file.isDirectory()) {
-                    loadYmlFiles(file, registeredPlaceholders, registeredProgressBars, registeredLogs, duplicateLogs, unregisterLogs);
-                } else if (file.isFile() && file.getName().endsWith(".yml") && !file.getName().equals("config.yml")) {
-                    loadCustomYml(file, registeredPlaceholders, registeredProgressBars, registeredLogs, duplicateLogs, unregisterLogs);
-                }
+        if (files == null) {
+            return;
+        }
+
+        for (final File file : files) {
+            if (file.isDirectory()) {
+                this.loadFolder(file, false, registeredPlaceholders, registeredProgressBars, registeredLogs, duplicateLogs, unregisterLogs);
+            } else if (file.isFile() && file.getName().endsWith(".yml") && !(parent && file.getName().equals("config.yml"))) {
+                this.loadYAMLFile(file, registeredPlaceholders, registeredProgressBars, registeredLogs, duplicateLogs, unregisterLogs);
             }
         }
     }
@@ -255,14 +216,21 @@ public final class ItsMyConfig extends JavaPlugin {
      * @param duplicateLogs          The list to store duplicate log messages.
      * @param unregisterLogs         The list to store unregister log messages.
      */
-    private void loadCustomYml(final File file, final Map<String, String> registeredPlaceholders, final Map<String, String> registeredProgressBars, List<String> registeredLogs, List<String> duplicateLogs, List<String> unregisterLogs) {
+    private void loadYAMLFile(
+            final File file,
+            final Map<String, String> registeredPlaceholders,
+            final Map<String, String> registeredProgressBars,
+            final List<String> registeredLogs,
+            final List<String> duplicateLogs,
+            final List<String> unregisterLogs
+    ) {
         final String filePath = "ItsMyConfig\\" + file.getPath().replace("/", "\\").replace(getDataFolder().getPath() + "\\", "");
         final YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-        if (config.contains("custom-progress")) {
-            loadProgressBarsFromYml(config.getConfigurationSection("custom-progress"), filePath, registeredProgressBars, registeredLogs, duplicateLogs, unregisterLogs);
+        if (config.isConfigurationSection("custom-placeholder")) {
+            loadPlaceholdersSection(config.getConfigurationSection("custom-placeholder"), filePath, registeredPlaceholders, registeredLogs, duplicateLogs, unregisterLogs);
         }
-        if (config.contains("custom-placeholder")) {
-            loadPlaceholdersFromYml(config.getConfigurationSection("custom-placeholder"), filePath, registeredPlaceholders, registeredLogs, duplicateLogs, unregisterLogs);
+        if (config.isConfigurationSection("custom-progress")) {
+            loadProgressBarsSection(config.getConfigurationSection("custom-progress"), filePath, registeredProgressBars, registeredLogs, duplicateLogs, unregisterLogs);
         }
     }
 
@@ -277,7 +245,14 @@ public final class ItsMyConfig extends JavaPlugin {
      * @param duplicateLogs          The list to store duplicate log messages.
      * @param unregisterLogs         The list to store unregister log messages.
      */
-    private void loadProgressBarsFromYml(final ConfigurationSection section, final String filePath, final Map<String, String> registeredProgressBars, List<String> registeredLogs, List<String> duplicateLogs, List<String> unregisterLogs) {
+    private void loadProgressBarsSection(
+            final ConfigurationSection section,
+            final String filePath,
+            final Map<String, String> registeredProgressBars,
+            final List<String> registeredLogs,
+            final List<String> duplicateLogs,
+            final List<String> unregisterLogs
+    ) {
         for (final String identifier : section.getKeys(false)) {
             if (registeredProgressBars.containsKey(identifier)) {
                 duplicateLogs.add(String.format("Duplicate progress bar '%s' found in files %s and %s. Unregistering.", identifier, formatPath(registeredProgressBars.get(identifier)), formatPath(filePath)));
@@ -313,7 +288,14 @@ public final class ItsMyConfig extends JavaPlugin {
      * @param duplicateLogs          The list to store duplicate log messages.
      * @param unregisterLogs         The list to store unregister log messages.
      */
-    private void loadPlaceholdersFromYml(final ConfigurationSection section, final String filePath, final Map<String, String> registeredPlaceholders, List<String> registeredLogs, List<String> duplicateLogs, List<String> unregisterLogs) {
+    private void loadPlaceholdersSection(
+            final ConfigurationSection section,
+            final String filePath,
+            final Map<String, String> registeredPlaceholders,
+            final List<String> registeredLogs,
+            final List<String> duplicateLogs,
+            final List<String> unregisterLogs
+    ) {
         if (section == null) {
             getLogger().warning(String.format("No custom placeholders found in file %s", formatPath(filePath)));
             return;
@@ -338,14 +320,12 @@ public final class ItsMyConfig extends JavaPlugin {
                 // Load requirements if they exist
                 if (placeholderSection.isConfigurationSection("requirements")) {
                     final ConfigurationSection requirementsSection = placeholderSection.getConfigurationSection("requirements");
-                    if (requirementsSection != null) {
-                        for (final String reqIdentifier : requirementsSection.getKeys(false)) {
-                            final ConfigurationSection reqSection = requirementsSection.getConfigurationSection(reqIdentifier);
-                            if (reqSection != null) {
-                                placeholderData.registerRequirement(reqSection);
-                            } else {
-                                getLogger().warning(String.format("Invalid requirement configuration for %s in placeholder %s from file %s", reqIdentifier, identifier, formatPath(filePath)));
-                            }
+                    for (final String reqIdentifier : requirementsSection.getKeys(false)) {
+                        final ConfigurationSection reqSection = requirementsSection.getConfigurationSection(reqIdentifier);
+                        if (reqSection != null) {
+                            placeholderData.registerRequirement(reqSection);
+                        } else {
+                            getLogger().warning(String.format("Invalid requirement configuration for %s in placeholder %s from file %s", reqIdentifier, identifier, formatPath(filePath)));
                         }
                     }
                 }
@@ -354,31 +334,6 @@ public final class ItsMyConfig extends JavaPlugin {
                 registeredPlaceholders.put(identifier, filePath);
                 registeredLogs.add(String.format("Registered placeholder %s from %s in %dms", identifier, formatPath(filePath), System.currentTimeMillis() - currentTime));
             }
-        }
-    }
-
-    /**
-     * Unregisters non-existing placeholders and progress bars and logs the actions.
-     *
-     * @param previousPlaceholders    A set of previously registered placeholders.
-     * @param registeredPlaceholders  A map of currently registered placeholders to avoid duplicates.
-     * @param previousProgressBars    A set of previously registered progress bars.
-     * @param registeredProgressBars  A map of currently registered progress bars to avoid duplicates.
-     * @param unregisterLogs          The list to store unregister log messages.
-     */
-    private void unregisterNonExistingPlaceholdersAndProgressBars(final Set<String> previousPlaceholders, final Map<String, String> registeredPlaceholders, final Set<String> previousProgressBars, final Map<String, String> registeredProgressBars, List<String> unregisterLogs) {
-        // Unregister non-existing placeholders
-        previousPlaceholders.removeAll(registeredPlaceholders.keySet());
-        for (final String identifier : previousPlaceholders) {
-            unregisterLogs.add(String.format("Unregistering placeholder %s as it no longer exists in the configuration.", identifier));
-            placeholderManager.unregister(identifier);
-        }
-
-        // Unregister non-existing progress bars
-        previousProgressBars.removeAll(registeredProgressBars.keySet());
-        for (final String identifier : previousProgressBars) {
-            unregisterLogs.add(String.format("Unregistering progress bar %s as it no longer exists in the configuration.", identifier));
-            progressBarBucket.unregisterProgressBar(identifier);
         }
     }
 
@@ -408,28 +363,6 @@ public final class ItsMyConfig extends JavaPlugin {
             case STRING:
                 return new StringPlaceholderData(placeholderSection.getString(valueProperty, ""));
         }
-    }
-
-    /**
-     * Registers a placeholder with the provided identifier and data.
-     *
-     * @param placeholdersConfigSection The ConfigurationSection containing placeholder data.
-     * @param identifier                The identifier of the placeholder.
-     * @param data                      The PlaceholderData object representing the data of the placeholder.
-     */
-    private void registerPlaceholder(
-            final ConfigurationSection placeholdersConfigSection,
-            final String identifier,
-            final PlaceholderData data
-    ) {
-        final ConfigurationSection requirementsConfigSection =
-                placeholdersConfigSection.getConfigurationSection(identifier + ".requirements");
-        if (requirementsConfigSection != null) {
-            for (final String req : requirementsConfigSection.getKeys(false)) {
-                data.registerRequirement(requirementsConfigSection.getConfigurationSection(req));
-            }
-        }
-        this.placeholderManager.register(identifier, data);
     }
 
     /**
