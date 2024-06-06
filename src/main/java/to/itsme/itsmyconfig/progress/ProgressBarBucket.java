@@ -2,12 +2,14 @@ package to.itsme.itsmyconfig.progress;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * ProgressBarBucket class represents a collection of ProgressBar objects.
  * It allows registering, retrieving, and clearing progress bars.
  */
 public final class ProgressBarBucket {
+
     /**
      * progressBarByKey is a private final variable of type Map<String, ProgressBar>.
      * It represents a collection of ProgressBar objects stored as key-value pairs, where the key is of type String and the value is of type ProgressBar.
@@ -41,6 +43,24 @@ public final class ProgressBarBucket {
     }
 
     /**
+     * Unregisters a ProgressBar with the specified key.
+     *
+     * @param key The key of the ProgressBar to unregister.
+     */
+    public void unregisterProgressBar(final String key) {
+        this.progressBarByKey.remove(key);
+    }
+
+    /**
+     * Returns a {@link Map} of progress bars.
+     *
+     * @return a map containing progress bars as keys and their corresponding {@link ProgressBar} objects as values
+     */
+    public Map<String, ProgressBar> getProgressBarMap() {
+        return progressBarByKey;
+    }
+
+    /**
      * Retrieves the ProgressBar with the specified key.
      *
      * @param key The key of the ProgressBar.
@@ -56,7 +76,16 @@ public final class ProgressBarBucket {
      * After calling this method, the ProgressBarBucket will be empty.
      * Use this method to clear all progress bars and start fresh.
      */
-    public void clearAllProgressBars() {
+    public void unregisterAll() {
         this.progressBarByKey.clear();
+    }
+
+    /**
+     * Retrieves the keys of all registered progress bars.
+     *
+     * @return a set containing the keys of all registered progress bars.
+     */
+    public Set<String> getProgressBarKeys() {
+        return progressBarByKey.keySet();
     }
 }

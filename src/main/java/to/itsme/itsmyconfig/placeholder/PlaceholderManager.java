@@ -3,6 +3,7 @@ package to.itsme.itsmyconfig.placeholder;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The PlaceholderManager class is responsible for managing placeholders.
@@ -34,6 +35,15 @@ public final class PlaceholderManager {
     }
 
     /**
+     * Unregisters a placeholder with the specified key.
+     *
+     * @param key The key of the placeholder to unregister.
+     */
+    public void unregister(final String key) {
+        this.placeholders.remove(key);
+    }
+
+    /**
      * Checks if the specified key is present in the PlaceholderManager.
      *
      * @param key The key to check.
@@ -62,4 +72,12 @@ public final class PlaceholderManager {
         return placeholders;
     }
 
+    /**
+     * Retrieves the keys of all registered placeholders.
+     *
+     * @return a set containing the keys of all registered placeholders.
+     */
+    public Set<String> getPlaceholderKeys() {
+        return placeholders.keySet();
+    }
 }
