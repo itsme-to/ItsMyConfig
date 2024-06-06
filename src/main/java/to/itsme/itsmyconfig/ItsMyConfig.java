@@ -90,37 +90,41 @@ public final class ItsMyConfig extends JavaPlugin {
      * The loadConfig method is responsible for loading the configuration file and initializing various settings and data.
      * It performs the following steps:
      * <p>
+     * 0. Cache time before loading placeholders.
      * 1-2. Track previously registered placeholders and progress bars.
      * 3-4. Clear all registered placeholders and progress bars.
      * 5. Save the default configuration file if it does not exist
      * 6. Reload the configuration from the file.
      * 7. Loads the symbol prefix from the configuration.
      * 8-9. Maps to keep track of registered placeholders and progress bars to avoid duplicates.
-     * 10-11-12. Lists to store log messages.
-     * 13-14. Load and register placeholders and progress bars from the main configuration file.
-     * 15. Load and register placeholders and progress bars from additional custom .yml files.
-     * 16. Unregister non-existing placeholders and progress bars.
-     * 17-18-19. Print all logs in the correct order.
+     * 10-11. Load and register placeholders and progress bars from the main configuration file.
+     * 12. Load and register placeholders and progress bars from additional custom .yml files.
+     * 13 - 14. Print all info about duplicated placeholders and bars.
+     * 15 - 16. Print all info about deleted placeholders and bars.
+     * 17. Clear maps from the cache to save memory.
+     * 18. Send the placeholders loaded message.
      */
     public void loadConfig() {
         final long time = System.currentTimeMillis();
-        // cache old placeholder and bar names
+
+        // 1 - 2: cache old placeholder and bar names
         final Set<String> previousPlaceholders = new HashSet<>(placeholderManager.getPlaceholderKeys());
         final Set<String> previousProgressBars = new HashSet<>(progressBarBucket.getProgressBarKeys());
 
-        // unregister all placeholders and bars
+        // 3 - 4: unregister all placeholders and bars
         this.placeholderManager.unregisterAll();
         this.progressBarBucket.unregisterAll();
 
-        // load config.yml
+        // 5 - 7: load config.yml
         this.saveDefaultConfig();
         this.reloadConfig();
         this.loadSymbolPrefix();
 
-        // load placeholders
+        // 8 - 9:  Maps to keep track of registered placeholders and progress bars
         final Map<String, List<String>> placeholderPaths = new HashMap<>();
         final Map<String, List<String>> progressBarPaths = new HashMap<>();
 
+        // 10 - 11: Load and register placeholders and progress bars from the main configuration file
         if (getConfig().isConfigurationSection("custom-placeholder")) {
             loadPlaceholdersSection(getConfig().getConfigurationSection("custom-placeholder"), "ItsMyConfig\\config.yml", placeholderPaths);
         }
@@ -128,8 +132,11 @@ public final class ItsMyConfig extends JavaPlugin {
             loadProgressBarsSection(getConfig().getConfigurationSection("custom-progress"), "ItsMyConfig\\config.yml", progressBarPaths);
         }
 
+        // 12: Load and register placeholders and progress bars from additional custom .yml files
         this.loadFolder(this.getDataFolder(), true, placeholderPaths, progressBarPaths);
 
+        // 13 - 14: Print all info about duplicated placeholders and bars
+        final String listSeparator = "\n   - ";
         final Comparator<String> comparator = Comparator.comparingInt(String::length);
         for (final Map.Entry<String, List<String>> entry : placeholderPaths.entrySet()) {
             final String name = entry.getKey();
@@ -137,7 +144,9 @@ public final class ItsMyConfig extends JavaPlugin {
 
             paths.sort(comparator);
             if (paths.size() > 1) {
-                this.getLogger().warning("Placeholder \"" + name + "\" is duplicated in the following files: \n" + String.join("\n  *", paths));
+                this.getLogger().warning(
+                        "Placeholder \"" + name + "\" is duplicated in the following files:" + listSeparator + String.join(listSeparator, paths)
+                );
             }
         }
 
@@ -151,6 +160,7 @@ public final class ItsMyConfig extends JavaPlugin {
             }
         }
 
+        // 15 - 16: Print all info about deleted placeholders and bars
         previousPlaceholders.removeAll(placeholderManager.getPlaceholderKeys());
         for (final String identifier : previousPlaceholders) {
             this.getLogger().info(String.format("Unregistering placeholder %s as it no longer exists in the configuration.", identifier));
@@ -161,11 +171,19 @@ public final class ItsMyConfig extends JavaPlugin {
             this.getLogger().info(String.format("Unregistering progress bar %s as it no longer exists in the configuration.", identifier));
         }
 
-        // delete all logs from memory
+        // 17: delete all cache from memory
         placeholderPaths.clear();
         progressBarPaths.clear();
 
-        this.getLogger().info("Loaded all Placeholders and ProgressBars in " + (System.currentTimeMillis() - time));
+        // 18: Send the placeholders loaded message
+        this.getLogger().info(
+                 String.format(
+                         "Loaded all %d Placeholders and %d ProgressBars in %dms",
+                         placeholderManager.getPlaceholderKeys().size(),
+                         progressBarBucket.getProgressBarKeys().size(),
+                         System.currentTimeMillis() - time
+                 )
+        );
     }
 
     /**
