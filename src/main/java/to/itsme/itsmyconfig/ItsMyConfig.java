@@ -355,9 +355,17 @@ public final class ItsMyConfig extends JavaPlugin {
      * @return The formatted file path.
      */
     private String formatPath(final String path) {
-        final String[] parts = path.split(File.separator.equals("\\") ? "\\\\" : File.separator);
+        final String separator = File.separator;
+        final String normalizedPath = path.replace("/", separator).replace("\\", separator);
+        final String[] parts = normalizedPath.split(separator.equals("\\") ? "\\\\" : separator);
         if (parts.length > 5) {
-            return parts[0] + "\\" + "..\\".repeat(parts.length - 3) + parts[parts.length - 2] + "\\" + parts[parts.length - 1];
+            final StringBuilder shortenedPath = new StringBuilder(parts[0]);
+            shortenedPath.append(separator).append(parts[1]);
+            for (int i = 2; i < parts.length - 2; i++) {
+                shortenedPath.append(separator).append("..");
+            }
+            shortenedPath.append(separator).append(parts[parts.length - 2]).append(separator).append(parts[parts.length - 1]);
+            return shortenedPath.toString();
         } else {
             return path;
         }
