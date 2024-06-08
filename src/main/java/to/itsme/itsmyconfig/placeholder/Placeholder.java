@@ -5,7 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.ItsMyConfig;
-import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholderData;
+import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholder;
 import to.itsme.itsmyconfig.util.Strings;
 
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  * The PlaceholderData class is an abstract class that represents the basic structure of a placeholder data object.
  * It provides methods for registering requirements, obtaining the placeholder type, and generating the placeholder result.
  */
-public abstract class PlaceholderData {
+public abstract class Placeholder {
 
     /**
      * Represents the plugin variable for ItsMyConfig.
@@ -42,7 +42,7 @@ public abstract class PlaceholderData {
     /**
      * Represents a placeholder data object.
      */
-    public PlaceholderData(
+    public Placeholder(
             final PlaceholderType type
     ) {
         this.type = type;
@@ -108,7 +108,7 @@ public abstract class PlaceholderData {
      * @return true if color translation is needed, false otherwise
      */
     private boolean needColorTranslation() {
-        return !(this instanceof ColorPlaceholderData);
+        return !(this instanceof ColorPlaceholder);
     }
 
     /**

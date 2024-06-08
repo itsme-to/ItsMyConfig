@@ -1,6 +1,6 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
-import to.itsme.itsmyconfig.placeholder.PlaceholderData;
+import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Strings;
 
@@ -10,7 +10,7 @@ import java.util.*;
  * The RandomPlaceholderData class is a concrete implementation of the PlaceholderData class
  * that generates random placeholder data based on provided messages.
  */
-public final class RandomPlaceholderData extends PlaceholderData {
+public final class RandomPlaceholder extends Placeholder {
 
     /**
      * An instance of the Random class used for generating random numbers.
@@ -26,7 +26,7 @@ public final class RandomPlaceholderData extends PlaceholderData {
      *
      * @param messages the list of messages to be used for generating random placeholder data
      */
-    public RandomPlaceholderData(final List<String> messages) {
+    public RandomPlaceholder(final List<String> messages) {
         super(PlaceholderType.RANDOM);
         for (final String message : messages) {
             this.messages.add(new AbstractMap.SimpleEntry<>(message, Strings.getArguments(message)));

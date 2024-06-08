@@ -10,14 +10,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import to.itsme.itsmyconfig.command.CommandManager;
 import to.itsme.itsmyconfig.listener.impl.PacketChatListener;
 import to.itsme.itsmyconfig.listener.impl.PacketItemListener;
-import to.itsme.itsmyconfig.placeholder.DynamicPlaceHolder;
-import to.itsme.itsmyconfig.placeholder.PlaceholderData;
+import to.itsme.itsmyconfig.placeholder.DynamicPlaceholder;
+import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderManager;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
-import to.itsme.itsmyconfig.placeholder.type.AnimatedPlaceholderData;
-import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholderData;
-import to.itsme.itsmyconfig.placeholder.type.RandomPlaceholderData;
-import to.itsme.itsmyconfig.placeholder.type.StringPlaceholderData;
+import to.itsme.itsmyconfig.placeholder.type.AnimatedPlaceholder;
+import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholder;
+import to.itsme.itsmyconfig.placeholder.type.RandomPlaceholder;
+import to.itsme.itsmyconfig.placeholder.type.StringPlaceholder;
 import to.itsme.itsmyconfig.progress.ProgressBar;
 import to.itsme.itsmyconfig.progress.ProgressBarBucket;
 import to.itsme.itsmyconfig.requirement.RequirementManager;
@@ -56,7 +56,7 @@ public final class ItsMyConfig extends JavaPlugin {
         this.getLogger().info("Loading ItsMyConfig...");
         final long start = System.currentTimeMillis();
         instance = this;
-        new DynamicPlaceHolder(this, progressBarBucket).register();
+        new DynamicPlaceholder(this, progressBarBucket).register();
         new CommandManager(this);
 
         this.requirementManager = new RequirementManager();
@@ -321,7 +321,7 @@ public final class ItsMyConfig extends JavaPlugin {
             }
 
             // Use getPlaceholderData to retrieve PlaceholderData
-            final PlaceholderData placeholderData = this.getPlaceholderData(placeholderSection);
+            final Placeholder placeholder = this.getPlaceholder(placeholderSection);
 
             // Load requirements if they exist
             if (placeholderSection.isConfigurationSection("requirements")) {
@@ -329,14 +329,14 @@ public final class ItsMyConfig extends JavaPlugin {
                 for (final String reqIdentifier : requirementsSection.getKeys(false)) {
                     final ConfigurationSection reqSection = requirementsSection.getConfigurationSection(reqIdentifier);
                     if (reqSection != null) {
-                        placeholderData.registerRequirement(reqSection);
+                        placeholder.registerRequirement(reqSection);
                     } else {
                         getLogger().warning(String.format("Invalid requirement configuration for %s in placeholder %s from file %s", reqIdentifier, identifier, formatPath(filePath)));
                     }
                 }
             }
 
-            placeholderManager.register(identifier, placeholderData);
+            placeholderManager.register(identifier, placeholder);
             paths.computeIfAbsent(identifier, v -> new ArrayList<>()).add(formatPath(filePath));
         }
     }
@@ -347,7 +347,7 @@ public final class ItsMyConfig extends JavaPlugin {
      * @param placeholderSection The configuration section containing the placeholder data.
      * @return The placeholder data object.
      */
-    private PlaceholderData getPlaceholderData(final ConfigurationSection placeholderSection) {
+    private Placeholder getPlaceholder(final ConfigurationSection placeholderSection) {
         final PlaceholderType type = PlaceholderType.find(placeholderSection.getString("type"));
 
         final String valueProperty = "value";
@@ -355,17 +355,17 @@ public final class ItsMyConfig extends JavaPlugin {
 
         switch (type) {
             case RANDOM:
-                return new RandomPlaceholderData(placeholderSection.getStringList(valuesProperty));
+                return new RandomPlaceholder(placeholderSection.getStringList(valuesProperty));
             case ANIMATION:
-                return new AnimatedPlaceholderData(
+                return new AnimatedPlaceholder(
                         placeholderSection.getStringList(valuesProperty),
                         placeholderSection.getInt("interval", 20)
                 );
             case COLOR:
-                return new ColorPlaceholderData(placeholderSection);
+                return new ColorPlaceholder(placeholderSection);
             default:
             case STRING:
-                return new StringPlaceholderData(placeholderSection.getString(valueProperty, ""));
+                return new StringPlaceholder(placeholderSection.getString(valueProperty, ""));
         }
     }
 

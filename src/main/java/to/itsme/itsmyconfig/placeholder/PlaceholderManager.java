@@ -15,7 +15,7 @@ public final class PlaceholderManager {
      * Represents a synchronized map of placeholder keys and PlaceholderData objects.
      * Placeholders are used to represent dynamic values that can be replaced in messages or text.
      */
-    private final Map<String, PlaceholderData> placeholders = Collections.synchronizedMap(new LinkedHashMap<>());
+    private final Map<String, Placeholder> placeholders = Collections.synchronizedMap(new LinkedHashMap<>());
 
     /**
      * Registers a placeholder with the provided key and value.
@@ -23,7 +23,7 @@ public final class PlaceholderManager {
      * @param key   The key of the placeholder.
      * @param value The PlaceholderData object representing the value of the placeholder.
      */
-    public void register(final String key, final PlaceholderData value) {
+    public void register(final String key, final Placeholder value) {
         this.placeholders.put(key, value);
     }
 
@@ -59,16 +59,16 @@ public final class PlaceholderManager {
      * @param key The key used to retrieve the placeholder data object.
      * @return The PlaceholderData object associated with the given key, or null if the key does not exist.
      */
-    public PlaceholderData get(final String key) {
+    public Placeholder get(final String key) {
         return this.placeholders.get(key);
     }
 
     /**
      * Returns a {@link Map} of placeholders.
      *
-     * @return a map containing placeholders as keys and their corresponding {@link PlaceholderData} objects as values
+     * @return a map containing placeholders as keys and their corresponding {@link Placeholder} objects as values
      */
-    public Map<String, PlaceholderData> getPlaceholdersMap() {
+    public Map<String, Placeholder> getPlaceholdersMap() {
         return placeholders;
     }
 

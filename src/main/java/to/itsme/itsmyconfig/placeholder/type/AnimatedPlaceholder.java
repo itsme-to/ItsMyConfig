@@ -1,6 +1,6 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
-import to.itsme.itsmyconfig.placeholder.PlaceholderData;
+import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Scheduler;
 import to.itsme.itsmyconfig.util.Strings;
@@ -13,7 +13,7 @@ import java.util.concurrent.BlockingQueue;
  * Represents an animated placeholder data object that rotates between different messages at a specified interval.
  * Extends the PlaceholderData class.
  */
-public final class AnimatedPlaceholderData extends PlaceholderData {
+public final class AnimatedPlaceholder extends Placeholder {
 
     private final BlockingQueue<Map.Entry<String, List<Integer>>> queue;
 
@@ -21,7 +21,7 @@ public final class AnimatedPlaceholderData extends PlaceholderData {
      * Represents an animated placeholder data object that rotates between different messages at a specified interval.
      * Extends the PlaceholderData class.
      */
-    public AnimatedPlaceholderData(
+    public AnimatedPlaceholder(
             final List<String> messages,
             final int interval
     ) {

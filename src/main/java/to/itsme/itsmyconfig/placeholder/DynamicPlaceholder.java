@@ -16,7 +16,7 @@ import to.itsme.itsmyconfig.font.Font;
  * It provides methods for handling various types of placeholders, such as fonts, progress bars, and custom placeholders.
  * This class extends the PlaceholderExpansion class.
  */
-public final class DynamicPlaceHolder extends PlaceholderExpansion {
+public final class DynamicPlaceholder extends PlaceholderExpansion {
 
     /**
      * This variable is an instance of the ItsMyConfig class.
@@ -60,7 +60,7 @@ public final class DynamicPlaceHolder extends PlaceholderExpansion {
      * DynamicPlaceHolder is a class that represents a dynamic placeholder for a placeholder expansion.
      * It handles different types of placeholders and provides methods to handle font, progress, and custom placeholders.
      */
-    public DynamicPlaceHolder(
+    public DynamicPlaceholder(
             final ItsMyConfig plugin,
             final ProgressBarBucket progressBarBucket
     ) {
@@ -191,7 +191,7 @@ public final class DynamicPlaceHolder extends PlaceholderExpansion {
         if (!plugin.getPlaceholderManager().has(placeholder)) {
             return PLACEHOLDER_NOT_FOUND_MSG;
         }
-        final PlaceholderData data = plugin.getPlaceholderManager().get(placeholder);
+        final Placeholder data = plugin.getPlaceholderManager().get(placeholder);
         final String[] args = getArgs(splitParams).split("::");
         return data.asString(player, args);
     }

@@ -3,7 +3,7 @@ package to.itsme.itsmyconfig.placeholder.type;
 import net.kyori.adventure.text.format.*;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
-import to.itsme.itsmyconfig.placeholder.PlaceholderData;
+import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Strings;
 
@@ -12,7 +12,7 @@ import java.util.*;
 /**
  * Represents a color placeholder data that can be used in placeholders.
  */
-public final class ColorPlaceholderData extends PlaceholderData {
+public final class ColorPlaceholder extends Placeholder {
 
     /**
      * Represents the style of a variable.
@@ -35,8 +35,8 @@ public final class ColorPlaceholderData extends PlaceholderData {
     private final String value, /**
      * Represents a value for a name.
      *
-     * @see ColorPlaceholderData
-     * @see PlaceholderData
+     * @see ColorPlaceholder
+     * @see Placeholder
      */
     nameValue, /**
      * Represents a color placeholder data object.
@@ -67,7 +67,7 @@ public final class ColorPlaceholderData extends PlaceholderData {
     /**
      * Represents a color placeholder data object.
      */
-    public ColorPlaceholderData(final ConfigurationSection properties) {
+    public ColorPlaceholder(final ConfigurationSection properties) {
         super(PlaceholderType.COLOR);
         this.value = properties.getString("value", "").toLowerCase();
 

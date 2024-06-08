@@ -1,6 +1,6 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
-import to.itsme.itsmyconfig.placeholder.PlaceholderData;
+import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 
 /**
@@ -8,7 +8,7 @@ import to.itsme.itsmyconfig.placeholder.PlaceholderType;
  * It extends the PlaceholderData class and provides methods for registering arguments,
  * obtaining the result of a placeholder evaluation, and replacing arguments in a given message string.
  */
-public final class StringPlaceholderData extends PlaceholderData {
+public final class StringPlaceholder extends Placeholder {
 
     /**
      * The message string for the placeholder data.
@@ -22,7 +22,7 @@ public final class StringPlaceholderData extends PlaceholderData {
      *
      * @param message The message string for the placeholder data.
      */
-    public StringPlaceholderData(final String message) {
+    public StringPlaceholder(final String message) {
         super(PlaceholderType.STRING);
         this.message = message;
         registerArguments(this.message);

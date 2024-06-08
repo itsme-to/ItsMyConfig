@@ -18,8 +18,8 @@ import org.jetbrains.annotations.Nullable;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.font.Font;
 import to.itsme.itsmyconfig.font.FontTag;
-import to.itsme.itsmyconfig.placeholder.PlaceholderData;
-import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholderData;
+import to.itsme.itsmyconfig.placeholder.Placeholder;
+import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholder;
 import to.itsme.itsmyconfig.tag.TagManager;
 
 import java.lang.reflect.Field;
@@ -147,13 +147,13 @@ public final class Utilities {
             }
 
             final String name = argumentQueue.popOr("").value();
-            final PlaceholderData data = plugin.getPlaceholderManager().get(name);
+            final Placeholder data = plugin.getPlaceholderManager().get(name);
             if (data == null) {
                 return Tag.preProcessParsed("Unknown Placeholder");
             }
 
-            if (data instanceof ColorPlaceholderData) {
-                return Tag.styling(builder -> builder.merge(((ColorPlaceholderData) data).getStyle()));
+            if (data instanceof ColorPlaceholder) {
+                return Tag.styling(builder -> builder.merge(((ColorPlaceholder) data).getStyle()));
             }
 
             final List<String> args = new LinkedList<>();

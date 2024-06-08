@@ -2,7 +2,7 @@ package to.itsme.itsmyconfig.requirement;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.entity.Player;
-import to.itsme.itsmyconfig.placeholder.PlaceholderData;
+import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.RequirementData;
 import to.itsme.itsmyconfig.requirement.type.NumberRequirement;
 import to.itsme.itsmyconfig.requirement.type.RegexRequirement;
@@ -45,7 +45,7 @@ public final class RequirementManager {
      * @return The deny message as a string, or null if there is no deny message.
      */
     public String getDenyMessage(
-            final PlaceholderData data,
+            final Placeholder data,
             final Player player,
             final String[] params
     ) {
@@ -66,7 +66,7 @@ public final class RequirementManager {
      */
     private String processRequirementData(
             final RequirementData requirementData,
-            final PlaceholderData data,
+            final Placeholder data,
             final Player player,
             final String[] params) {
         final Requirement<?> requirement = this.getRequirementByType(requirementData.getIdentifier());
@@ -93,7 +93,7 @@ public final class RequirementManager {
      * @param params     The array of parameters to use for replacement.
      * @return The message string with replaced arguments.
      */
-    private String getParameters(Player player, PlaceholderData data, String parameter, String[] params) {
+    private String getParameters(Player player, Placeholder data, String parameter, String[] params) {
         return PlaceholderAPI.setPlaceholders(player, data.replaceArguments(params, parameter));
     }
 }
