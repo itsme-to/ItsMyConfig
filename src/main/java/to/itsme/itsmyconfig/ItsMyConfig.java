@@ -14,10 +14,7 @@ import to.itsme.itsmyconfig.placeholder.DynamicPlaceholder;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderManager;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
-import to.itsme.itsmyconfig.placeholder.type.AnimatedPlaceholder;
-import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholder;
-import to.itsme.itsmyconfig.placeholder.type.RandomPlaceholder;
-import to.itsme.itsmyconfig.placeholder.type.StringPlaceholder;
+import to.itsme.itsmyconfig.placeholder.type.*;
 import to.itsme.itsmyconfig.progress.ProgressBar;
 import to.itsme.itsmyconfig.progress.ProgressBarBucket;
 import to.itsme.itsmyconfig.requirement.RequirementManager;
@@ -356,6 +353,8 @@ public final class ItsMyConfig extends JavaPlugin {
         switch (type) {
             case RANDOM:
                 return new RandomPlaceholder(placeholderSection.getStringList(valuesProperty));
+            case LIST:
+                return new ListPlaceholder(placeholderSection.getStringList(valuesProperty));
             case ANIMATION:
                 return new AnimatedPlaceholder(
                         placeholderSection.getStringList(valuesProperty),

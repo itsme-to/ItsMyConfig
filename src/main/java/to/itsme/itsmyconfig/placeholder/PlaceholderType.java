@@ -15,6 +15,7 @@ public enum PlaceholderType {
      * Represents the color type of a placeholder.
      */
     COLOR,
+    LIST,
     /**
      * Represents a placeholder type for generating random values.
      * <p>
