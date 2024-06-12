@@ -9,7 +9,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import to.itsme.itsmyconfig.command.CommandManager;
 import to.itsme.itsmyconfig.listener.impl.PacketChatListener;
-import to.itsme.itsmyconfig.listener.impl.PacketItemListener;
 import to.itsme.itsmyconfig.placeholder.DynamicPlaceholder;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderManager;
@@ -65,10 +64,6 @@ public final class ItsMyConfig extends JavaPlugin {
 
         final ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
         protocolManager.addPacketListener(new PacketChatListener(this));
-
-        if (ALLOW_ITEM_EDITS) {
-            protocolManager.addPacketListener(new PacketItemListener(this));
-        }
 
         this.getLogger().info("ItsMyConfig loaded in " + (System.currentTimeMillis() - start) + "ms");
     }

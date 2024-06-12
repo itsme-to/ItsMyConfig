@@ -15,8 +15,6 @@
 
 debug: false
 symbol-prefix: $
-# reboot the server when the value is changed 
-allow-item-edits: false
 
 custom-placeholder:
   prefix:
