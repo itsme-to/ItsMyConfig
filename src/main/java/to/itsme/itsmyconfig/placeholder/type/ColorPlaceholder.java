@@ -49,7 +49,10 @@ public final class ColorPlaceholder extends Placeholder {
     propertiesMiniPrefix = "", /**
      *
      */
-    propertiesMiniSuffix = "";
+    propertiesMiniSuffix = "",
+
+    legacyString = "",
+    consoleString = "";
 
     /**
      * Represents a map of decoration properties.
@@ -97,6 +100,9 @@ public final class ColorPlaceholder extends Placeholder {
 
         this.legacyColor = ChatColor.valueOf(this.nameValue.toUpperCase());
         initializeStyle(properties);
+
+        this.consoleString = this.toConsoleString();
+        this.legacyString = (legacy ? legacyColor + this.properties : '&' + this.hexValue + this.properties).replace("§", "&");
     }
 
     /**
@@ -148,17 +154,9 @@ public final class ColorPlaceholder extends Placeholder {
             case "closestname":
                 return this.nameValue;
             case "legacy":
-                return (legacy ? legacyColor.toString() + this.properties : '&' + this.hexValue + this.properties).replace("§", "&");
+                return this.legacyString;
             case "console":
-                if (legacy) {
-                    return legacyColor + this.properties.replaceAll("&", "§");
-                }
-                final String hexColor = this.hexValue.substring(1);
-                final StringBuilder minecraftFormat = new StringBuilder("§x");
-                for (int i = 0; i < hexColor.length(); i++) {
-                    minecraftFormat.append("§").append(hexColor.charAt(i));
-                }
-                return minecraftFormat + this.properties.replaceAll("&", "§");
+                return this.consoleString;
             case "mini":
                 final String prefix = "<" + this.value + ">" + propertiesMiniPrefix;
                 if (params.length > 1) {
@@ -184,6 +182,18 @@ public final class ColorPlaceholder extends Placeholder {
      */
     public Style getStyle() {
         return this.style;
+    }
+
+    private String toConsoleString() {
+        if (legacy) {
+            return legacyColor + this.properties.replaceAll("&", "§");
+        }
+        final String hexColor = this.hexValue.substring(1);
+        final StringBuilder minecraftFormat = new StringBuilder("§x");
+        for (int i = 0; i < hexColor.length(); i++) {
+            minecraftFormat.append("§").append(hexColor.charAt(i));
+        }
+        return minecraftFormat + this.properties.replaceAll("&", "§");
     }
 
 }

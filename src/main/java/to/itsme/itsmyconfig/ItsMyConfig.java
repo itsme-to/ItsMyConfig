@@ -28,8 +28,6 @@ import java.util.*;
  */
 public final class ItsMyConfig extends JavaPlugin {
 
-    private static final boolean ALLOW_ITEM_EDITS = false;
-
     private static ItsMyConfig instance;
     private final PlaceholderManager placeholderManager = new PlaceholderManager();
     private final ProgressBarBucket progressBarBucket = new ProgressBarBucket();
@@ -357,6 +355,8 @@ public final class ItsMyConfig extends JavaPlugin {
                 );
             case COLOR:
                 return new ColorPlaceholder(placeholderSection);
+            case COLORED_TEXT:
+                return new ColoredTextPlaceholder(placeholderSection.getString(valueProperty, ""));
             default:
             case STRING:
                 return new StringPlaceholder(placeholderSection.getString(valueProperty, ""));

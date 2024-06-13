@@ -15,26 +15,19 @@ public enum PlaceholderType {
      * Represents the color type of a placeholder.
      */
     COLOR,
+    /**
+     * Represents a placeholder type for getting a value of a list using the (index + 1).
+     */
     LIST,
     /**
-     * Represents a placeholder type for generating random values.
-     * <p>
-     * This class is an enumeration that defines different types of placeholders.
-     * The RANDOM placeholder type can be used to generate random values.
-     * <p>
-     * Example usage:
-     * <p>
-     * PlaceholderType type = PlaceholderType.RANDOM;
-     * <p>
-     * PlaceholderType findType = PlaceholderType.find("RANDOM");
-     * <p>
-     * The PlaceholderType enum is defined in the PlaceholderType class.
+     * Represents a placeholder type for getting random values out of a list.
      */
     RANDOM,
     /**
      * Represents the type of an animation placeholder.
      */
-    ANIMATION;
+    ANIMATION,
+    COLORED_TEXT;
 
     /**
      * Finds the PlaceholderType for the given type.

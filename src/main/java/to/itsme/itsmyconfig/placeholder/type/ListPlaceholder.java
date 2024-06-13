@@ -10,10 +10,6 @@ public class ListPlaceholder extends Placeholder {
 
     private final List<String> list;
 
-    /**
-     * Represents a placeholder data object.
-     *
-     */
     public ListPlaceholder(final List<String> list) {
         super(PlaceholderType.LIST);
         this.list = list;

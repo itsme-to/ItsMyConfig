@@ -13,6 +13,7 @@ public final class Strings {
 
     public static final Pattern LETTERS_PATTERN = Pattern.compile("[A-Za-zÀ-ÿ]");
     public static final Pattern HEX_PATTERN = Pattern.compile("#[a-fA-F0-9]{6}");
+    public static final Pattern TAGGED_HEX_PATTERN = Pattern.compile("<[a-fA-F0-9]{6}>");
     public static final Pattern TAG_PATTERN = Pattern.compile("<(\\w+)(?::\"([^\"]*)\"|:([^<]*))*>");
 
     private static final Pattern COLOR_FILTER = Pattern.compile("[§&][a-zA-Z0-9]");
