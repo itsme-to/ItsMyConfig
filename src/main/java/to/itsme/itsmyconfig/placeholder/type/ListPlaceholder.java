@@ -24,7 +24,7 @@ public class ListPlaceholder extends Placeholder {
         }
 
         final int line = Strings.intOrDefault(args[0], 1) - 1;
-        if (line > list.size()) {
+        if (line >= list.size()) {
             return "";
         }
 
