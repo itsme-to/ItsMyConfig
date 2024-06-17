@@ -85,6 +85,12 @@ public abstract class AbstractComponent {
                 return GSON.fromJson(element, TranslatingComponent.class);
             }
             return GSON.fromJson(element, TextfulComponent.class);
+        } else if (element.isJsonArray()) {
+            final TextfulComponent component = new TextfulComponent();
+            for (final JsonElement found : element.getAsJsonArray()) {
+                component.extra.add(parse(found));
+            }
+            return component;
         } else if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
             return new TextfulComponent(element.getAsString());
         }

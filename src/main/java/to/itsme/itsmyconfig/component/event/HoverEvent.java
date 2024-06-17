@@ -133,7 +133,7 @@ public class HoverEvent {
                         if (element.isJsonPrimitive()) {
                             event.value = new TextfulComponent(element.getAsString());
                         } else if (element.isJsonArray()) {
-                            event.value = context.deserialize(element.getAsJsonArray().get(0), TextfulComponent.class);
+                            event.value = AbstractComponent.parse(element.getAsJsonArray());
                         } else if (element.isJsonObject()) {
                             event.value = context.deserialize(element, TextfulComponent.class);
                         }
