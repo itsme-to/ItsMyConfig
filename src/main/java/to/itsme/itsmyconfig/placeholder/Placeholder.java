@@ -85,7 +85,8 @@ public abstract class Placeholder {
         if (deny != null) {
             return deny;
         }
-        final String result = PlaceholderAPI.setPlaceholders(player, getResult(args));
+
+        final String result = PlaceholderAPI.setPlaceholders(player, this.getResult(player, args));
         return needColorTranslation() ? ChatColor.translateAlternateColorCodes('&', result) : result;
     }
 
@@ -117,7 +118,7 @@ public abstract class Placeholder {
      * @param args The arguments used for the placeholder evaluation.
      * @return The result of the placeholder evaluation as a string.
      */
-    public abstract String getResult(final String[] args);
+    public abstract String getResult(final Player player, final String[] args);
 
     /**
      * Replaces arguments in a given message string.

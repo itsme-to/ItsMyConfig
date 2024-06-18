@@ -9,7 +9,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import to.itsme.itsmyconfig.command.CommandManager;
 import to.itsme.itsmyconfig.listener.impl.PacketChatListener;
-import to.itsme.itsmyconfig.placeholder.DynamicPlaceholder;
+import to.itsme.itsmyconfig.hook.PAPIHook;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderManager;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
@@ -50,7 +50,7 @@ public final class ItsMyConfig extends JavaPlugin {
         this.getLogger().info("Loading ItsMyConfig...");
         final long start = System.currentTimeMillis();
         instance = this;
-        new DynamicPlaceholder(this, progressBarBucket).register();
+        new PAPIHook(this).register();
         new CommandManager(this);
 
         this.requirementManager = new RequirementManager();
@@ -415,6 +415,15 @@ public final class ItsMyConfig extends JavaPlugin {
      */
     public PlaceholderManager getPlaceholderManager() {
         return placeholderManager;
+    }
+
+    /**
+     * Retrieves the ProgressBarBucket instance.
+     *
+     * @return The ProgressBarBucket instance.
+     */
+    public ProgressBarBucket getProgressBarBucket() {
+        return progressBarBucket;
     }
 
     /**

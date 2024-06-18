@@ -1,5 +1,6 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
+import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Scheduler;
@@ -59,7 +60,7 @@ public final class AnimatedPlaceholder extends Placeholder {
      * @return The result of the placeholder evaluation as a string.
      */
     @Override
-    public String getResult(final String[] args) {
+    public String getResult(final Player player, final String[] args) {
         final Map.Entry<String, List<Integer>> entry = queue.peek();
 
         if (entry == null) {

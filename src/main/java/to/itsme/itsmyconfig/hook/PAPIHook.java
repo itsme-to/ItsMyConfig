@@ -1,4 +1,4 @@
-package to.itsme.itsmyconfig.placeholder;
+package to.itsme.itsmyconfig.hook;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.progress.ProgressBar;
-import to.itsme.itsmyconfig.progress.ProgressBarBucket;
 import to.itsme.itsmyconfig.font.Font;
 
 /**
@@ -16,17 +15,12 @@ import to.itsme.itsmyconfig.font.Font;
  * It provides methods for handling various types of placeholders, such as fonts, progress bars, and custom placeholders.
  * This class extends the PlaceholderExpansion class.
  */
-public final class DynamicPlaceholder extends PlaceholderExpansion {
+public final class PAPIHook extends PlaceholderExpansion {
 
     /**
      * This variable is an instance of the ItsMyConfig class.
      */
     private final ItsMyConfig plugin;
-    /**
-     * Represents a collection of ProgressBar objects.
-     * Allows registering, retrieving, and clearing progress bars.
-     */
-    private final ProgressBarBucket progressBarBucket;
     /**
      * An array of integer values used for converting numbers to Roman numerals.
      */
@@ -60,12 +54,10 @@ public final class DynamicPlaceholder extends PlaceholderExpansion {
      * DynamicPlaceHolder is a class that represents a dynamic placeholder for a placeholder expansion.
      * It handles different types of placeholders and provides methods to handle font, progress, and custom placeholders.
      */
-    public DynamicPlaceholder(
-            final ItsMyConfig plugin,
-            final ProgressBarBucket progressBarBucket
+    public PAPIHook(
+            final ItsMyConfig plugin
     ) {
         this.plugin = plugin;
-        this.progressBarBucket = progressBarBucket;
     }
 
     /**
@@ -169,7 +161,7 @@ public final class DynamicPlaceholder extends PlaceholderExpansion {
         try {
             double value = Double.parseDouble(splitParams[2]);
             double maxValue = Double.parseDouble(splitParams[3]);
-            final ProgressBar progressBar = progressBarBucket.getProgressBar(identifier);
+            final ProgressBar progressBar = plugin.getProgressBarBucket().getProgressBar(identifier);
             if (progressBar == null) {
                 return String.format("Not Found Progress Bar(%s)", identifier);
             }
@@ -180,38 +172,24 @@ public final class DynamicPlaceholder extends PlaceholderExpansion {
     }
 
     /**
-     * Handles the placeholder based on the splitParams and player.
+     * Handles the placeholder based on the params and player.
      *
-     * @param splitParams The array of split parameters.
+     * @param params The array of split parameters.
      * @param player      The player object.
      * @return The formatted string.
      */
-    private String handlePlaceholder(String[] splitParams, Player player) {
-        final String placeholder = splitParams[0];
+    private String handlePlaceholder(
+            final String[] params,
+            final Player player
+    ) {
+        final String placeholder = params[0];
         if (!plugin.getPlaceholderManager().has(placeholder)) {
             return PLACEHOLDER_NOT_FOUND_MSG;
         }
-        final Placeholder data = plugin.getPlaceholderManager().get(placeholder);
-        final String[] args = getArgs(splitParams).split("::");
-        return data.asString(player, args);
-    }
 
-    /**
-     * Returns a formatted string of arguments.
-     *
-     * @param strings an array of strings representing the arguments
-     * @return the formatted string of arguments
-     */
-    private String getArgs(final String[] strings) {
-        if (strings.length < 2) {
-            return "";
-        }
-
-        final StringBuilder builder = new StringBuilder(strings[1]);
-        for (int i = 2; i < strings.length; i++) {
-            builder.append("_").append(strings[i]);
-        }
-        return builder.toString();
+        final String[] copy = new String[params.length - 1];
+        System.arraycopy(params, 1, copy, 0, params.length - 1);
+        return plugin.getPlaceholderManager().get(placeholder).asString(player, copy);
     }
 
     /**

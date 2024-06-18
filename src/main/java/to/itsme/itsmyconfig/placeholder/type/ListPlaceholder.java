@@ -1,5 +1,6 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
+import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Strings;
@@ -17,7 +18,7 @@ public class ListPlaceholder extends Placeholder {
 
     @Override
     public String getResult(
-            final String[] args
+            final Player player, final String[] args
     ) {
         if (args.length == 0) {
             return "";

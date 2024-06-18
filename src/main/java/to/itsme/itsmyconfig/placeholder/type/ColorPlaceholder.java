@@ -3,6 +3,7 @@ package to.itsme.itsmyconfig.placeholder.type;
 import net.kyori.adventure.text.format.*;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Strings;
@@ -140,16 +141,20 @@ public final class ColorPlaceholder extends Placeholder {
      * @return The result of the placeholder evaluation as a string.
      */
     @Override
-    public String getResult(final String[] params) {
+    public String getResult(final Player player, final String[] params) {
+        System.out.println("Method is called");
         if (this.invalid) {
             return "";
         }
 
         if (params.length == 0) {
+            System.out.println("lenght is 0");
             return this.value + this.properties;
         }
 
+        System.out.println("Switching");
         final String firstArg = params[0].toLowerCase(Locale.ROOT);
+        System.out.println("first arg: " + firstArg);
         switch (firstArg) {
             case "closestname":
                 return this.nameValue;
@@ -162,7 +167,7 @@ public final class ColorPlaceholder extends Placeholder {
                 if (params.length > 1) {
                     final String suffix = "</" + this.value + ">" + propertiesMiniSuffix;
                     final StringBuilder result = new StringBuilder(prefix);
-                    for (int i = 2; i < params.length; i++) {
+                    for (int i = 1; i < params.length; i++) {
                         result.append(params[i]);
                         if (i != params.length - 1) {
                             result.append(" ");

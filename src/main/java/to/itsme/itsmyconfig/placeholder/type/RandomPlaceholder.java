@@ -1,5 +1,6 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
+import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Strings;
@@ -54,7 +55,7 @@ public final class RandomPlaceholder extends Placeholder {
      * @return The result of the evaluation as a string.
      */
     @Override
-    public String getResult(final String[] params) {
+    public String getResult(final Player player, final String[] params) {
         final AbstractMap.SimpleEntry<String, List<Integer>> entry = this.getRandomEntry();
         return (entry == null) ? null : this.replaceArguments(params, entry.getKey(), entry.getValue());
     }

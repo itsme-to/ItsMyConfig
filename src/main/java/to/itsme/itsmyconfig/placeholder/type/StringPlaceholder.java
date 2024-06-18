@@ -1,5 +1,6 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
+import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 
@@ -35,7 +36,7 @@ public final class StringPlaceholder extends Placeholder {
      * @return The message string with replaced arguments.
      */
     @Override
-    public String getResult(final String[] params) {
+    public String getResult(final Player player, final String[] params) {
         return this.replaceArguments(params, this.message);
     }
 

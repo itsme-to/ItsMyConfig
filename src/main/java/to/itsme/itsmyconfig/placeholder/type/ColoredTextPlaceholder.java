@@ -1,9 +1,12 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import to.itsme.itsmyconfig.component.AbstractComponent;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Strings;
+import to.itsme.itsmyconfig.util.Utilities;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -35,7 +38,7 @@ public class ColoredTextPlaceholder extends Placeholder {
         this.miniText = value;
 
         // legacy text creation
-        String copy = value;
+        String copy = AbstractComponent.parse(Utilities.MM.deserialize(value)).toMiniMessage();
 
         Matcher matcher = Strings.TAG_PATTERN.matcher(copy);
         while (matcher.find()) {
@@ -44,14 +47,17 @@ public class ColoredTextPlaceholder extends Placeholder {
             if (replacement != null) {
                 copy = copy.replace(found, replacement);
                 matcher = Strings.TAG_PATTERN.matcher(copy);
-            } else if (Strings.TAGGED_HEX_PATTERN.matcher(copy).matches()) {
-                copy = copy.replace(found, "&#" + found.replace('<', ' ').replace('>', ' '));
-                matcher = Strings.TAG_PATTERN.matcher(copy);
             }
         }
 
-        this.legacyText = copy;
+        matcher = Strings.TAGGED_HEX_PATTERN.matcher(copy);
+        while (matcher.find()) {
+            final String found = matcher.group();
+            copy = copy.replace(found, "&" + found.substring(found.contains("/") ? 2 : 1, found.length() - 1));
+            matcher = Strings.TAGGED_HEX_PATTERN.matcher(copy);
+        }
 
+        this.legacyText = copy;
 
         Matcher hexMatcher = Strings.HEX_PATTERN.matcher(copy);
         while (matcher.find()) {
@@ -66,12 +72,11 @@ public class ColoredTextPlaceholder extends Placeholder {
             hexMatcher = Strings.HEX_PATTERN.matcher(copy);
         }
 
-
         this.consoleText = copy;
     }
 
     @Override
-    public String getResult(final String[] args) {
+    public String getResult(final Player player, final String[] args) {
         if (args.length == 0) {
             return miniText;
         }
