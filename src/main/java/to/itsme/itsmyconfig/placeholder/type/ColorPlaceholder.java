@@ -142,7 +142,6 @@ public final class ColorPlaceholder extends Placeholder {
      */
     @Override
     public String getResult(final Player player, final String[] params) {
-        System.out.println("Method is called");
         if (this.invalid) {
             return "";
         }
@@ -152,9 +151,7 @@ public final class ColorPlaceholder extends Placeholder {
             return this.value + this.properties;
         }
 
-        System.out.println("Switching");
         final String firstArg = params[0].toLowerCase(Locale.ROOT);
-        System.out.println("first arg: " + firstArg);
         switch (firstArg) {
             case "closestname":
                 return this.nameValue;
