@@ -2,15 +2,12 @@ package to.itsme.itsmyconfig.placeholder.type;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Utilities;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 public class ColoredTextPlaceholder extends Placeholder {
 
