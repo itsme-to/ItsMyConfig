@@ -14,21 +14,20 @@ import java.util.Map;
 
 public class ColoredTextPlaceholder extends Placeholder {
 
-    /**
-     * Represents a map of decoration properties.
-     */
-    private final static Map<String, String> DECORATIONS_PROPERTIES = new HashMap<String, String>() {
-        {
-            for (final ChatColor color : ChatColor.values()) {
-                final String name = color.name().toLowerCase();
-                put("<" + name + ">", "&" + color.getChar());
+    private final static LegacyComponentSerializer SECTION_SERIALIZER = LegacyComponentSerializer
+            .builder()
+            .character('§')
+            .hexCharacter('#')
+            .hexColors()
+            .useUnusualXRepeatedCharacterHexFormat()
+            .build();
 
-                if (name.contains("_")) {
-                    put("<" + name.replaceAll("_", "") + ">", "&" + color.getChar());
-                }
-            }
-        }
-    };
+    private final static LegacyComponentSerializer AMPERSAND_SERIALIZER = LegacyComponentSerializer
+            .builder()
+            .character('&')
+            .hexCharacter('#')
+            .hexColors()
+            .build();
 
     private final String miniText, legacyText, consoleText;
 
@@ -38,11 +37,11 @@ public class ColoredTextPlaceholder extends Placeholder {
 
         final Component component = Utilities.MM.deserialize(value);
         // legacy text creation
-        this.legacyText = LegacyComponentSerializer.legacyAmpersand().serialize(
+        this.legacyText = AMPERSAND_SERIALIZER.serialize(
                 component
         );
 
-        this.consoleText = LegacyComponentSerializer.legacySection().serialize(
+        this.consoleText = SECTION_SERIALIZER.serialize(
                 component
         );
     }
