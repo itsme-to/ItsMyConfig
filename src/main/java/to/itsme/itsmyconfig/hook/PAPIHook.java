@@ -189,7 +189,8 @@ public final class PAPIHook extends PlaceholderExpansion {
 
         final String[] copy = new String[params.length - 1];
         System.arraycopy(params, 1, copy, 0, params.length - 1);
-        return plugin.getPlaceholderManager().get(placeholder).asString(player, copy);
+
+        return plugin.getPlaceholderManager().get(placeholder).asString(player, String.join("_", copy).split("::"));
     }
 
     /**

@@ -1,4 +1,4 @@
-package to.itsme.itsmyconfig.placeholder;
+package to.itsme.itsmyconfig.requirement;
 
 /**
  * The RequirementData class represents the data for a requirement.

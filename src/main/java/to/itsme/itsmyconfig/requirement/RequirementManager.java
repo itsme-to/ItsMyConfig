@@ -3,15 +3,12 @@ package to.itsme.itsmyconfig.requirement;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
-import to.itsme.itsmyconfig.placeholder.RequirementData;
 import to.itsme.itsmyconfig.requirement.type.NumberRequirement;
 import to.itsme.itsmyconfig.requirement.type.RegexRequirement;
 import to.itsme.itsmyconfig.requirement.type.StringRequirement;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 /**
  * This class is responsible for managing requirements and validating them.
@@ -39,20 +36,23 @@ public final class RequirementManager {
     /**
      * Retrieves the deny message for a placeholder data object.
      *
-     * @param data    The PlaceholderData object.
+     * @param placeholder    The PlaceholderData object.
      * @param player  The Player object.
      * @param params  The array of strings.
      * @return The deny message as a string, or null if there is no deny message.
      */
     public String getDenyMessage(
-            final Placeholder data,
+            final Placeholder placeholder,
             final Player player,
             final String[] params
     ) {
-        Optional<String> denyMessage = data.getRequirements().stream().map(requirementData -> processRequirementData(requirementData, data, player, params))
-                .filter(Objects::nonNull).findFirst();
-
-        return denyMessage.orElse(null);
+        for (final RequirementData requirement : placeholder.getRequirements()) {
+            final String deny = processRequirementData(requirement, placeholder, player, params);
+            if (deny != null) {
+                return deny;
+            }
+        }
+        return null;
     }
 
     /**
@@ -68,7 +68,8 @@ public final class RequirementManager {
             final RequirementData requirementData,
             final Placeholder data,
             final Player player,
-            final String[] params) {
+            final String[] params
+    ) {
         final Requirement<?> requirement = this.getRequirementByType(requirementData.getIdentifier());
 
         if (requirement == null) {
@@ -81,7 +82,8 @@ public final class RequirementManager {
         if (requirement.validate(requirementData.getIdentifier(), input, output)) {
             return null;
         }
-        return data.replaceArguments(params, requirementData.getDeny());
+
+        return requirementData.getDeny();
     }
 
     /**
@@ -93,7 +95,13 @@ public final class RequirementManager {
      * @param params     The array of parameters to use for replacement.
      * @return The message string with replaced arguments.
      */
-    private String getParameters(Player player, Placeholder data, String parameter, String[] params) {
+    private String getParameters(
+            final Player player,
+            final Placeholder data,
+            final String parameter,
+            final String[] params
+    ) {
         return PlaceholderAPI.setPlaceholders(player, data.replaceArguments(params, parameter));
     }
+
 }

@@ -334,32 +334,34 @@ public final class ItsMyConfig extends JavaPlugin {
     /**
      * Retrieves the placeholder data based on the provided configuration section and identifier.
      *
-     * @param placeholderSection The configuration section containing the placeholder data.
+     * @param section The configuration section containing the placeholder data.
      * @return The placeholder data object.
      */
-    private Placeholder getPlaceholder(final ConfigurationSection placeholderSection) {
-        final PlaceholderType type = PlaceholderType.find(placeholderSection.getString("type"));
+    private Placeholder getPlaceholder(final ConfigurationSection section) {
+        final PlaceholderType type = PlaceholderType.find(section.getString("type"));
 
         final String valueProperty = "value";
         final String valuesProperty = "values";
 
         switch (type) {
+            case MATH:
+                return new MathPlaceholder(section.getString(valueProperty));
             case RANDOM:
-                return new RandomPlaceholder(placeholderSection.getStringList(valuesProperty));
+                return new RandomPlaceholder(section.getStringList(valuesProperty));
             case LIST:
-                return new ListPlaceholder(placeholderSection.getStringList(valuesProperty));
+                return new ListPlaceholder(section.getStringList(valuesProperty));
             case ANIMATION:
                 return new AnimatedPlaceholder(
-                        placeholderSection.getStringList(valuesProperty),
-                        placeholderSection.getInt("interval", 20)
+                        section.getStringList(valuesProperty),
+                        section.getInt("interval", 20)
                 );
             case COLOR:
-                return new ColorPlaceholder(placeholderSection);
+                return new ColorPlaceholder(section);
             case COLORED_TEXT:
-                return new ColoredTextPlaceholder(placeholderSection.getString(valueProperty, ""));
+                return new ColoredTextPlaceholder(section.getString(valueProperty, ""));
             default:
             case STRING:
-                return new StringPlaceholder(placeholderSection.getString(valueProperty, ""));
+                return new StringPlaceholder(section.getString(valueProperty, ""));
         }
     }
 

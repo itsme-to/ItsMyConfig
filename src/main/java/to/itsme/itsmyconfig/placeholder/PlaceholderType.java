@@ -15,6 +15,7 @@ public enum PlaceholderType {
      * Represents the color type of a placeholder.
      */
     COLOR,
+    MATH,
     /**
      * Represents a placeholder type for getting a value of a list using the (index + 1).
      */

@@ -6,6 +6,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholder;
+import to.itsme.itsmyconfig.requirement.RequirementData;
 import to.itsme.itsmyconfig.util.Strings;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public abstract class Placeholder {
     /**
      *
      */
-    private final List<Integer> arguments = new ArrayList<>();
+    protected final List<Integer> arguments = new ArrayList<>();
     /**
      * Represents a list of requirement data.
      */
@@ -42,9 +43,7 @@ public abstract class Placeholder {
     /**
      * Represents a placeholder data object.
      */
-    public Placeholder(
-            final PlaceholderType type
-    ) {
+    public Placeholder(final PlaceholderType type) {
         this.type = type;
     }
 
@@ -54,12 +53,16 @@ public abstract class Placeholder {
      * @param section The ConfigurationSection containing requirement data.
      */
     public void registerRequirement(final ConfigurationSection section) {
-        String identifier = section.getString("type");
-        registerArgumentsFor(section, identifier);
-        this.requirements.add(new RequirementData(identifier,
-                section.getString("input"),
-                section.getString("output"),
-                section.getString("deny")));
+        final String identifier = section.getString("type");
+        this.registerArgumentsFor(section, identifier);
+        this.requirements.add(
+                new RequirementData(
+                        identifier,
+                        section.getString("input"),
+                        section.getString("output"),
+                        section.getString("deny")
+                )
+        );
     }
 
     /**
@@ -69,8 +72,8 @@ public abstract class Placeholder {
      * @param argumentName  the name of the argument in the ConfigurationSection
      */
     private void registerArgumentsFor(ConfigurationSection section, String argumentName) {
-        String argumentValue = section.getString(argumentName);
-        registerArguments(argumentValue);
+        final String argumentValue = section.getString(argumentName);
+        this.registerArguments(argumentValue);
     }
 
     /**

@@ -26,7 +26,7 @@ public final class StringPlaceholder extends Placeholder {
     public StringPlaceholder(final String message) {
         super(PlaceholderType.STRING);
         this.message = message;
-        registerArguments(this.message);
+        this.registerArguments(this.message);
     }
 
     /**

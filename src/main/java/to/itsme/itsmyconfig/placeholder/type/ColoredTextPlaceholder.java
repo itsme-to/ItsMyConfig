@@ -1,6 +1,5 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
@@ -26,40 +25,33 @@ public class ColoredTextPlaceholder extends Placeholder {
             .hexColors()
             .build();
 
-    private final String miniText, legacyText, consoleText;
+    private final String miniText;
 
     public ColoredTextPlaceholder(final String value) {
         super(PlaceholderType.COLORED_TEXT);
         this.miniText = value;
-
-        final Component component = Utilities.MM.deserialize(value);
-        // legacy text creation
-        this.legacyText = AMPERSAND_SERIALIZER.serialize(
-                component
-        );
-
-        this.consoleText = SECTION_SERIALIZER.serialize(
-                component
-        );
     }
 
     @Override
     public String getResult(final Player player, final String[] args) {
         if (args.length == 0) {
-            return miniText;
+            return this.miniText;
         }
 
         final String firstArg = args[0].toLowerCase(Locale.ROOT);
         switch (firstArg) {
+            case "legacy":
+                return AMPERSAND_SERIALIZER.serialize(
+                        Utilities.translate(this.miniText, player)
+                );
+            case "console":
+                return SECTION_SERIALIZER.serialize(
+                        Utilities.translate(this.miniText, player)
+                );
+            default:
             case "mini":
                 return this.miniText;
-            case "legacy":
-                return this.legacyText;
-            case "console":
-                return this.consoleText;
         }
-
-        return "";
     }
 
 }

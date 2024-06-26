@@ -39,6 +39,10 @@ repositories {
         name = "devmart-other"
         url = "https://nexuslite.gcnt.net/repos/other/"
     }
+    maven {
+        name = "redempt.dev"
+        url = "https://redempt.dev"
+    }
 }
 
 publishing {
@@ -76,6 +80,7 @@ dependencies {
     // other ->
     implementation "com.tcoded:FoliaLib:0.3.4"
     implementation "org.bstats:bstats-bukkit:3.0.2"
+    implementation "com.github.Redempt:Crunch:2.0.3"
 
     compileOnly "org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT"
     compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
