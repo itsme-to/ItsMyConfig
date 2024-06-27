@@ -10,6 +10,9 @@ import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.progress.ProgressBar;
 import to.itsme.itsmyconfig.font.Font;
 
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 /**
  * DynamicPlaceHolder class is a PlaceholderExpansion that handles dynamic placeholders for the ItsMyConfig plugin.
  * It provides methods for handling various types of placeholders, such as fonts, progress bars, and custom placeholders.
@@ -54,9 +57,7 @@ public final class PAPIHook extends PlaceholderExpansion {
      * DynamicPlaceHolder is a class that represents a dynamic placeholder for a placeholder expansion.
      * It handles different types of placeholders and provides methods to handle font, progress, and custom placeholders.
      */
-    public PAPIHook(
-            final ItsMyConfig plugin
-    ) {
+    public PAPIHook(final ItsMyConfig plugin) {
         this.plugin = plugin;
     }
 
@@ -187,10 +188,22 @@ public final class PAPIHook extends PlaceholderExpansion {
             return PLACEHOLDER_NOT_FOUND_MSG;
         }
 
-        final String[] copy = new String[params.length - 1];
-        System.arraycopy(params, 1, copy, 0, params.length - 1);
+        if (params.length == 1) {
+            return plugin.getPlaceholderManager().get(placeholder).asString(player, new String[0]);
+        }
 
-        return plugin.getPlaceholderManager().get(placeholder).asString(player, String.join("_", copy).split("::"));
+        final String remainingParams = String.join("_", Arrays.copyOfRange(params, 1, params.length));
+        final String[] firstSplit = remainingParams.split("_", 2);
+        final String[] args;
+
+        if (firstSplit.length == 2) {
+            final String[] secondSplit = firstSplit[1].split("::");
+            args = Stream.concat(Stream.of(firstSplit[0]), Arrays.stream(secondSplit)).toArray(String[]::new);
+        } else {
+            args = new String[]{firstSplit[0]};
+        }
+
+        return plugin.getPlaceholderManager().get(placeholder).asString(player, args);
     }
 
     /**

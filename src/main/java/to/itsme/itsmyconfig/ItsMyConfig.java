@@ -345,7 +345,7 @@ public final class ItsMyConfig extends JavaPlugin {
 
         switch (type) {
             case MATH:
-                return new MathPlaceholder(section.getString(valueProperty));
+                return new MathPlaceholder(section);
             case RANDOM:
                 return new RandomPlaceholder(section.getStringList(valuesProperty));
             case LIST:

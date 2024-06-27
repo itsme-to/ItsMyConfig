@@ -1,18 +1,29 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import redempt.crunch.CompiledExpression;
 import redempt.crunch.Crunch;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public final class MathPlaceholder extends Placeholder {
 
     private final CompiledExpression expression;
 
-    public MathPlaceholder(final String value) {
+    private final int precision;
+    private final RoundingMode mode;
+
+    public MathPlaceholder(final ConfigurationSection section) {
         super(PlaceholderType.MATH);
+        final String value = section.getString("value");
         this.registerArguments(value);
+
+        this.precision = section.getInt("precision");
+        this.mode = RoundingMode.valueOf(section.getString("mode", "HALF_UP"));
 
         String copy = value;
         for (final int argument : this.arguments) {
@@ -38,9 +49,8 @@ public final class MathPlaceholder extends Placeholder {
             return "One of the arguments is an invalid number";
         }
 
-        return String.valueOf(
-                expression.evaluate(vals)
-        );
+        final double result = expression.evaluate(vals);
+        return new BigDecimal(result).setScale(this.precision, this.mode).stripTrailingZeros().toPlainString();
     }
 
     public double[] convertArray(final String[] stringArgs) {
