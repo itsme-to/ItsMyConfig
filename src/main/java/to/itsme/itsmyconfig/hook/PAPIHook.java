@@ -10,8 +10,9 @@ import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.progress.ProgressBar;
 import to.itsme.itsmyconfig.font.Font;
 
-import java.util.Arrays;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * DynamicPlaceHolder class is a PlaceholderExpansion that handles dynamic placeholders for the ItsMyConfig plugin.
@@ -188,21 +189,17 @@ public final class PAPIHook extends PlaceholderExpansion {
             return PLACEHOLDER_NOT_FOUND_MSG;
         }
 
-        if (params.length == 1) {
-            return plugin.getPlaceholderManager().get(placeholder).asString(player, new String[0]);
+        final List<String> argsList = new ArrayList<>();
+        for (int i = 1; i < params.length; i++) {
+            if (i == 1) {
+                argsList.add(params[i]);
+            } else {
+                final String[] parts = params[i].split("::");
+                Collections.addAll(argsList, parts);
+            }
         }
 
-        final String remainingParams = String.join("_", Arrays.copyOfRange(params, 1, params.length));
-        final String[] firstSplit = remainingParams.split("_", 2);
-        final String[] args;
-
-        if (firstSplit.length == 2) {
-            final String[] secondSplit = firstSplit[1].split("::");
-            args = Stream.concat(Stream.of(firstSplit[0]), Arrays.stream(secondSplit)).toArray(String[]::new);
-        } else {
-            args = new String[]{firstSplit[0]};
-        }
-
+        final String[] args = argsList.toArray(new String[0]);
         return plugin.getPlaceholderManager().get(placeholder).asString(player, args);
     }
 
