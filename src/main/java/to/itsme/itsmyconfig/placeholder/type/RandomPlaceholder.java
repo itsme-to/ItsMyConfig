@@ -3,7 +3,6 @@ package to.itsme.itsmyconfig.placeholder.type;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
-import to.itsme.itsmyconfig.util.Strings;
 
 import java.util.*;
 
@@ -20,7 +19,7 @@ public final class RandomPlaceholder extends Placeholder {
     /**
      *
      */
-    private final List<AbstractMap.SimpleEntry<String, List<Integer>>> messages = new ArrayList<>();
+    private final List<String> messages = new ArrayList<>();
 
     /**
      * Constructs a RandomPlaceholderData object with the given messages.
@@ -30,7 +29,8 @@ public final class RandomPlaceholder extends Placeholder {
     public RandomPlaceholder(final List<String> messages) {
         super(PlaceholderType.RANDOM);
         for (final String message : messages) {
-            this.messages.add(new AbstractMap.SimpleEntry<>(message, Strings.getArguments(message)));
+            this.messages.add(message);
+            this.registerArguments(message);
         }
     }
 
@@ -40,7 +40,7 @@ public final class RandomPlaceholder extends Placeholder {
      * @return The random entry as an AbstractMap.SimpleEntry object,
      *         or null if the messages list is empty.
      */
-    public AbstractMap.SimpleEntry<String, List<Integer>> getRandomEntry() {
+    public String getRandomEntry() {
         if (messages.isEmpty()) {
             return null;
         }
@@ -56,8 +56,8 @@ public final class RandomPlaceholder extends Placeholder {
      */
     @Override
     public String getResult(final Player player, final String[] params) {
-        final AbstractMap.SimpleEntry<String, List<Integer>> entry = this.getRandomEntry();
-        return (entry == null) ? null : this.replaceArguments(params, entry.getKey(), entry.getValue());
+        final String entry = this.getRandomEntry();
+        return (entry == null) ? null : this.replaceArguments(params, entry);
     }
 
 }

@@ -131,7 +131,7 @@ public abstract class Placeholder {
      * @return The message string with replaced arguments.
      */
     public String replaceArguments(final String[] params, final String message) {
-        return this.replaceArguments(params, message, this.arguments);
+        return this.replaceArguments(params, message, 0);
     }
 
     /**
@@ -139,28 +139,26 @@ public abstract class Placeholder {
      *
      * @param params     The array of parameters to replace the placeholders with.
      * @param message    The message string containing the placeholders.
-     * @param arguments  The list of integer arguments representing the indices of parameters to replace.
      * @return The updated message string with placeholders replaced by the corresponding parameters.
      */
     public String replaceArguments(
             final String[] params,
             final String message,
-            final List<Integer> arguments
+            final int skippedParams
     ) {
-        if (params.length >= 1) {
-            String output = message;
-
-            for (final Integer argument : arguments) {
-                int index = argument;
-                if (index >= params.length) continue;
-                // Dollar signs are quoted before using replaceAll
-                output = output.replaceAll(Pattern.quote("{" + argument + "}"), params[index].replace("$", "\\$"));
-            }
-
-            return output;
-        } else {
+        if (this.arguments.isEmpty() || params.length == 0) {
             return message;
         }
+
+        String output = message;
+        for (final Integer argument : this.arguments) {
+            final int index = argument + skippedParams;
+            if (index >= params.length) continue;
+            // Dollar signs are quoted before using replaceAll
+            output = output.replaceAll(Pattern.quote("{" + argument + "}"), params[index].replace("$", "\\$"));
+        }
+
+        return output;
     }
 
     /**

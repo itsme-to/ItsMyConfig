@@ -7,12 +7,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import to.itsme.itsmyconfig.ItsMyConfig;
+import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.progress.ProgressBar;
 import to.itsme.itsmyconfig.font.Font;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * DynamicPlaceHolder class is a PlaceholderExpansion that handles dynamic placeholders for the ItsMyConfig plugin.
@@ -184,23 +181,50 @@ public final class PAPIHook extends PlaceholderExpansion {
             final String[] params,
             final Player player
     ) {
-        final String placeholder = params[0];
-        if (!plugin.getPlaceholderManager().has(placeholder)) {
+        final Placeholder placeholder = plugin.getPlaceholderManager().get(params[0]);
+        if (placeholder == null) {
             return PLACEHOLDER_NOT_FOUND_MSG;
         }
 
-        final List<String> argsList = new ArrayList<>();
-        for (int i = 1; i < params.length; i++) {
-            if (i == 1) {
-                argsList.add(params[i]);
-            } else {
-                final String[] parts = params[i].split("::");
-                Collections.addAll(argsList, parts);
+        if (params.length == 1) {
+            return placeholder.asString(player, new String[0]);
+        }
+
+        final String firstParam = params[1];
+        if (params.length == 2) {
+            return placeholder.asString(player, firstParam.split("::"));
+        }
+
+        final StringBuilder builder = new StringBuilder();
+        builder.append(firstParam);
+
+        switch (placeholder.getType()) {
+            case COLOR:
+            case COLORED_TEXT:
+                switch (firstParam.toLowerCase()) {
+                    case "mini":
+                    case "legacy":
+                    case "console":
+                        builder.append("::");
+                        break;
+                    default:
+                        builder.append("_");
+                        break;
+                }
+                break;
+            default:
+                builder.append("_");
+                break;
+        }
+
+        for (int i = 2; i < params.length; i++) {
+            builder.append(params[i]);
+            if (i < params.length - 1) {
+                builder.append("_");
             }
         }
 
-        final String[] args = argsList.toArray(new String[0]);
-        return plugin.getPlaceholderManager().get(placeholder).asString(player, args);
+        return placeholder.asString(player, builder.toString().split("::"));
     }
 
     /**

@@ -30,6 +30,7 @@ public class ColoredTextPlaceholder extends Placeholder {
     public ColoredTextPlaceholder(final String value) {
         super(PlaceholderType.COLORED_TEXT);
         this.miniText = value;
+        this.registerArguments(value);
     }
 
     @Override
@@ -41,16 +42,23 @@ public class ColoredTextPlaceholder extends Placeholder {
         final String firstArg = args[0].toLowerCase(Locale.ROOT);
         switch (firstArg) {
             case "legacy":
-                return AMPERSAND_SERIALIZER.serialize(
-                        Utilities.translate(this.miniText, player)
+                return this.replaceArguments(
+                        args,
+                        AMPERSAND_SERIALIZER.serialize(
+                                Utilities.translate(this.miniText, player)
+                        ), 1
                 );
             case "console":
-                return SECTION_SERIALIZER.serialize(
-                        Utilities.translate(this.miniText, player)
+                return this.replaceArguments(
+                        args,
+                        SECTION_SERIALIZER.serialize(
+                                Utilities.translate(this.miniText, player)
+                        ), 1
                 );
-            default:
             case "mini":
-                return this.miniText;
+                return this.replaceArguments(args, this.miniText, 1);
+            default:
+                return this.replaceArguments(args, this.miniText);
         }
     }
 

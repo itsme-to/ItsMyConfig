@@ -4,7 +4,6 @@ import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Scheduler;
-import to.itsme.itsmyconfig.util.Strings;
 
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -16,7 +15,7 @@ import java.util.concurrent.BlockingQueue;
  */
 public final class AnimatedPlaceholder extends Placeholder {
 
-    private final BlockingQueue<Map.Entry<String, List<Integer>>> queue;
+    private final BlockingQueue<String> queue;
 
     /**
      * Represents an animated placeholder data object that rotates between different messages at a specified interval.
@@ -28,12 +27,13 @@ public final class AnimatedPlaceholder extends Placeholder {
     ) {
         super(PlaceholderType.ANIMATION);
 
-        queue = new ArrayBlockingQueue<>(messages.size());
+        this.queue = new ArrayBlockingQueue<>(messages.size());
 
         if (messages.isEmpty()) return;
 
         for (final String message : messages) {
-            queue.add(new AbstractMap.SimpleEntry<>(message, Strings.getArguments(message)));
+            this.queue.add(message);
+            this.registerArguments(message);
         }
 
         if (messages.size() > 1) {
@@ -46,7 +46,7 @@ public final class AnimatedPlaceholder extends Placeholder {
      * If the queue is empty, no action is taken.
      */
     private void rotateMessage() {
-        final Map.Entry<String, List<Integer>> entry = queue.poll();
+        final String entry = queue.poll();
 
         if (entry != null) {
             queue.add(entry);
@@ -61,12 +61,12 @@ public final class AnimatedPlaceholder extends Placeholder {
      */
     @Override
     public String getResult(final Player player, final String[] args) {
-        final Map.Entry<String, List<Integer>> entry = queue.peek();
+        final String entry = queue.peek();
 
         if (entry == null) {
             return "";
         }
 
-        return this.replaceArguments(args, entry.getKey(), entry.getValue());
+        return this.replaceArguments(args, entry);
     }
 }

@@ -147,7 +147,6 @@ public final class ColorPlaceholder extends Placeholder {
         }
 
         if (params.length == 0) {
-            System.out.println("lenght is 0");
             return this.value + this.properties;
         }
 
