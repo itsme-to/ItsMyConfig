@@ -107,6 +107,13 @@ public final class ItsMyConfig extends JavaPlugin {
         this.progressBarBucket.unregisterAll();
 
         // 5 - 7: load config.yml
+        final File config = new File(getDataFolder(), "config.yml");
+        if (!config.exists()) {
+            this.saveDefaultConfig();
+            this.saveResource("placeholders/default.yml", false);
+            this.saveResource("placeholders/example.yml", false);
+        }
+
         this.saveDefaultConfig();
         this.reloadConfig();
         this.loadSymbolPrefix();

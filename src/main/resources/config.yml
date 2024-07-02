@@ -13,66 +13,7 @@
 #
 # ################################################################################################
 
-debug: false
 symbol-prefix: $
-
-custom-placeholder:
-  prefix:
-    value: "<gradient:#ff0f7b:#f89b29><bold>ServerName</bold></gradient> <p:text-color>┃"
-  error-prefix:
-    value: "<red><bold>ERROR</bold></red> <p:text-color>┃"
-  primary-color:
-    value: "yellow"
-    type: color
-    bold: false
-  secondary-color:
-    value: "red"
-    type: color
-  text-color:
-    value: "#ffffff"
-    type: color
-  discord:
-    value: "discord.gg/example"
-  store:
-    value: "store.servername.net"
-  ip:
-    value: "play.servername.net"
-
-  example-color:
-    value: "#RRGGBB" # black, dark_blue, dark_green, dark_aqua, dark_red, dark_purple, gold, gray, dark_gray, blue, green, aqua, red, light_purple, yellow, or white.
-    type: color
-    bold: false
-    underlined: false
-    italic: false
-    strikethrough: false
-    obfuscated: false
-
-  example-requirement:
-    value: "<green>Requirement passed !"
-    type: string # Default type
-    requirements:
-      haveMoney:
-        type: ">="
-        input: "%vault_eco_balance%"
-        output: "100"
-        deny: "<red>Don't have enought money"
-
-  example-animation:
-    values: # Attention, values not value
-      - "<green>Animation !"
-      - "<yellow>Animation !"
-      - "<gold>Animation !"
-      - "<red>Animation !"
-      - "<pink>Animation !"
-    type: animation
-    interval: 50 # In ticks
-
-  example-random:
-    values: # Attention, values not value
-      - "Rock"
-      - "Paper"
-      - "Scissors"
-    type: random
 
 custom-progress:
   basic:
