@@ -269,7 +269,7 @@ public final class ItsMyConfig extends JavaPlugin {
         for (final String identifier : section.getKeys(false)) {
             if (paths.containsKey(identifier)) {
                 paths.get(identifier).add(formatPath(filePath));
-                return;
+                continue;
             }
 
             final ConfigurationSection progressBarSection = section.getConfigurationSection(identifier);
@@ -308,7 +308,7 @@ public final class ItsMyConfig extends JavaPlugin {
         for (final String identifier : section.getKeys(false)) {
             if (placeholderManager.has(identifier)) {
                 paths.get(identifier).add(formatPath(filePath));
-                return;
+                continue;
             }
 
             final ConfigurationSection placeholderSection = section.getConfigurationSection(identifier);
