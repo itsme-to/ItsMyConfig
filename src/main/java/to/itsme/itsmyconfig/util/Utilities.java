@@ -70,7 +70,7 @@ public final class Utilities {
      * @param text The debug information to log.
      */
     public static void debug(final String text) {
-        if (plugin.getConfig().getBoolean("debug")) {
+        if (plugin.isDebug()) {
             plugin.getLogger().info(text);
         }
     }

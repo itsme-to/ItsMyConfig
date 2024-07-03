@@ -31,8 +31,9 @@ public final class ItsMyConfig extends JavaPlugin {
     private static ItsMyConfig instance;
     private final PlaceholderManager placeholderManager = new PlaceholderManager();
     private final ProgressBarBucket progressBarBucket = new ProgressBarBucket();
+    private final RequirementManager requirementManager = new RequirementManager();
     private String symbolPrefix;
-    private RequirementManager requirementManager;
+    private boolean debug;
 
     private BukkitAudiences adventure;
 
@@ -53,7 +54,6 @@ public final class ItsMyConfig extends JavaPlugin {
         new PAPIHook(this).register();
         new CommandManager(this);
 
-        this.requirementManager = new RequirementManager();
         this.adventure = BukkitAudiences.create(this);
 
         this.loadConfig();
@@ -116,7 +116,7 @@ public final class ItsMyConfig extends JavaPlugin {
 
         this.saveDefaultConfig();
         this.reloadConfig();
-        this.loadSymbolPrefix();
+        this.reloadConfigParams();
 
         // 8 - 9:  Maps to keep track of registered placeholders and progress bars
         final Map<String, List<String>> placeholderPaths = new HashMap<>();
@@ -187,9 +187,10 @@ public final class ItsMyConfig extends JavaPlugin {
     }
 
     /**
-     * Loads the symbol prefix from the configuration.
+     * (Re-)Loads the config  from the configuration.
      */
-    private void loadSymbolPrefix() {
+    private void reloadConfigParams() {
+        this.debug = this.getConfig().getBoolean("debug");
         this.symbolPrefix = this.getConfig().getString("symbol-prefix");
     }
 
@@ -414,7 +415,16 @@ public final class ItsMyConfig extends JavaPlugin {
      * @return The symbol prefix used in messages or text.
      */
     public String getSymbolPrefix() {
-        return symbolPrefix;
+        return this.symbolPrefix;
+    }
+
+    /**
+     * Retrieves the symbol prefix.
+     *
+     * @return The symbol prefix used in messages or text.
+     */
+    public boolean isDebug() {
+        return this.debug;
     }
 
     /**
