@@ -25,7 +25,7 @@ custom-placeholder:
     type: color
     italic: true
   secondary-color:
-    value: "red"
+    value: "gold"
     type: color
   text-color:
     value: "white"
