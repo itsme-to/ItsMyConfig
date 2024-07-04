@@ -47,10 +47,10 @@ custom-placeholder:
   
   # Use MiniMessage here too, {0} refers to the amount
   exp-format:
-    value: "<#F15BB5>{0}◎"
+    value: "<#F15BB5>{0}◎</#F15BB5>"
     type: colored_text
   eco-format:
-    value: "<yellow>{0}⛁"
+    value: "<yellow>{0}⛁</yellow>"
     type: colored_text
   
   # Modify the economy of the configuration that I sell. You can make it higher or lower. {0} refers to the amount. Making it 10*{0} will make the reward, for example, 10 times bigger.
