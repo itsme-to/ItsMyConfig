@@ -1,16 +1,19 @@
-package to.itsme.itsmyconfig.progress;
+package to.itsme.itsmyconfig.placeholder.type;
+
+import org.bukkit.ChatColor;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
+import to.itsme.itsmyconfig.placeholder.Placeholder;
+import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 
 /**
  * ProgressBar class represents a progress bar with customizable colors and pattern.
  */
-public final class ProgressBar {
+public final class ProgressbarPlaceholder extends Placeholder {
     /**
-     * Represents a key used in a ProgressBar.
-     */
-    private final String key, /**
      * Represents the pattern used for rendering a progress bar.
      */
-    pattern, /**
+    private final String pattern, /**
      * The completedColor variable represents the color used to display the completed part of the progress bar.
      * <p>
      * It is a private instance variable of the ProgressBar class.
@@ -30,9 +33,9 @@ public final class ProgressBar {
      * <p>
      * This variable is used internally by the ProgressBar class in the calculation and rendering of the progress bar.
      *
-     * @see ProgressBar
-     * @see ProgressBar#render(double, double)
-     * @see ProgressBar#buildProgressBar(int)
+     * @see ProgressbarPlaceholder
+     * @see ProgressbarPlaceholder#render(double, double)
+     * @see ProgressbarPlaceholder#buildProgressBar(int)
      */
     progressColor, /**
      * Represents the color used to display the remaining part of the progress bar.
@@ -42,27 +45,12 @@ public final class ProgressBar {
     /**
      * Represents a progress bar with customizable colors and pattern.
      */
-    public ProgressBar(
-            final String key,
-            final String pattern,
-            final String completedColor,
-            final String progressColor,
-            final String remainingColor
-    ) {
-        this.key = key;
-        this.pattern = pattern;
-        this.completedColor = completedColor;
-        this.progressColor = progressColor;
-        this.remainingColor = remainingColor;
-    }
-
-    /**
-     * Retrieves the key of the ProgressBar.
-     *
-     * @return The key of the ProgressBar.
-     */
-    public String getKey() {
-        return key;
+    public ProgressbarPlaceholder(final ConfigurationSection section) {
+        super(section, PlaceholderType.PROGRESS_BAR);
+        this.pattern = section.getString("symbol");
+        this.completedColor =  section.getString("completed-color");
+        this.progressColor = section.getString("progress-color");
+        this.remainingColor = section.getString("remaining-color");
     }
 
     /**
@@ -76,8 +64,7 @@ public final class ProgressBar {
             final double value,
             final double max
     ) {
-        int completed = calculateCompleted(value, max);
-        return buildProgressBar(completed);
+        return buildProgressBar(calculateCompleted(value, max));
     }
 
     /**
@@ -103,9 +90,9 @@ public final class ProgressBar {
      * @return The progress bar as a string.
      */
     private String buildProgressBar(final int completed) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(completedColor);
+        final StringBuilder stringBuilder = new StringBuilder();
         if (completed != 0) {
+            stringBuilder.append(completedColor);
             stringBuilder.append(pattern, 0, completed);
         }
         if (completed != pattern.length()) {
@@ -116,4 +103,22 @@ public final class ProgressBar {
         }
         return stringBuilder.toString();
     }
+
+    @Override
+    public String getResult(
+            final Player player,
+            final String[] args
+    ) {
+        if (args.length < 2) {
+            return "Invalid args amount";
+        }
+
+        try {
+            final double value = Double.parseDouble(args[0]);
+            final double maxValue = Double.parseDouble(args[1]);
+            return ChatColor.translateAlternateColorCodes('&', this.render(value, maxValue));
+        } catch (final NumberFormatException ignored) {}
+        return "";
+    }
+
 }

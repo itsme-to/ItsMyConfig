@@ -1,6 +1,5 @@
 package to.itsme.itsmyconfig.placeholder;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
@@ -31,7 +30,7 @@ public abstract class Placeholder {
     /**
      * Represents the config section of the placeholder.
      */
-    private final Section section;
+    private final ConfigurationSection section;
 
     /**
      * Represents the type of a placeholder.
@@ -50,7 +49,7 @@ public abstract class Placeholder {
      * Represents a placeholder data object.
      */
     public Placeholder(
-            final Section section,
+            final ConfigurationSection section,
             final PlaceholderType type
     ) {
         this.type = type;
@@ -62,7 +61,7 @@ public abstract class Placeholder {
      *
      * @param section The ConfigurationSection containing requirement data.
      */
-    public void registerRequirement(final Section section) {
+    public void registerRequirement(final ConfigurationSection section) {
         final String identifier = section.getString("type");
         this.registerArgumentsFor(section, identifier);
         this.requirements.add(
@@ -82,7 +81,7 @@ public abstract class Placeholder {
      * @param argumentName  the name of the argument in the ConfigurationSection
      */
     private void registerArgumentsFor(
-            final Section section,
+            final ConfigurationSection section,
             final String argumentName
     ) {
         final String argumentValue = section.getString(argumentName);
@@ -196,9 +195,9 @@ public abstract class Placeholder {
     /**
      * Retrieves a specific section from the YAML document.
      *
-     * @return the {@link Section} object representing the specified section.
+     * @return the {@link ConfigurationSection} object representing the specified section.
      */
-    public Section getSection() {
+    public ConfigurationSection getConfigurationSection() {
         return this.section;
     }
 

@@ -1,7 +1,7 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
@@ -28,7 +28,7 @@ public class ColoredTextPlaceholder extends Placeholder {
 
     private final String miniText;
 
-    public ColoredTextPlaceholder(final Section section) {
+    public ColoredTextPlaceholder(final ConfigurationSection section) {
         super(section, PlaceholderType.COLORED_TEXT);
         this.miniText = section.getString("value", "");
         this.registerArguments(this.miniText);

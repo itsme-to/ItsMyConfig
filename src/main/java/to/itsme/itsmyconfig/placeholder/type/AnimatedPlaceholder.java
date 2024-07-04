@@ -1,6 +1,6 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
@@ -22,7 +22,7 @@ public final class AnimatedPlaceholder extends Placeholder {
      * Represents an animated placeholder data object that rotates between different messages at a specified interval.
      * Extends the PlaceholderData class.
      */
-    public AnimatedPlaceholder(final Section section) {
+    public AnimatedPlaceholder(final ConfigurationSection section) {
         super(section, PlaceholderType.ANIMATION);
         final List<String> messages = section.getStringList("values");
         this.queue = new ArrayBlockingQueue<>(messages.size());

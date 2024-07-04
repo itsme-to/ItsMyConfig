@@ -153,6 +153,24 @@ public final class Strings {
         return builder.toString();
     }
 
+    /**
+     * Checks if the given string is a valid number.
+     *
+     * @param str the string to check
+     * @return {@code true} if the string is a valid number, {@code false} otherwise
+     */
+    public static boolean isNumber(final String str) {
+        if (str == null || str.isEmpty()) {
+            return false;
+        }
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
     public static int intOrDefault(final String text, final int defaultInt) {
         try {
             return Integer.parseInt(textless(text));

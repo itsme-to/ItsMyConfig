@@ -1,11 +1,13 @@
 package to.itsme.itsmyconfig.command.impl;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import revxrsal.commands.annotation.*;
@@ -19,6 +21,7 @@ import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Message;
 import to.itsme.itsmyconfig.util.Utilities;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -151,7 +154,7 @@ public final class ItsMyConfigCommand {
             final Placeholder placeholder,
             @Named("value") final String value
     ) {
-        final Section section = placeholder.getSection();
+        final ConfigurationSection section = placeholder.getConfigurationSection();
         final PlaceholderType type = PlaceholderType.find(section.getString("type"));
         if (type == PlaceholderType.ANIMATION || type == PlaceholderType.RANDOM) {
             actor.reply(Utilities.MM.deserialize("<red>Placeholder <yellow>" + placeholder + "</yellow>'s type is not supported via commands.</red>"));
@@ -159,6 +162,16 @@ public final class ItsMyConfigCommand {
         }
 
         section.set("value", value);
+        final Configuration root = section.getRoot();
+        if (root instanceof YamlConfiguration) {
+            final YamlConfiguration conf = (YamlConfiguration) root;
+            try {
+                conf.save(conf.getCurrentPath());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         actor.reply(Utilities.MM.deserialize("<green>Placeholder <yellow>" + placeholder + "</yellow>'s value was updated successfully!</green>"));
     }
 

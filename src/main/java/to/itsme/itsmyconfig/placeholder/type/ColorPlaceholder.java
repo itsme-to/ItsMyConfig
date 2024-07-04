@@ -1,8 +1,8 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.kyori.adventure.text.format.*;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
@@ -71,7 +71,7 @@ public final class ColorPlaceholder extends Placeholder {
     /**
      * Represents a color placeholder data object.
      */
-    public ColorPlaceholder(final Section section) {
+    public ColorPlaceholder(final ConfigurationSection section) {
         super(section, PlaceholderType.COLOR);
         this.value = section.getString("value", "").toLowerCase();
 
@@ -112,7 +112,7 @@ public final class ColorPlaceholder extends Placeholder {
      *
      * @param configurationSection The ConfigurationSection containing the style properties.
      */
-    private void initializeStyle(Section configurationSection) {
+    private void initializeStyle(ConfigurationSection configurationSection) {
         final Style.Builder builder = Style.style().color(TextColor.fromHexString(hexValue));
 
         final StringBuilder propertiesBuilder = new StringBuilder();

@@ -1,6 +1,6 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
@@ -25,7 +25,7 @@ public final class RandomPlaceholder extends Placeholder {
     /**
      * Constructs a RandomPlaceholderData object with the given messages.
      */
-    public RandomPlaceholder(final Section section) {
+    public RandomPlaceholder(final ConfigurationSection section) {
         super(section, PlaceholderType.RANDOM);
         final List<String> messages = section.getStringList("values");
         for (final String message : messages) {

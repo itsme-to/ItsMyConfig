@@ -2,13 +2,12 @@ package to.itsme.itsmyconfig.hook;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
-import to.itsme.itsmyconfig.progress.ProgressBar;
+import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.font.Font;
 
 /**
@@ -121,8 +120,6 @@ public final class PAPIHook extends PlaceholderExpansion {
         final String firstParam = splitParams[0].toLowerCase();
         if ("font".equals(firstParam) && splitParams.length >= 3) {
             return handleFont(splitParams);
-        } else if ("progress".equals(firstParam) && splitParams.length >= 4) {
-            return handleProgress(splitParams);
         }
         return handlePlaceholder(splitParams, player);
     }
@@ -133,7 +130,7 @@ public final class PAPIHook extends PlaceholderExpansion {
      * @param splitParams The array of parameters, where the font type is at index 1 and additional parameters are at subsequent indices.
      * @return The processed font or an error message if the font type is unknown or if an error occurs during font processing.
      */
-    private String handleFont(String[] splitParams) {
+    private String handleFont(final String[] splitParams) {
         String fontType = splitParams[1].toLowerCase();
         if ("latin".equals(fontType)) {
             try {
@@ -147,27 +144,6 @@ public final class PAPIHook extends PlaceholderExpansion {
             return Font.SMALL_CAPS.apply(message);
         }
         return "ERROR";
-    }
-
-    /**
-     * Handles progress bar rendering and retrieval.
-     *
-     * @param splitParams The array of parameters containing the identifier, value, and maxValue of the progress bar.
-     * @return The rendered progress bar as a string, or an error message if the progress bar is not found or the parameters are invalid.
-     */
-    private String handleProgress(final String[] splitParams) {
-        final String identifier = splitParams[1];
-        try {
-            double value = Double.parseDouble(splitParams[2]);
-            double maxValue = Double.parseDouble(splitParams[3]);
-            final ProgressBar progressBar = plugin.getProgressBarBucket().getProgressBar(identifier);
-            if (progressBar == null) {
-                return String.format("Not Found Progress Bar(%s)", identifier);
-            }
-            return ChatColor.translateAlternateColorCodes('&', progressBar.render(value, maxValue));
-        } catch (NumberFormatException e) {
-            return ILLEGAL_NUMBER_FORMAT_MSG;
-        }
     }
 
     /**
@@ -198,7 +174,8 @@ public final class PAPIHook extends PlaceholderExpansion {
         final StringBuilder builder = new StringBuilder();
         builder.append(firstParam);
 
-        switch (placeholder.getType()) {
+        final PlaceholderType type = placeholder.getType();
+        switch (type) {
             case COLOR:
             case COLORED_TEXT:
                 switch (firstParam.toLowerCase()) {
@@ -224,7 +201,7 @@ public final class PAPIHook extends PlaceholderExpansion {
             }
         }
 
-        return placeholder.asString(player, builder.toString().split("::"));
+        return placeholder.asString(player, builder.toString().split(type == PlaceholderType.PROGRESS_BAR ? "_" : "::"));
     }
 
     /**

@@ -15,14 +15,7 @@
 
 symbol-prefix: $
 
-custom-progress:
-  basic:
-    symbol: "⦁●⚫●⚫●⚫●⚫●⚫●⚫●⚫●⚫●⚫●⚫●⦁"
-    completed-color: "&a"
-    progress-color: "&e"
-    remaining-color: "&7"
-
-messages:
+"messages":
   invalid-use:
     - "<red><bold>ERROR</bold></red> <white>┃ Invalid use"
     - "  <yellow>/<usage>"

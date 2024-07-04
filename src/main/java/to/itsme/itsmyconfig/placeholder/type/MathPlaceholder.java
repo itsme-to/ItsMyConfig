@@ -1,6 +1,6 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import redempt.crunch.CompiledExpression;
 import redempt.crunch.Crunch;
@@ -17,7 +17,7 @@ public final class MathPlaceholder extends Placeholder {
     private final int precision;
     private final RoundingMode mode;
 
-    public MathPlaceholder(final Section section) {
+    public MathPlaceholder(final ConfigurationSection section) {
         super(section, PlaceholderType.MATH);
         final String value = section.getString("value");
         this.registerArguments(value);

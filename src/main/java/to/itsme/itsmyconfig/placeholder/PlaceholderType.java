@@ -28,6 +28,7 @@ public enum PlaceholderType {
      * Represents the type of an animation placeholder.
      */
     ANIMATION,
+    PROGRESS_BAR,
     COLORED_TEXT;
 
     /**
