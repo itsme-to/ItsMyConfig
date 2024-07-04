@@ -2,10 +2,12 @@ package to.itsme.itsmyconfig;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
+import dev.dejvokep.boostedyaml.YamlDocument;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
+import dev.dejvokep.boostedyaml.libs.org.snakeyaml.engine.v2.common.ScalarStyle;
+import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import to.itsme.itsmyconfig.command.CommandManager;
 import to.itsme.itsmyconfig.listener.impl.PacketChatListener;
@@ -19,6 +21,7 @@ import to.itsme.itsmyconfig.progress.ProgressBarBucket;
 import to.itsme.itsmyconfig.requirement.RequirementManager;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -32,6 +35,7 @@ public final class ItsMyConfig extends JavaPlugin {
     private final PlaceholderManager placeholderManager = new PlaceholderManager();
     private final ProgressBarBucket progressBarBucket = new ProgressBarBucket();
     private final RequirementManager requirementManager = new RequirementManager();
+    private YamlDocument config;
     private String symbolPrefix;
     private boolean debug;
 
@@ -109,9 +113,18 @@ public final class ItsMyConfig extends JavaPlugin {
         // 5 - 7: load config.yml
         final File config = new File(getDataFolder(), "config.yml");
         if (!config.exists()) {
-            this.saveDefaultConfig();
             this.saveResource("placeholders/default.yml", false);
             this.saveResource("placeholders/example.yml", false);
+        }
+
+        try {
+            this.config = YamlDocument.create(
+                    config,
+                    getResource("config.yml"),
+                    DumperSettings.builder().setStringStyle(ScalarStyle.DOUBLE_QUOTED).build()
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         this.saveDefaultConfig();
@@ -123,11 +136,11 @@ public final class ItsMyConfig extends JavaPlugin {
         final Map<String, List<String>> progressBarPaths = new HashMap<>();
 
         // 10 - 11: Load and register placeholders and progress bars from the main configuration file
-        if (getConfig().isConfigurationSection("custom-placeholder")) {
-            loadPlaceholdersSection(getConfig().getConfigurationSection("custom-placeholder"), "ItsMyConfig\\config.yml", placeholderPaths);
+        if (this.config.isSection("custom-placeholder")) {
+            this.loadPlaceholdersSection(this.config.getSection("custom-placeholder"), "ItsMyConfig\\config.yml", placeholderPaths);
         }
-        if (getConfig().isConfigurationSection("custom-progress")) {
-            loadProgressBarsSection(getConfig().getConfigurationSection("custom-progress"), "ItsMyConfig\\config.yml", progressBarPaths);
+        if (this.config.isSection("custom-progress")) {
+            this.loadProgressBarsSection(this.config.getSection("custom-progress"), "ItsMyConfig\\config.yml", progressBarPaths);
         }
 
         // 12: Load and register placeholders and progress bars from additional custom .yml files
@@ -187,11 +200,11 @@ public final class ItsMyConfig extends JavaPlugin {
     }
 
     /**
-     * (Re-)Loads the config  from the configuration.
+     * (Re-)Loads the config params from the configuration.
      */
     private void reloadConfigParams() {
-        this.debug = this.getConfig().getBoolean("debug");
-        this.symbolPrefix = this.getConfig().getString("symbol-prefix");
+        this.debug = this.config.getBoolean("debug");
+        this.symbolPrefix = this.config.getString("symbol-prefix");
     }
 
     /**
@@ -240,12 +253,19 @@ public final class ItsMyConfig extends JavaPlugin {
             final Map<String, List<String>> progressbarPaths
     ) {
         final String filePath = "ItsMyConfig\\" + file.getPath().replace("/", "\\").replace(getDataFolder().getPath() + "\\", "");
-        final YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-        if (config.isConfigurationSection("custom-placeholder")) {
-            loadPlaceholdersSection(config.getConfigurationSection("custom-placeholder"), filePath, placeholderPaths);
-        }
-        if (config.isConfigurationSection("custom-progress")) {
-            loadProgressBarsSection(config.getConfigurationSection("custom-progress"), filePath, progressbarPaths);
+        try {
+            final YamlDocument config = YamlDocument.create(
+                    file,
+                    DumperSettings.builder().setStringStyle(ScalarStyle.DOUBLE_QUOTED).build()
+            );
+            if (config.isSection("custom-placeholder")) {
+                loadPlaceholdersSection(config.getSection("custom-placeholder"), filePath, placeholderPaths);
+            }
+            if (config.isSection("custom-progress")) {
+                loadProgressBarsSection(config.getSection("custom-progress"), filePath, progressbarPaths);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -258,7 +278,7 @@ public final class ItsMyConfig extends JavaPlugin {
      * @param paths                   A map of registered progress bars to avoid duplicates.
      */
     private void loadProgressBarsSection(
-            final ConfigurationSection section,
+            final Section section,
             final String filePath,
             final Map<String, List<String>> paths
     ) {
@@ -267,13 +287,13 @@ public final class ItsMyConfig extends JavaPlugin {
             return;
         }
 
-        for (final String identifier : section.getKeys(false)) {
+        for (final String identifier : section.getRoutesAsStrings(false)) {
             if (paths.containsKey(identifier)) {
                 paths.get(identifier).add(formatPath(filePath));
                 continue;
             }
 
-            final ConfigurationSection progressBarSection = section.getConfigurationSection(identifier);
+            final Section progressBarSection = section.getSection(identifier);
             progressBarBucket.registerProgressBar(
                     new ProgressBar(
                             identifier,
@@ -297,7 +317,7 @@ public final class ItsMyConfig extends JavaPlugin {
      * @param paths                  A map of registered placeholders to avoid duplicates.
      */
     private void loadPlaceholdersSection(
-            final ConfigurationSection section,
+            final Section section,
             final String filePath,
             final Map<String, List<String>> paths
     ) {
@@ -306,13 +326,13 @@ public final class ItsMyConfig extends JavaPlugin {
             return;
         }
 
-        for (final String identifier : section.getKeys(false)) {
+        for (final String identifier : section.getRoutesAsStrings(false)) {
             if (placeholderManager.has(identifier)) {
                 paths.get(identifier).add(formatPath(filePath));
                 continue;
             }
 
-            final ConfigurationSection placeholderSection = section.getConfigurationSection(identifier);
+            final Section placeholderSection = section.getSection(identifier);
             if (placeholderSection == null) {
                 getLogger().warning(String.format("Invalid placeholder configuration for %s in file %s", identifier, formatPath(filePath)));
                 continue;
@@ -322,10 +342,10 @@ public final class ItsMyConfig extends JavaPlugin {
             final Placeholder placeholder = this.getPlaceholder(placeholderSection);
 
             // Load requirements if they exist
-            if (placeholderSection.isConfigurationSection("requirements")) {
-                final ConfigurationSection requirementsSection = placeholderSection.getConfigurationSection("requirements");
-                for (final String reqIdentifier : requirementsSection.getKeys(false)) {
-                    final ConfigurationSection reqSection = requirementsSection.getConfigurationSection(reqIdentifier);
+            if (placeholderSection.isSection("requirements")) {
+                final Section requirementsSection = placeholderSection.getSection("requirements");
+                for (final String reqIdentifier : requirementsSection.getRoutesAsStrings(false)) {
+                    final Section reqSection = requirementsSection.getSection(reqIdentifier);
                     if (reqSection != null) {
                         placeholder.registerRequirement(reqSection);
                     } else {
@@ -345,31 +365,23 @@ public final class ItsMyConfig extends JavaPlugin {
      * @param section The configuration section containing the placeholder data.
      * @return The placeholder data object.
      */
-    private Placeholder getPlaceholder(final ConfigurationSection section) {
+    private Placeholder getPlaceholder(final Section section) {
         final PlaceholderType type = PlaceholderType.find(section.getString("type"));
-
-        final String valueProperty = "value";
-        final String valuesProperty = "values";
-
         switch (type) {
             case MATH:
                 return new MathPlaceholder(section);
             case RANDOM:
-                return new RandomPlaceholder(section.getStringList(valuesProperty));
+                return new RandomPlaceholder(section);
             case LIST:
-                return new ListPlaceholder(section.getStringList(valuesProperty));
+                return new ListPlaceholder(section);
             case ANIMATION:
-                return new AnimatedPlaceholder(
-                        section.getStringList(valuesProperty),
-                        section.getInt("interval", 20)
-                );
+                return new AnimatedPlaceholder(section);
             case COLOR:
                 return new ColorPlaceholder(section);
             case COLORED_TEXT:
-                return new ColoredTextPlaceholder(section.getString(valueProperty, ""));
+                return new ColoredTextPlaceholder(section);
             default:
-            case STRING:
-                return new StringPlaceholder(section.getString(valueProperty, ""));
+                return new StringPlaceholder(section);
         }
     }
 
@@ -419,9 +431,9 @@ public final class ItsMyConfig extends JavaPlugin {
     }
 
     /**
-     * Retrieves the symbol prefix.
+     * Retrieves whether debug is enabled or not.
      *
-     * @return The symbol prefix used in messages or text.
+     * @return The debug boolean used for debug checks.
      */
     public boolean isDebug() {
         return this.debug;
@@ -433,7 +445,7 @@ public final class ItsMyConfig extends JavaPlugin {
      * @return The PlaceholderManager instance.
      */
     public PlaceholderManager getPlaceholderManager() {
-        return placeholderManager;
+        return this.placeholderManager;
     }
 
     /**
@@ -442,7 +454,7 @@ public final class ItsMyConfig extends JavaPlugin {
      * @return The ProgressBarBucket instance.
      */
     public ProgressBarBucket getProgressBarBucket() {
-        return progressBarBucket;
+        return this.progressBarBucket;
     }
 
     /**
@@ -452,7 +464,16 @@ public final class ItsMyConfig extends JavaPlugin {
      * @return the RequirementManager object
      */
     public RequirementManager getRequirementManager() {
-        return requirementManager;
+        return this.requirementManager;
+    }
+
+    /**
+     * Returns the current configuration document.
+     *
+     * @return the current {@link YamlDocument} configuration.
+     */
+    public YamlDocument getConfiguration() {
+        return this.config;
     }
 
 }

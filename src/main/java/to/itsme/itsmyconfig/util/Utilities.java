@@ -82,7 +82,7 @@ public final class Utilities {
      * @param exception The Exception object representing the exception to log.
      */
     public static void debug(final String text, final Exception exception) {
-        if (plugin.getConfig().getBoolean("debug")) {
+        if (plugin.isDebug()) {
             plugin.getLogger().log(Level.SEVERE, text, exception);
         }
     }

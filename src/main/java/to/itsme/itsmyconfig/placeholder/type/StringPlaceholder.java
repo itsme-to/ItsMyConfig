@@ -1,5 +1,6 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
@@ -20,12 +21,10 @@ public final class StringPlaceholder extends Placeholder {
      * Represents a placeholder data object for strings.
      * It extends the PlaceholderData class and provides methods for registering arguments,
      * obtaining the result of a placeholder evaluation, and replacing arguments in a given message string.
-     *
-     * @param message The message string for the placeholder data.
      */
-    public StringPlaceholder(final String message) {
-        super(PlaceholderType.STRING);
-        this.message = message;
+    public StringPlaceholder(final Section section) {
+        super(section, PlaceholderType.STRING);
+        this.message = section.getString("value", "");
         this.registerArguments(this.message);
     }
 

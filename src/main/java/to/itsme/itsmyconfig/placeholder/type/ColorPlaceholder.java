@@ -1,8 +1,8 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.kyori.adventure.text.format.*;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
@@ -71,9 +71,9 @@ public final class ColorPlaceholder extends Placeholder {
     /**
      * Represents a color placeholder data object.
      */
-    public ColorPlaceholder(final ConfigurationSection properties) {
-        super(PlaceholderType.COLOR);
-        this.value = properties.getString("value", "").toLowerCase();
+    public ColorPlaceholder(final Section section) {
+        super(section, PlaceholderType.COLOR);
+        this.value = section.getString("value", "").toLowerCase();
 
         final NamedTextColor namedTextColor = NamedTextColor.NAMES.value(this.value);
         if (namedTextColor != null) {
@@ -100,7 +100,7 @@ public final class ColorPlaceholder extends Placeholder {
         }
 
         this.legacyColor = ChatColor.valueOf(this.nameValue.toUpperCase());
-        initializeStyle(properties);
+        initializeStyle(section);
 
         this.consoleString = this.toConsoleString();
         this.legacyString = (legacy ? legacyColor + this.properties : '&' + this.hexValue + this.properties).replace("§", "&");
@@ -112,7 +112,7 @@ public final class ColorPlaceholder extends Placeholder {
      *
      * @param configurationSection The ConfigurationSection containing the style properties.
      */
-    private void initializeStyle(ConfigurationSection configurationSection) {
+    private void initializeStyle(Section configurationSection) {
         final Style.Builder builder = Style.style().color(TextColor.fromHexString(hexValue));
 
         final StringBuilder propertiesBuilder = new StringBuilder();

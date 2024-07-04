@@ -1,5 +1,6 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
@@ -11,9 +12,9 @@ public class ListPlaceholder extends Placeholder {
 
     private final List<String> list;
 
-    public ListPlaceholder(final List<String> list) {
-        super(PlaceholderType.LIST);
-        this.list = list;
+    public ListPlaceholder(final Section section) {
+        super(section, PlaceholderType.LIST);
+        this.list = section.getStringList("values");
     }
 
     @Override

@@ -1,11 +1,11 @@
 package to.itsme.itsmyconfig.command.impl;
 
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import revxrsal.commands.annotation.*;
@@ -14,6 +14,7 @@ import revxrsal.commands.bukkit.EntitySelector;
 import revxrsal.commands.bukkit.annotation.CommandPermission;
 import revxrsal.commands.help.CommandHelp;
 import to.itsme.itsmyconfig.ItsMyConfig;
+import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Message;
 import to.itsme.itsmyconfig.util.Utilities;
@@ -147,15 +148,10 @@ public final class ItsMyConfigCommand {
     @Description("Sets config values for placeholder")
     public void config(
             final BukkitCommandActor actor,
-            @Named("placeholder") final String placeholder,
+            final Placeholder placeholder,
             @Named("value") final String value
     ) {
-        final ConfigurationSection section = plugin.getConfig().getConfigurationSection("custom-placeholder." + placeholder);
-        if (section == null) {
-            actor.reply(Utilities.MM.deserialize("<red>Placeholder <yellow>" + placeholder + "</yellow> was not found.</red>"));
-            return;
-        }
-
+        final Section section = placeholder.getSection();
         final PlaceholderType type = PlaceholderType.find(section.getString("type"));
         if (type == PlaceholderType.ANIMATION || type == PlaceholderType.RANDOM) {
             actor.reply(Utilities.MM.deserialize("<red>Placeholder <yellow>" + placeholder + "</yellow>'s type is not supported via commands.</red>"));
@@ -163,9 +159,6 @@ public final class ItsMyConfigCommand {
         }
 
         section.set("value", value);
-        plugin.getConfig().set("custom-placeholder." + placeholder, section);
-        plugin.saveConfig();
-        plugin.loadConfig();
         actor.reply(Utilities.MM.deserialize("<green>Placeholder <yellow>" + placeholder + "</yellow>'s value was updated successfully!</green>"));
     }
 
@@ -184,7 +177,7 @@ public final class ItsMyConfigCommand {
     @CommandPermission("itsmyconfig.config")
     public void configCommand(
             final BukkitCommandActor actor,
-            @Named("placeholder") final String placeholder,
+            final Placeholder placeholder,
             @Named("value") final String value
     ) {
         this.config(actor, placeholder, value);

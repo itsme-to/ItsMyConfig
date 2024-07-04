@@ -3,6 +3,7 @@ package to.itsme.itsmyconfig.command;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.command.handler.ExceptionHandler;
+import to.itsme.itsmyconfig.command.handler.PlaceholderException;
 import to.itsme.itsmyconfig.command.impl.ItsMyConfigCommand;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
@@ -27,14 +28,32 @@ public final class CommandManager {
                 )
         );
 
-        this.handler.getAutoCompleter().registerSuggestion("placeholders", (args, sender, command) ->
-                plugin.getPlaceholderManager().getPlaceholdersMap().keySet());
+        this.handler.registerValueResolver(
+                Placeholder.class, context -> {
+                    final String name = context.pop();
+                    final Placeholder placeholder = plugin.getPlaceholderManager().get(name);
+                    if (placeholder != null) {
+                        return placeholder;
+                    }
+
+                    throw new PlaceholderException(name);
+                }
+        );
+
+        this.handler.getAutoCompleter().registerSuggestion(
+                "placeholders", (args, sender, command) -> plugin.getPlaceholderManager().getPlaceholdersMap().keySet()
+        );
+
+        this.handler.getAutoCompleter().registerParameterSuggestions(
+                Placeholder.class, "placeholders"
+        );
 
         this.handler.getAutoCompleter().registerSuggestion("singleValuePlaceholder", (args, sender, command) ->
                 plugin.getPlaceholderManager().getPlaceholdersMap().keySet().stream().filter(name -> {
                     final Placeholder data = plugin.getPlaceholderManager().get(name);
                     return PlaceholderType.STRING.equals(data.getType()) || PlaceholderType.COLOR.equals(data.getType());
-                }).collect(Collectors.toList()));
+                }).collect(Collectors.toList())
+        );
 
         this.handler.setExceptionHandler(new ExceptionHandler());
         this.handler.getAutoCompleter();

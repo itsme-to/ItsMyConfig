@@ -41,7 +41,7 @@ public enum Message {
 
     @Override
     public String toString() {
-        final Object msg = plugin.getConfig().get("messages." + this.path);
+        final Object msg = plugin.getConfiguration().get("messages." + this.path);
 
         final String result;
         if (msg instanceof List<?>) {
