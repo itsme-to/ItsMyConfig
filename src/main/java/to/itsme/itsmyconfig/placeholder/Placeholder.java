@@ -33,6 +33,11 @@ public abstract class Placeholder {
     private final ConfigurationSection section;
 
     /**
+     * Represents the config section of the placeholder.
+     */
+    private final String filePath;
+
+    /**
      * Represents the type of a placeholder.
      */
     private final PlaceholderType type;
@@ -50,10 +55,12 @@ public abstract class Placeholder {
      */
     public Placeholder(
             final ConfigurationSection section,
+            final String filePath,
             final PlaceholderType type
     ) {
         this.type = type;
         this.section = section;
+        this.filePath = filePath;
     }
 
     /**
@@ -199,6 +206,13 @@ public abstract class Placeholder {
      */
     public ConfigurationSection getConfigurationSection() {
         return this.section;
+    }
+
+    /**
+     * Retrieves the specific location of the YAML document.
+     */
+    public String getFilePath() {
+        return this.filePath;
     }
 
     /**

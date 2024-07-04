@@ -12,8 +12,11 @@ public class ListPlaceholder extends Placeholder {
 
     private final List<String> list;
 
-    public ListPlaceholder(final ConfigurationSection section) {
-        super(section, PlaceholderType.LIST);
+    public ListPlaceholder(
+            final String filePath,
+            final ConfigurationSection section
+    ) {
+        super(section, filePath, PlaceholderType.LIST);
         this.list = section.getStringList("values");
     }
 

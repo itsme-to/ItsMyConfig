@@ -28,8 +28,11 @@ public class ColoredTextPlaceholder extends Placeholder {
 
     private final String miniText;
 
-    public ColoredTextPlaceholder(final ConfigurationSection section) {
-        super(section, PlaceholderType.COLORED_TEXT);
+    public ColoredTextPlaceholder(
+            final String filePath,
+            final ConfigurationSection section
+    ) {
+        super(section, filePath, PlaceholderType.COLORED_TEXT);
         this.miniText = section.getString("value", "");
         this.registerArguments(this.miniText);
     }

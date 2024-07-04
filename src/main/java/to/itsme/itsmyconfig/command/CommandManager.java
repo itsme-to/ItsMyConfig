@@ -6,7 +6,6 @@ import to.itsme.itsmyconfig.command.handler.ExceptionHandler;
 import to.itsme.itsmyconfig.command.handler.PlaceholderException;
 import to.itsme.itsmyconfig.command.impl.ItsMyConfigCommand;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
-import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 
 import java.util.stream.Collectors;
 
@@ -51,7 +50,7 @@ public final class CommandManager {
         this.handler.getAutoCompleter().registerSuggestion("singleValuePlaceholder", (args, sender, command) ->
                 plugin.getPlaceholderManager().getPlaceholdersMap().keySet().stream().filter(name -> {
                     final Placeholder data = plugin.getPlaceholderManager().get(name);
-                    return PlaceholderType.STRING.equals(data.getType()) || PlaceholderType.COLOR.equals(data.getType());
+                    return data.getConfigurationSection().contains("value");
                 }).collect(Collectors.toList())
         );
 

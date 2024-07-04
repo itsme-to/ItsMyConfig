@@ -71,8 +71,11 @@ public final class ColorPlaceholder extends Placeholder {
     /**
      * Represents a color placeholder data object.
      */
-    public ColorPlaceholder(final ConfigurationSection section) {
-        super(section, PlaceholderType.COLOR);
+    public ColorPlaceholder(
+            final String filePath,
+            final ConfigurationSection section
+    ) {
+        super(section, filePath, PlaceholderType.COLOR);
         this.value = section.getString("value", "").toLowerCase();
 
         final NamedTextColor namedTextColor = NamedTextColor.NAMES.value(this.value);

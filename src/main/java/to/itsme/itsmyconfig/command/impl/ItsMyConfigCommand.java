@@ -166,13 +166,14 @@ public final class ItsMyConfigCommand {
         if (root instanceof YamlConfiguration) {
             final YamlConfiguration conf = (YamlConfiguration) root;
             try {
-                conf.save(conf.getCurrentPath());
+                conf.save(placeholder.getFilePath());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        actor.reply(Utilities.MM.deserialize("<green>Placeholder <yellow>" + placeholder + "</yellow>'s value was updated successfully!</green>"));
+        actor.reply(Utilities.MM.deserialize("<green>Placeholder <yellow>" + section.getName() + "</yellow>'s value was updated successfully!</green>"));
+        this.reload(actor);
     }
 
     @Command("message")

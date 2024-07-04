@@ -22,8 +22,11 @@ public final class StringPlaceholder extends Placeholder {
      * It extends the PlaceholderData class and provides methods for registering arguments,
      * obtaining the result of a placeholder evaluation, and replacing arguments in a given message string.
      */
-    public StringPlaceholder(final ConfigurationSection section) {
-        super(section, PlaceholderType.STRING);
+    public StringPlaceholder(
+            final String filePath,
+            final ConfigurationSection section
+    ) {
+        super(section, filePath, PlaceholderType.STRING);
         this.message = section.getString("value", "");
         this.registerArguments(this.message);
     }

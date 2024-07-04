@@ -17,8 +17,11 @@ public final class MathPlaceholder extends Placeholder {
     private final int precision;
     private final RoundingMode mode;
 
-    public MathPlaceholder(final ConfigurationSection section) {
-        super(section, PlaceholderType.MATH);
+    public MathPlaceholder(
+            final String filePath,
+            final ConfigurationSection section
+    ) {
+        super(section, filePath, PlaceholderType.MATH);
         final String value = section.getString("value");
         this.registerArguments(value);
 

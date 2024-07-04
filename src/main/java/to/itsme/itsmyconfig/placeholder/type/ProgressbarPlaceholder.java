@@ -45,9 +45,12 @@ public final class ProgressbarPlaceholder extends Placeholder {
     /**
      * Represents a progress bar with customizable colors and pattern.
      */
-    public ProgressbarPlaceholder(final ConfigurationSection section) {
-        super(section, PlaceholderType.PROGRESS_BAR);
-        this.pattern = section.getString("symbol");
+    public ProgressbarPlaceholder(
+            final String filePath,
+            final ConfigurationSection section
+    ) {
+        super(section, filePath, PlaceholderType.PROGRESS_BAR);
+        this.pattern = section.getString("value");
         this.completedColor =  section.getString("completed-color");
         this.progressColor = section.getString("progress-color");
         this.remainingColor = section.getString("remaining-color");

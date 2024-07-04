@@ -25,8 +25,11 @@ public final class RandomPlaceholder extends Placeholder {
     /**
      * Constructs a RandomPlaceholderData object with the given messages.
      */
-    public RandomPlaceholder(final ConfigurationSection section) {
-        super(section, PlaceholderType.RANDOM);
+    public RandomPlaceholder(
+            final String filePath,
+            final ConfigurationSection section
+    ) {
+        super(section, filePath, PlaceholderType.RANDOM);
         final List<String> messages = section.getStringList("values");
         for (final String message : messages) {
             this.messages.add(message);

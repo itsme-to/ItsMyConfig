@@ -22,8 +22,11 @@ public final class AnimatedPlaceholder extends Placeholder {
      * Represents an animated placeholder data object that rotates between different messages at a specified interval.
      * Extends the PlaceholderData class.
      */
-    public AnimatedPlaceholder(final ConfigurationSection section) {
-        super(section, PlaceholderType.ANIMATION);
+    public AnimatedPlaceholder(
+            final String filePath,
+            final ConfigurationSection section
+    ) {
+        super(section, filePath, PlaceholderType.ANIMATION);
         final List<String> messages = section.getStringList("values");
         this.queue = new ArrayBlockingQueue<>(messages.size());
 

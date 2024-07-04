@@ -209,10 +209,9 @@ public final class ItsMyConfig extends JavaPlugin {
             final File file,
             final Map<String, List<String>> placeholderPaths
     ) {
-        final String filePath = "ItsMyConfig\\" + file.getPath().replace("/", "\\").replace(getDataFolder().getPath() + "\\", "");
         final YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
         if (config.isConfigurationSection("custom-placeholder")) {
-            loadPlaceholdersSection(config.getConfigurationSection("custom-placeholder"), filePath, placeholderPaths);
+            loadPlaceholdersSection(config.getConfigurationSection("custom-placeholder"), file, placeholderPaths);
         }
     }
 
@@ -227,6 +226,7 @@ public final class ItsMyConfig extends JavaPlugin {
             if (!created) {
                 return;
             }
+
             final YamlConfiguration migratedConf = YamlConfiguration.loadConfiguration(migratedConfig);
             final ConfigurationSection newSection = migratedConf.createSection("custom-placeholder");
             if (this.config.isConfigurationSection("custom-placeholder")) {
@@ -237,8 +237,11 @@ public final class ItsMyConfig extends JavaPlugin {
 
             if (this.config.isConfigurationSection("custom-progress")) {
                 for (final String name : this.config.getConfigurationSection("custom-progress").getKeys(false)) {
-                    newSection.set(name, this.config.getConfigurationSection("custom-progress." + name));
-                    newSection.set(name + ".type", "progress_bar");
+                    final ConfigurationSection section = this.config.getConfigurationSection("custom-progress." + name);
+                    section.set("value", section.getString("symbol"));
+                    section.set("type", "progress_bar");
+                    section.set("symbol", null);
+                    newSection.set(name, section);
                 }
             }
 
@@ -257,33 +260,33 @@ public final class ItsMyConfig extends JavaPlugin {
      * Additionally, it registers any associated requirements for each placeholder.
      *
      * @param section                The YAML configuration section containing placeholder data.
-     * @param filePath               The path of the file from which the data is loaded.
      * @param paths                  A map of registered placeholders to avoid duplicates.
      */
     private void loadPlaceholdersSection(
             final ConfigurationSection section,
-            final String filePath,
+            final File file,
             final Map<String, List<String>> paths
     ) {
+        final String filePath = formatPath("ItsMyConfig\\" + file.getPath().replace("/", "\\").replace(getDataFolder().getPath() + "\\", ""));
         if (section == null) {
-            getLogger().warning(String.format("No custom placeholders found in file %s", formatPath(filePath)));
+            getLogger().warning(String.format("No custom placeholders found in file %s", filePath));
             return;
         }
 
         for (final String identifier : section.getKeys(false)) {
             if (placeholderManager.has(identifier)) {
-                paths.get(identifier).add(formatPath(filePath));
+                paths.get(identifier).add(filePath);
                 continue;
             }
 
             final ConfigurationSection placeholderSection = section.getConfigurationSection(identifier);
             if (placeholderSection == null) {
-                getLogger().warning(String.format("Invalid placeholder configuration for %s in file %s", identifier, formatPath(filePath)));
+                getLogger().warning(String.format("Invalid placeholder configuration for %s in file %s", identifier, filePath));
                 continue;
             }
 
             // Use getPlaceholderData to retrieve PlaceholderData
-            final Placeholder placeholder = this.getPlaceholder(placeholderSection);
+            final Placeholder placeholder = this.getPlaceholder(file.getPath(), placeholderSection);
 
             // Load requirements if they exist
             if (placeholderSection.isConfigurationSection("requirements")) {
@@ -293,41 +296,42 @@ public final class ItsMyConfig extends JavaPlugin {
                     if (reqSection != null) {
                         placeholder.registerRequirement(reqSection);
                     } else {
-                        getLogger().warning(String.format("Invalid requirement configuration for %s in placeholder %s from file %s", reqIdentifier, identifier, formatPath(filePath)));
+                        getLogger().warning(String.format("Invalid requirement configuration for %s in placeholder %s from file %s", reqIdentifier, identifier, filePath));
                     }
                 }
             }
 
             placeholderManager.register(identifier, placeholder);
-            paths.computeIfAbsent(identifier, v -> new ArrayList<>()).add(formatPath(filePath));
+            paths.computeIfAbsent(identifier, v -> new ArrayList<>()).add(filePath);
         }
     }
 
     /**
      * Retrieves the placeholder data based on the provided configuration section and identifier.
      *
-     * @param section The configuration section containing the placeholder data.
+     * @param filePath The path of the file config is from
+     * @param section  The configuration section containing the placeholder data.
      * @return The placeholder data object.
      */
-    private Placeholder getPlaceholder(final ConfigurationSection section) {
+    private Placeholder getPlaceholder(String filePath, final ConfigurationSection section) {
         final PlaceholderType type = PlaceholderType.find(section.getString("type"));
         switch (type) {
             case MATH:
-                return new MathPlaceholder(section);
+                return new MathPlaceholder(filePath, section);
             case RANDOM:
-                return new RandomPlaceholder(section);
+                return new RandomPlaceholder(filePath, section);
             case LIST:
-                return new ListPlaceholder(section);
+                return new ListPlaceholder(filePath, section);
             case ANIMATION:
-                return new AnimatedPlaceholder(section);
+                return new AnimatedPlaceholder(filePath, section);
             case COLOR:
-                return new ColorPlaceholder(section);
+                return new ColorPlaceholder(filePath, section);
             case COLORED_TEXT:
-                return new ColoredTextPlaceholder(section);
+                return new ColoredTextPlaceholder(filePath, section);
             case PROGRESS_BAR:
-                return new ProgressbarPlaceholder(section);
+                return new ProgressbarPlaceholder(filePath, section);
             default:
-                return new StringPlaceholder(section);
+                return new StringPlaceholder(filePath, section);
         }
     }
 
