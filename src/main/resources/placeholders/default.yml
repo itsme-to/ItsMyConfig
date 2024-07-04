@@ -10,20 +10,20 @@
 custom-placeholder:
   # colored_text only supports MiniMessage and custom tags like SmallCaps or Placeholder (p)
   server-name:
-    value: "<smallcaps><#d4acfb>OriginRealms</#d4acfb></smallcaps>"
+    value: "<gradient:#ff0f7b:#f89b29><bold>ServerName</bold></gradient>"
     type: colored_text
   
   # Use MiniMessage here too 
   prefix:
-    value: "<p:server-name> <gray>»</gray><p:text-color><smallcaps>"
+    value: "<p:server-name> <p:text-color>┃"
   error-prefix:
-    value: "<smallcaps><red>Error</red> <gray>»</gray><p:text-color>"
+    value: "<gradient:#ff0f7b:#f89b29><bold>ServerName</bold></gradient>"
     
   # Can be #RRGGBB or color names: black, dark_blue, dark_green, dark_aqua, dark_red, dark_purple, gold, gray, dark_gray, blue, green, aqua, red, light_purple, yellow, or white.
   primary-color:
-    value: "#8364e8"
+    value: "yellow"
     type: color
-    italic: true
+    bold: false
   secondary-color:
     value: "gold"
     type: color
@@ -39,11 +39,11 @@ custom-placeholder:
     
   # Just put the link without https://
   discord:
-    value: "discord.gg/originrealms"
+    value: "discord.gg/example"
   store:
-    value: "store.originrealms.net"
+    value: "store.servername.net"
   ip:
-    value: "play.originrealms.net"
+    value: "play.servername.net"
   
   # Use MiniMessage here too, {0} refers to the amount
   exp-format:
