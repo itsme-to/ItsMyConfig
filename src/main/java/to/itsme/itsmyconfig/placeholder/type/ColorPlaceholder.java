@@ -157,10 +157,13 @@ public final class ColorPlaceholder extends Placeholder {
         switch (firstArg) {
             case "closestname":
                 return this.nameValue;
+            case "l":
             case "legacy":
                 return this.legacyString;
+            case "c":
             case "console":
                 return this.consoleString;
+            case "m":
             case "mini":
                 final String prefix = "<" + this.value + ">" + propertiesMiniPrefix;
                 if (params.length > 1) {

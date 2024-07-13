@@ -45,6 +45,7 @@ public class ColoredTextPlaceholder extends Placeholder {
 
         final String firstArg = args[0].toLowerCase(Locale.ROOT);
         switch (firstArg) {
+            case "l":
             case "legacy":
                 return this.replaceArguments(
                         args,
@@ -52,6 +53,7 @@ public class ColoredTextPlaceholder extends Placeholder {
                                 Utilities.translate(this.miniText, player)
                         ), 1
                 );
+            case "c":
             case "console":
                 return this.replaceArguments(
                         args,
@@ -59,6 +61,7 @@ public class ColoredTextPlaceholder extends Placeholder {
                                 Utilities.translate(this.miniText, player)
                         ), 1
                 );
+            case "m":
             case "mini":
                 return this.replaceArguments(args, this.miniText, 1);
             default:

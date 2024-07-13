@@ -20,6 +20,21 @@ public final class Strings {
     private static final Pattern QUOTE_PATTERN = Pattern.compile("<quote(?::([^>]*))?>(.*)</quote>");
 
     /**
+     * An array of integer values used for converting numbers to Roman numerals.
+     */
+    private static final int[] values = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
+    /**
+     * Class: DynamicPlaceHolder
+     * Variable: romanLiterals
+     * <p>
+     * Description:
+     * The `romanLiterals` variable is an array of strings representing the Roman numerals.
+     * It contains the following literals: ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"].
+     * These literals are used in the `integerToRoman` method to convert an integer to its Roman numeral representation.
+     */
+    private static final String[] romanLiterals = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
+
+    /**
      * Processes a given text and escapes tags based on specified properties.
      *
      * @param text The text to be processed for escaping tags.
@@ -181,6 +196,23 @@ public final class Strings {
         try {
             return Float.parseFloat(textless(text));
         } catch (final Throwable ignored) { return defaultDouble; }
+    }
+
+    /**
+     * Converts an integer to a Roman numeral representation.
+     *
+     * @param num The integer to convert.
+     * @return The Roman numeral representation of the given integer.
+     */
+    public static String integerToRoman(int num) {
+        final StringBuilder roman = new StringBuilder();
+        for (int i = 0; i < values.length; i++) {
+            while (num >= values[i]) {
+                num -= values[i];
+                roman.append(romanLiterals[i]);
+            }
+        }
+        return roman.toString();
     }
 
 }

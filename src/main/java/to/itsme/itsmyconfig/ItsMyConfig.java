@@ -52,7 +52,7 @@ public final class ItsMyConfig extends JavaPlugin {
         this.getLogger().info("Loading ItsMyConfig...");
         final long start = System.currentTimeMillis();
         instance = this;
-        new PAPIHook(this).register();
+        Arrays.asList("imc", "itsmyconfig").forEach(alias -> new PAPIHook(this, alias).register());
         new CommandManager(this);
 
         this.adventure = BukkitAudiences.create(this);

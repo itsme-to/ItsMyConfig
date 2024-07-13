@@ -9,6 +9,7 @@ import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.font.Font;
+import to.itsme.itsmyconfig.util.Strings;
 
 /**
  * DynamicPlaceHolder class is a PlaceholderExpansion that handles dynamic placeholders for the ItsMyConfig plugin.
@@ -22,21 +23,6 @@ public final class PAPIHook extends PlaceholderExpansion {
      */
     private final ItsMyConfig plugin;
     /**
-     * An array of integer values used for converting numbers to Roman numerals.
-     */
-    private final int[] values = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
-    /**
-     * Class: DynamicPlaceHolder
-     * Variable: romanLiterals
-     * <p>
-     * Description:
-     * The `romanLiterals` variable is an array of strings representing the Roman numerals.
-     * It contains the following literals: ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"].
-     * These literals are used in the `integerToRoman` method to convert an integer to its Roman numeral representation.
-     */
-    private final String[] romanLiterals = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
-
-    /**
      * ILLEGAL_NUMBER_FORMAT_MSG represents the error message when an illegal number format is encountered.
      */
     public static final String ILLEGAL_NUMBER_FORMAT_MSG = "Illegal Number Format";
@@ -49,13 +35,15 @@ public final class PAPIHook extends PlaceholderExpansion {
      * PLACEHOLDER_NOT_FOUND_MSG is a constant variable that represents the message displayed when a placeholder is not found.
      */
     public static final String PLACEHOLDER_NOT_FOUND_MSG = "Placeholder not found";
+    private final String identifier;
 
     /**
      * DynamicPlaceHolder is a class that represents a dynamic placeholder for a placeholder expansion.
      * It handles different types of placeholders and provides methods to handle font, progress, and custom placeholders.
      */
-    public PAPIHook(final ItsMyConfig plugin) {
+    public PAPIHook(final ItsMyConfig plugin, final String identifier) {
         this.plugin = plugin;
+        this.identifier = identifier;
     }
 
     /**
@@ -65,7 +53,7 @@ public final class PAPIHook extends PlaceholderExpansion {
      */
     @Override
     public @NotNull String getIdentifier() {
-        return "itsmyconfig";
+        return this.identifier;
     }
 
     /**
@@ -118,7 +106,7 @@ public final class PAPIHook extends PlaceholderExpansion {
         }
 
         final String firstParam = splitParams[0].toLowerCase();
-        if ("font".equals(firstParam) && splitParams.length >= 3) {
+        if (("font".equals(firstParam) || "f".equals(firstParam)) && splitParams.length >= 3) {
             return handleFont(splitParams);
         }
         return handlePlaceholder(splitParams, player);
@@ -135,7 +123,7 @@ public final class PAPIHook extends PlaceholderExpansion {
         if ("latin".equals(fontType)) {
             try {
                 int integer = Integer.parseInt(splitParams[2]);
-                return integerToRoman(integer);
+                return Strings.integerToRoman(integer);
             } catch (NumberFormatException e) {
                 return ILLEGAL_NUMBER_FORMAT_MSG;
             }
@@ -179,6 +167,9 @@ public final class PAPIHook extends PlaceholderExpansion {
             case COLOR:
             case COLORED_TEXT:
                 switch (firstParam.toLowerCase()) {
+                    case "m":
+                    case "l":
+                    case "c":
                     case "mini":
                     case "legacy":
                     case "console":
@@ -202,23 +193,6 @@ public final class PAPIHook extends PlaceholderExpansion {
         }
 
         return placeholder.asString(player, builder.toString().split(type == PlaceholderType.PROGRESS_BAR ? "_" : "::"));
-    }
-
-    /**
-     * Converts an integer to a Roman numeral representation.
-     *
-     * @param num The integer to convert.
-     * @return The Roman numeral representation of the given integer.
-     */
-    public String integerToRoman(int num) {
-        final StringBuilder roman = new StringBuilder();
-        for (int i = 0; i < values.length; i++) {
-            while (num >= values[i]) {
-                num -= values[i];
-                roman.append(romanLiterals[i]);
-            }
-        }
-        return roman.toString();
     }
 
 }
