@@ -30,7 +30,12 @@ public final class RequirementManager {
      * @return the Requirement object that matches the given type, or null if no match is found
      */
     public Requirement<?> getRequirementByType(final String type) {
-        return this.requirements.stream().filter(requirement -> requirement.matchIdentifier(type)).findAny().orElse(null);
+        for (final Requirement<?> requirement : this.requirements) {
+            if (requirement.matchIdentifier(type)) {
+                return requirement;
+            }
+        }
+        return null;
     }
 
     /**

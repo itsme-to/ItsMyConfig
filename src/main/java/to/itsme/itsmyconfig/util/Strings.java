@@ -217,12 +217,12 @@ public final class Strings {
     }
 
     /**
-     * Converts a list of objects to a string, where each object is represented on a new line.
+     * Converts a list of strings to a string, where each string is represented on a new line.
      *
-     * @param list The list of objects to be converted to a string.
+     * @param list The list of strings to be converted to a string.
      * @return The string representation of the list.
      */
-    public static String toString(final @NotNull List<?> list) {
+    public static String toString(final @NotNull List<String> list) {
         return String.join(System.lineSeparator(), list.stream().map(Object::toString).toArray(String[]::new));
     }
 
