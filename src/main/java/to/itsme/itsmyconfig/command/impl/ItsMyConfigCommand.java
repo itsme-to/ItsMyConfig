@@ -19,6 +19,7 @@ import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Message;
+import to.itsme.itsmyconfig.util.Strings;
 import to.itsme.itsmyconfig.util.Utilities;
 
 import java.io.IOException;
@@ -62,7 +63,7 @@ public final class ItsMyConfigCommand {
                         .decorate(TextDecoration.BOLD)
                         .hoverEvent(
                                 Utilities.MM.deserialize(
-                                        Utilities.toString(
+                                        Strings.toString(
                                                 Arrays.asList(
                                                         " ",
                                                         "<white>Name: <gold>" + description.getName(),
@@ -83,7 +84,7 @@ public final class ItsMyConfigCommand {
                         .decorate(TextDecoration.UNDERLINED)
                         .hoverEvent(
                                 Utilities.MM.deserialize(
-                                        Utilities.toString(
+                                        Strings.toString(
                                                 Arrays.asList(
                                                         " ",
                                                         "<white>Discord: <aqua>@iiAhmedYT</aqua>",

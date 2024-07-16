@@ -45,7 +45,7 @@ public enum Message {
 
         final String result;
         if (msg instanceof List<?>) {
-            result = Utilities.toString((List<?>) msg);
+            result = Strings.toString((List<?>) msg);
         } else if (msg instanceof String) {
             result = (String) msg;
         } else {

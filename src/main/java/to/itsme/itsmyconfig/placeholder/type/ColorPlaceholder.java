@@ -1,6 +1,7 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
 import net.kyori.adventure.text.format.*;
+import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -18,7 +19,7 @@ public final class ColorPlaceholder extends Placeholder {
     /**
      * Represents the style of a variable.
      */
-    private Style style;
+    private Tag style;
     /**
      * Represents a legacy color value.
      */
@@ -116,25 +117,26 @@ public final class ColorPlaceholder extends Placeholder {
      * @param configurationSection The ConfigurationSection containing the style properties.
      */
     private void initializeStyle(ConfigurationSection configurationSection) {
-        final Style.Builder builder = Style.style().color(TextColor.fromHexString(hexValue));
+        this.style = Tag.styling(builder -> {
+            builder.color(TextColor.fromHexString(hexValue));
 
-        final StringBuilder propertiesBuilder = new StringBuilder();
-        final StringBuilder propertiesPrefixBuilder = new StringBuilder();
-        final StringBuilder propertiesSuffixBuilder = new StringBuilder();
+            final StringBuilder propertiesBuilder = new StringBuilder();
+            final StringBuilder propertiesPrefixBuilder = new StringBuilder();
+            final StringBuilder propertiesSuffixBuilder = new StringBuilder();
 
-        for (final String decorationType : DECORATIONS_PROPERTIES.keySet()) {
-            if (configurationSection.getBoolean(decorationType)) {
-                propertiesBuilder.append(DECORATIONS_PROPERTIES.get(decorationType));
-                propertiesPrefixBuilder.append("<").append(decorationType).append(">");
-                propertiesSuffixBuilder.append("</").append(decorationType).append(">");
-                builder.decorate(TextDecoration.valueOf(decorationType.toUpperCase(Locale.ENGLISH)));
+            for (final String decorationType : DECORATIONS_PROPERTIES.keySet()) {
+                if (configurationSection.getBoolean(decorationType)) {
+                    propertiesBuilder.append(DECORATIONS_PROPERTIES.get(decorationType));
+                    propertiesPrefixBuilder.append("<").append(decorationType).append(">");
+                    propertiesSuffixBuilder.append("</").append(decorationType).append(">");
+                    builder.decorate(TextDecoration.valueOf(decorationType.toUpperCase(Locale.ENGLISH)));
+                }
             }
-        }
 
-        this.properties = propertiesBuilder.toString();
-        this.propertiesMiniPrefix = propertiesPrefixBuilder.toString();
-        this.propertiesMiniSuffix = propertiesSuffixBuilder.toString();
-        this.style = builder.build();
+            this.properties = propertiesBuilder.toString();
+            this.propertiesMiniPrefix = propertiesPrefixBuilder.toString();
+            this.propertiesMiniSuffix = propertiesSuffixBuilder.toString();
+        });
     }
 
     /**
@@ -187,7 +189,7 @@ public final class ColorPlaceholder extends Placeholder {
      *
      * @return The style of this instance.
      */
-    public Style getStyle() {
+    public Tag getStyle() {
         return this.style;
     }
 

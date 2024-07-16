@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.component.AbstractComponent;
 import to.itsme.itsmyconfig.listener.PacketListener;
-import to.itsme.itsmyconfig.util.Reflections;
 import to.itsme.itsmyconfig.util.Utilities;
 
 import java.lang.reflect.Method;
@@ -45,34 +44,30 @@ public final class PacketChatListener extends PacketListener {
 
     @Override
     public void onPacketSending(final PacketEvent event) {
-        Utilities.debug("################# CHAT PACKET #################");
         final PacketContainer container = event.getPacket();
-        Utilities.debug("Analyzing packet " + container.getType().name());
+        Utilities.debug(() -> "################# CHAT PACKET #################\nProccessing packet " + container.getType().name());
         final PacketResponse response = this.processPacket(container);
         if (response == null || response.message.isEmpty()) {
-            Utilities.debug("###############################################");
+            Utilities.debug(() -> "Packet is null or empty\n###############################################");
             return;
         }
 
         final String message = response.message;
-        Utilities.debug("Checking: " + message);
+        Utilities.debug(() -> "Checking: " + message);
         if (!this.startsWithSymbol(message)) {
-            Utilities.debug("Message doesn't start w/ the symbol-prefix: " + message);
-            Utilities.debug("###############################################");
+            Utilities.debug(() -> "Message doesn't start w/ the symbol-prefix: " + message + "\n###############################################");
             return;
         }
 
         final Player player = event.getPlayer();
         final Component parsed = Utilities.translate(this.processMessage(message), player);
-
         if (parsed.equals(Component.empty())) {
-            Utilities.debug("Component is empty, cancelling...");
             event.setCancelled(true);
-            Utilities.debug("###############################################");
+            Utilities.debug(() -> "Component is empty, cancelling...\n###############################################");
             return;
         }
 
-        Utilities.debug("Overriding Message as " + response.type.name());
+        Utilities.debug(() -> "Overriding Message as " + response.type.name());
         switch (response.type) {
             case JSON:
                 container.getStrings().write(0, gsonComponentSerializer.serialize(parsed));
@@ -84,46 +79,45 @@ public final class PacketChatListener extends PacketListener {
                 break;
             case BUNGEE_COMPONENT:
                 container.getModifier().withType(TextComponent.class).write(0, new TextComponent(
-                        BungeeComponentSerializer.get().serialize(parsed)
+                        bungee.serialize(parsed)
                 ));
                 break;
             case SERVER_ADVENTURE:
                 final StructureModifier<Object> modifier = container.getModifier().withType(AdventureComponentConverter.getComponentClass());
                 final String json = gsonComponentSerializer.serialize(parsed);
-                modifier.write(0, Reflections.fromJsonToComponent(json));
+                modifier.write(0, AdventureComponentConverter.fromJsonAsObject(json));
                 break;
         }
 
-        Utilities.debug("###############################################");
+        Utilities.debug(() -> "###############################################");
     }
 
     private PacketResponse processPacket(final PacketContainer container) {
-        Utilities.debug("Proccessing a packet");
         final StructureModifier<TextComponent> textComponentModifier = container.getModifier().withType(TextComponent.class);
         if (textComponentModifier.size() == 1) {
-            Utilities.debug("Using Bungeecord TextComponent..");
+            Utilities.debug(() -> "Using Bungeecord TextComponent..");
             return new PacketResponse(ResponseType.BUNGEE_COMPONENT, processBaseComponents(textComponentModifier.readSafely(0)));
         } else {
-            Utilities.debug("Failed to use Bungeecord TextComponent, trying ProtocolLib's WrappedChatComponent");
+            Utilities.debug(() -> "Failed to use Bungeecord TextComponent, trying ProtocolLib's WrappedChatComponent");
         }
 
         final WrappedChatComponent wrappedComponent = container.getChatComponents().readSafely(0);
         if (wrappedComponent != null) {
             final String found = wrappedComponent.getJson();
             if (!found.isEmpty()) {
-                Utilities.debug("Found String: " + found);
+                Utilities.debug(() -> "Found String: " + found);
                 try {
-                    Utilities.debug("Trying as json");
+                    Utilities.debug(() -> "Trying as json");
                     return new PacketResponse(ResponseType.WRAPPED_COMPONENT, AbstractComponent.parse(found).toMiniMessage());
                 } catch (final Exception e) {
-                    Utilities.debug("An error happened while de/serializing " + found + ": ", e);
+                    Utilities.debug(() -> "An error happened while de/serializing " + found + ": ", e);
                 }
             }
         }
 
         final String rawMessage = container.getStrings().readSafely(0);
         if (rawMessage != null) {
-            Utilities.debug("Raw-Parsing message: " + rawMessage);
+            Utilities.debug(() -> "Raw-Parsing message: " + rawMessage);
             return new PacketResponse(ResponseType.JSON, AbstractComponent.parse(rawMessage).toMiniMessage());
         }
 
@@ -133,17 +127,16 @@ public final class PacketChatListener extends PacketListener {
                 if (modifier.size() == 1) {
                     final WrappedChatComponent wrappedAComponent = (WrappedChatComponent) fromComponent.invoke(null, modifier.readSafely(0));
                     final String json = wrappedAComponent.getJson();
-                    Utilities.debug("Performing Server-Side Adventure for " + json);
+                    Utilities.debug(() -> "Performing Server-Side Adventure for " + json);
                     return new PacketResponse(ResponseType.SERVER_ADVENTURE, AbstractComponent.parse(json).toMiniMessage());
                 } else {
-                    Utilities.debug("Failed to use Server-Side Adventure, Trying Bungeecord TextComponent..");
+                    Utilities.debug(() -> "Failed to use Server-Side Adventure");
                 }
             } catch (Throwable ignored) {
-                Utilities.debug("Failed to use Server-Side Adventure, Trying Bungeecord TextComponent..");
+                Utilities.debug(() -> "Failed to use Server-Side Adventure");
             }
         }
 
-        Utilities.debug("Found nothing.. returning null.");
         return null;
     }
 

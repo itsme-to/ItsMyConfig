@@ -8,11 +8,10 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
-import net.kyori.adventure.title.Title;
-import net.kyori.adventure.util.Ticks;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.intellij.lang.annotations.Subst;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import to.itsme.itsmyconfig.ItsMyConfig;
@@ -24,6 +23,7 @@ import to.itsme.itsmyconfig.tag.TagManager;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -67,23 +67,23 @@ public final class Utilities {
     /**
      * Logs debug information to the console if the debug mode is enabled.
      *
-     * @param text The debug information to log.
+     * @param supplier The supplier that provides the debug information to log.
      */
-    public static void debug(final String text) {
+    public static void debug(final Supplier<String> supplier) {
         if (plugin.isDebug()) {
-            plugin.getLogger().info(text);
+            plugin.getLogger().info(supplier.get());
         }
     }
 
     /**
      * Logs debug information along with an exception stack trace to the console if the debug mode is enabled.
      *
-     * @param text      The debug information to log.
+     * @param supplier The supplier that provides the debug information to log.
      * @param exception The Exception object representing the exception to log.
      */
-    public static void debug(final String text, final Exception exception) {
+    public static void debug(final Supplier<String> supplier, final Exception exception) {
         if (plugin.isDebug()) {
-            plugin.getLogger().log(Level.SEVERE, text, exception);
+            plugin.getLogger().log(Level.SEVERE, supplier.get(), exception);
         }
     }
 
@@ -99,15 +99,13 @@ public final class Utilities {
             final Player player,
             final TagResolver... placeholders
     ) {
-        final Component translated = fixClickEvent(
-                EMPTY_MM.deserialize(
-                        TagManager.process(
-                                player, Strings.quote(text)
-                        ),
-                        itsMyConfigTag(player), papiTag(player),
-                        FONT_RESOLVER, StandardTags.defaults(),
-                        TagResolver.resolver(placeholders)
-                )
+        final Component translated = EMPTY_MM.deserialize(
+                TagManager.process(
+                        player, Strings.quote(text)
+                ),
+                itsMyConfigTag(player), papiTag(player),
+                FONT_RESOLVER, StandardTags.defaults(),
+                TagResolver.resolver(placeholders)
         );
 
         applyChatColors(translated);
@@ -120,7 +118,11 @@ public final class Utilities {
      * This fixes it.
      *
      * @return  the fixed component
+     * @deprecated I have NOT seen that happen so far. Hopefully it never does and is already fixed?
      */
+    @Deprecated
+    @SuppressWarnings("unused")
+    @ApiStatus.ScheduledForRemoval
     private static Component fixClickEvent(final Component component) {
         final ClickEvent event = component.clickEvent();
         Component copied = component;
@@ -153,7 +155,7 @@ public final class Utilities {
             }
 
             if (data instanceof ColorPlaceholder) {
-                return Tag.styling(builder -> builder.merge(((ColorPlaceholder) data).getStyle()));
+                return ((ColorPlaceholder) data).getStyle();
             }
 
             final List<String> args = new LinkedList<>();
@@ -194,37 +196,6 @@ public final class Utilities {
                 applyChatColors(component);
             }
         }
-    }
-
-    /**
-     * Converts a list of objects to a string, where each object is represented on a new line.
-     *
-     * @param list The list of objects to be converted to a string.
-     * @return The string representation of the list.
-     */
-    public static String toString(final @NotNull List<?> list) {
-        return String.join(System.lineSeparator(), list.stream().map(Object::toString).toArray(String[]::new));
-    }
-
-    /**
-     * Helper method to create Title times with optional values.
-     *
-     * @param fadeIn  The fade in time.
-     * @param stay    The stay time.
-     * @param fadeOut The fade out time.
-     * @return Title.Times object with specified times.
-     */
-    @SuppressWarnings("all")
-    private static Title.Times createTimes(
-            final @NotNull OptionalInt fadeIn,
-            final @NotNull OptionalInt stay,
-            final @NotNull OptionalInt fadeOut
-    ) {
-        return Title.Times.times(
-                Ticks.duration(fadeIn.orElse(10)),
-                Ticks.duration(stay.orElse(70)),
-                Ticks.duration(fadeOut.orElse(20))
-        );
     }
 
     /**
