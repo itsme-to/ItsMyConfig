@@ -40,7 +40,7 @@ public enum Message {
     }
 
     @Override
-    @SuppressWarnings("all")
+    @SuppressWarnings("unchecked")
     public String toString() {
         final Object msg = plugin.getConfig().get("messages." + this.path);
 

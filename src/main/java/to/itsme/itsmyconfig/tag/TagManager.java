@@ -11,22 +11,30 @@ import to.itsme.itsmyconfig.tag.impl.title.TitleTag;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class TagManager {
 
-    private static final Pattern ARG_TAG_PATTERN = Pattern.compile("<(\\w+)((?::\"([^\"]*)\"|:(?:(?!<\\w+).)*)*)>");
-    private static final Pattern ARG_PATTERN = Pattern.compile(":\"([^\"]*)\"|:([^:\"]*)");
+    private static final Pattern ARG_TAG_PATTERN = Pattern.compile("<(\\w+)((?::\"([^\"]*)\"|:'([^']*)'|:([^<]*))*)>");
+    private static final Pattern ARG_PATTERN = Pattern.compile(":\"([^\"]*)\"|:'([^']*)'|:([^:\"]*)");
 
+    private static int INITIAL_CAPACITY;
     private static final Map<String, Tag> tags = new ConcurrentHashMap<>();
 
     static {
+        final AtomicInteger defaultCapacity = new AtomicInteger();
         Arrays.asList(
                 new RepeatTag(), new DelayTag(),
                 new BossbarTag(), new ActiobarTag(),
                 new TitleTag(), new SubtitleTag(), new SoundTag()
-        ).forEach(tag -> tags.put(tag.name(), tag));
+        ).forEach(tag -> {
+            tags.put(tag.name(), tag);
+            defaultCapacity.set(Math.max(tag.maxArguments(), defaultCapacity.get()));
+        });
+
+        INITIAL_CAPACITY = defaultCapacity.get();
     }
 
     public static String process(
@@ -61,15 +69,7 @@ public final class TagManager {
             }
 
             final String arguments = matcher.group(2);
-            final Matcher argMatcher = ARG_PATTERN.matcher(arguments);
-            final ArrayList<String> args = new ArrayList<>();
-            while (argMatcher.find()) {
-                if (argMatcher.group(1) != null) {
-                    args.add(argMatcher.group(1)); // Quoted argument
-                } else if (argMatcher.group(2) != null) {
-                    args.add(argMatcher.group(2)); // Unquoted argument
-                }
-            }
+            final ArrayList<String> args = getArguments(arguments);
 
             if (args.size() == 1 && args.get(0).equals("cancel")) {
                 if (tag instanceof Cancellable) {
@@ -93,6 +93,26 @@ public final class TagManager {
         }
 
         return text;
+    }
+
+    private static ArrayList<String> getArguments(final String arguments) {
+        final Matcher argMatcher = ARG_PATTERN.matcher(arguments);
+        final ArrayList<String> args = new ArrayList<>(INITIAL_CAPACITY);
+        while (argMatcher.find()) {
+            if (argMatcher.group(1) != null) {
+                args.add(argMatcher.group(1)); // Double-quoted argument
+            } else if (argMatcher.group(2) != null) {
+                args.add(argMatcher.group(2)); // Single-quoted argument
+            } else if (argMatcher.group(3) != null) {
+                args.add(argMatcher.group(3)); // Unquoted argument
+            }
+        }
+
+        if (INITIAL_CAPACITY < args.size()) {
+            INITIAL_CAPACITY = args.size();
+        }
+
+        return args;
     }
 
 }
