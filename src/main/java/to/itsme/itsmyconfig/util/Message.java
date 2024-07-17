@@ -40,12 +40,13 @@ public enum Message {
     }
 
     @Override
+    @SuppressWarnings("all")
     public String toString() {
         final Object msg = plugin.getConfig().get("messages." + this.path);
 
         final String result;
         if (msg instanceof List<?>) {
-            result = Strings.toString((List<?>) msg);
+            result = Strings.toString((List<String>) msg);
         } else if (msg instanceof String) {
             result = (String) msg;
         } else {

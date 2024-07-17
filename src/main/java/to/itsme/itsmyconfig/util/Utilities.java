@@ -71,7 +71,10 @@ public final class Utilities {
      */
     public static void debug(final Supplier<String> supplier) {
         if (plugin.isDebug()) {
-            plugin.getLogger().info(supplier.get());
+            final String[] splitText = supplier.get().split("\\n");
+            for (final String text : splitText) {
+                plugin.getLogger().info(text);
+            }
         }
     }
 

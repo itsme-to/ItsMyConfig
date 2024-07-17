@@ -27,7 +27,12 @@ public final class PacketChatListener extends PacketListener {
     public PacketChatListener(
             final ItsMyConfig plugin
     ) {
-        super(plugin, PacketType.Play.Server.CHAT, PacketType.Play.Server.DISGUISED_CHAT, PacketType.Play.Server.SYSTEM_CHAT);
+        super(
+                plugin,
+                PacketType.Play.Server.SYSTEM_CHAT,
+                PacketType.Play.Server.KICK_DISCONNECT
+        );
+
         Method fromComponent;
         try {
             fromComponent = AdventureComponentConverter.class.getDeclaredMethod(
@@ -93,21 +98,13 @@ public final class PacketChatListener extends PacketListener {
     }
 
     private PacketResponse processPacket(final PacketContainer container) {
-        final StructureModifier<TextComponent> textComponentModifier = container.getModifier().withType(TextComponent.class);
-        if (textComponentModifier.size() == 1) {
-            Utilities.debug(() -> "Using Bungeecord TextComponent..");
-            return new PacketResponse(ResponseType.BUNGEE_COMPONENT, processBaseComponents(textComponentModifier.readSafely(0)));
-        } else {
-            Utilities.debug(() -> "Failed to use Bungeecord TextComponent, trying ProtocolLib's WrappedChatComponent");
-        }
-
         final WrappedChatComponent wrappedComponent = container.getChatComponents().readSafely(0);
         if (wrappedComponent != null) {
+            Utilities.debug(() -> "Trying ProtocolLib's ChatComponent..");
             final String found = wrappedComponent.getJson();
             if (!found.isEmpty()) {
                 Utilities.debug(() -> "Found String: " + found);
                 try {
-                    Utilities.debug(() -> "Trying as json");
                     return new PacketResponse(ResponseType.WRAPPED_COMPONENT, AbstractComponent.parse(found).toMiniMessage());
                 } catch (final Exception e) {
                     Utilities.debug(() -> "An error happened while de/serializing " + found + ": ", e);
@@ -115,26 +112,29 @@ public final class PacketChatListener extends PacketListener {
             }
         }
 
-        final String rawMessage = container.getStrings().readSafely(0);
-        if (rawMessage != null) {
-            Utilities.debug(() -> "Raw-Parsing message: " + rawMessage);
-            return new PacketResponse(ResponseType.JSON, AbstractComponent.parse(rawMessage).toMiniMessage());
-        }
-
         if (internalAdventure) {
             try {
                 final StructureModifier<?> modifier = container.getModifier().withType(AdventureComponentConverter.getComponentClass());
                 if (modifier.size() == 1) {
+                    Utilities.debug(() -> "Trying SERVER_ADVENTRURE..");
                     final WrappedChatComponent wrappedAComponent = (WrappedChatComponent) fromComponent.invoke(null, modifier.readSafely(0));
                     final String json = wrappedAComponent.getJson();
-                    Utilities.debug(() -> "Performing Server-Side Adventure for " + json);
+                    Utilities.debug(() -> "Found JSON: " + json);
                     return new PacketResponse(ResponseType.SERVER_ADVENTURE, AbstractComponent.parse(json).toMiniMessage());
-                } else {
-                    Utilities.debug(() -> "Failed to use Server-Side Adventure");
                 }
-            } catch (Throwable ignored) {
-                Utilities.debug(() -> "Failed to use Server-Side Adventure");
-            }
+            } catch (Throwable ignored) {}
+        }
+
+        final StructureModifier<TextComponent> textComponentModifier = container.getModifier().withType(TextComponent.class);
+        if (textComponentModifier.size() == 1) {
+            Utilities.debug(() -> "Trying Bungeecord TextComponent..");
+            return new PacketResponse(ResponseType.BUNGEE_COMPONENT, processBaseComponents(textComponentModifier.readSafely(0)));
+        }
+
+        final String rawMessage = container.getStrings().readSafely(0);
+        if (rawMessage != null) {
+            Utilities.debug(() -> "Raw-Parsing message: " + rawMessage);
+            return new PacketResponse(ResponseType.JSON, AbstractComponent.parse(rawMessage).toMiniMessage());
         }
 
         return null;
