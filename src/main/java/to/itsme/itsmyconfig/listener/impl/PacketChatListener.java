@@ -29,6 +29,7 @@ public final class PacketChatListener extends PacketListener {
     ) {
         super(
                 plugin,
+                PacketType.Play.Server.CHAT,
                 PacketType.Play.Server.SYSTEM_CHAT,
                 PacketType.Play.Server.KICK_DISCONNECT
         );

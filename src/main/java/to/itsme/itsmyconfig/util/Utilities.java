@@ -167,7 +167,7 @@ public final class Utilities {
             }
 
             final String parsed = data.asString(player, args.toArray(new String[0]));
-            return Tag.preProcessParsed(parsed == null ? "" : parsed);
+            return Tag.preProcessParsed((parsed == null ? "" : parsed).replace("§", "&"));
         });
     }
 

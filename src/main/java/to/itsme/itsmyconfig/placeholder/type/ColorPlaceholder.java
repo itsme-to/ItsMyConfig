@@ -103,7 +103,7 @@ public final class ColorPlaceholder extends Placeholder {
             this.hexValue = "#ff0000";
         }
 
-        this.legacyColor = ChatColor.valueOf(this.nameValue.toUpperCase());
+        this.legacyColor = ChatColor.valueOf(this.nameValue.toUpperCase(Locale.ENGLISH));
         initializeStyle(section);
 
         this.consoleString = this.toConsoleString();
