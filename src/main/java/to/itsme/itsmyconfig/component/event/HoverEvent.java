@@ -150,7 +150,11 @@ public class HoverEvent {
                 }
             } else if (jsonObject.has("contents")) {
                 final JsonElement element = jsonObject.get("contents");
-                event.value = context.deserialize(element, TextfulComponent.class);
+                if (element.isJsonPrimitive()) {
+                    event.value = new TextfulComponent(element.getAsString());
+                } else {
+                    event.value = context.deserialize(element, TextfulComponent.class);
+                }
             }
             return event;
         }

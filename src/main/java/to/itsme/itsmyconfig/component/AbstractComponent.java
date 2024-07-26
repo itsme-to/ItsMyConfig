@@ -12,6 +12,7 @@ import to.itsme.itsmyconfig.component.impl.KeybindedComponent;
 import to.itsme.itsmyconfig.component.impl.PseudoComponent;
 import to.itsme.itsmyconfig.component.impl.TextfulComponent;
 import to.itsme.itsmyconfig.component.impl.TranslatingComponent;
+import to.itsme.itsmyconfig.util.Utilities;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -49,6 +50,7 @@ public abstract class AbstractComponent {
         try {
             return parse(PARSER.parse(json));
         } catch (final Throwable ignored) {
+            Utilities.debug(() -> "Couldn't parse json: " + json + " so returning PsedoComponent", ignored);
             return new PseudoComponent(json);
         }
     }

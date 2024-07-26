@@ -84,7 +84,7 @@ public final class Utilities {
      * @param supplier The supplier that provides the debug information to log.
      * @param exception The Exception object representing the exception to log.
      */
-    public static void debug(final Supplier<String> supplier, final Exception exception) {
+    public static void debug(final Supplier<String> supplier, final Throwable exception) {
         if (plugin.isDebug()) {
             plugin.getLogger().log(Level.SEVERE, supplier.get(), exception);
         }
