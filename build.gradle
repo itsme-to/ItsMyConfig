@@ -36,32 +36,12 @@ repositories {
         url = "https://repo.extendedclip.com/content/repositories/placeholderapi/"
     }
     maven {
-        name = "devmart-other"
-        url = "https://nexuslite.gcnt.net/repos/other/"
-    }
-    maven {
         name = "redempt.dev"
         url = "https://redempt.dev"
     }
-}
-
-publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/itsme-to/ItsMyConfig")
-
-            credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
-                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
-            }
-        }
-    }
-
-    publications {
-        gpr(MavenPublication) {
-            from(components.java)
-        }
+    maven {
+        name = "devmart-other"
+        url = "https://nexuslite.gcnt.net/repos/other/"
     }
 }
 
