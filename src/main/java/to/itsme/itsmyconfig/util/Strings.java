@@ -3,6 +3,7 @@ package to.itsme.itsmyconfig.util;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import org.jetbrains.annotations.NotNull;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,7 +18,8 @@ public final class Strings {
     public static final Pattern TAG_PATTERN = Pattern.compile("<(\\w+)(?::\"([^\"]*)\"|:([^<]*))*>");
 
     private static final Pattern COLOR_FILTER = Pattern.compile("[§&][a-zA-Z0-9]");
-    public static final Pattern ARGUMENT_PATTERN = Pattern.compile("\\{([0-9]+)}");
+    private static final Pattern ARGUMENT_PATTERN = Pattern.compile("\\{([0-9]+)}");
+    private static final Pattern DIACRITICAL_MARKS_PATTERN = Pattern.compile("\\p{M}");
     private static final Pattern QUOTE_PATTERN = Pattern.compile("<quote(?::([^>]*))?>(.*)</quote>");
 
     /**
@@ -224,6 +226,24 @@ public final class Strings {
      */
     public static String toString(final @NotNull List<String> list) {
         return String.join(System.lineSeparator(), list.stream().map(Object::toString).toArray(String[]::new));
+    }
+
+    /**
+     * Converts a string containing accented characters into a string with plain
+     * English characters by removing diacritical marks (accents).
+     *
+     * <p>This method normalizes the input text by decomposing accented characters
+     * into their base characters followed by diacritical marks. It then removes
+     * the diacritical marks, resulting in a string composed of basic Latin letters.</p>
+     *
+     * <p>For example, the input string "À la carte" would be converted to "A la carte".</p>
+     *
+     * @param text the input string potentially containing accented characters
+     * @return a new string with the accented characters converted to plain English characters
+     */
+    public static String englishify(final String text) {
+        final String normalized = Normalizer.normalize(text, Normalizer.Form.NFD);
+        return DIACRITICAL_MARKS_PATTERN.matcher(normalized).replaceAll("");
     }
 
 }

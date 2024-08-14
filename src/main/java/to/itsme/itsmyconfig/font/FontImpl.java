@@ -1,0 +1,46 @@
+package to.itsme.itsmyconfig.font;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
+import net.kyori.adventure.text.minimessage.tag.TagPattern;
+import org.jetbrains.annotations.NotNull;
+import to.itsme.itsmyconfig.util.Strings;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+public abstract class FontImpl implements Font {
+
+    private static final Map<String, Font> FONTS = new HashMap<>();
+
+    private final @TagPattern String name;
+    private final TextReplacementConfig config = this.createConfig();
+
+    public FontImpl(final @TagPattern String name) {
+        this.name = name;
+    }
+
+    public @TagPattern String getName() {
+        return name;
+    }
+
+    @Override
+    public @NotNull Component apply(final @NotNull Component component) {
+        return component.replaceText(config);
+    }
+
+    private TextReplacementConfig createConfig() {
+        final TextReplacementConfig.Builder config = TextReplacementConfig.builder();
+        config.match(Strings.LETTERS_PATTERN).replacement((matchResult, builder) -> {
+            final String text = this.apply(matchResult.group());
+            return Component.text().content(text);
+        });
+        return config.build();
+    }
+
+    public static Collection<Font> values() {
+        return FONTS.values();
+    }
+
+}

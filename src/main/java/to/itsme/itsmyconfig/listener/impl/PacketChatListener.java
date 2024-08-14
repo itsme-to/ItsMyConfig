@@ -20,6 +20,8 @@ import java.lang.reflect.Method;
 
 public final class PacketChatListener extends PacketListener {
 
+    private static final String DEBUG_HYPHEN = "###############################################";
+
     private final boolean internalAdventure;
     private final Method fromComponent;
     private final BungeeComponentSerializer bungee = BungeeComponentSerializer.get();
@@ -54,14 +56,14 @@ public final class PacketChatListener extends PacketListener {
         Utilities.debug(() -> "################# CHAT PACKET #################\nProccessing packet " + container.getType().name());
         final PacketResponse response = this.processPacket(container);
         if (response == null || response.message.isEmpty()) {
-            Utilities.debug(() -> "Packet is null or empty\n###############################################");
+            Utilities.debug(() -> "Packet is null or empty\n" + DEBUG_HYPHEN);
             return;
         }
 
         final String message = response.message;
         Utilities.debug(() -> "Checking: " + message);
         if (!this.startsWithSymbol(message)) {
-            Utilities.debug(() -> "Message doesn't start w/ the symbol-prefix: " + message + "\n###############################################");
+            Utilities.debug(() -> "Message doesn't start w/ the symbol-prefix: " + message + "\n" + DEBUG_HYPHEN);
             return;
         }
 
@@ -69,7 +71,7 @@ public final class PacketChatListener extends PacketListener {
         final Component parsed = Utilities.translate(this.processMessage(message), player);
         if (parsed.equals(Component.empty())) {
             event.setCancelled(true);
-            Utilities.debug(() -> "Component is empty, cancelling...\n###############################################");
+            Utilities.debug(() -> "Component is empty, cancelling...\n" + DEBUG_HYPHEN);
             return;
         }
 
@@ -95,7 +97,7 @@ public final class PacketChatListener extends PacketListener {
                 break;
         }
 
-        Utilities.debug(() -> "###############################################");
+        Utilities.debug(() -> DEBUG_HYPHEN);
     }
 
     private PacketResponse processPacket(final PacketContainer container) {

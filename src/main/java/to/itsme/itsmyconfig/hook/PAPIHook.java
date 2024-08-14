@@ -6,9 +6,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import to.itsme.itsmyconfig.ItsMyConfig;
+import to.itsme.itsmyconfig.font.MappedFont;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
-import to.itsme.itsmyconfig.font.Font;
 import to.itsme.itsmyconfig.util.Strings;
 
 /**
@@ -129,7 +129,7 @@ public final class PAPIHook extends PlaceholderExpansion {
             }
         } else if ("smallcaps".equals(fontType)) {
             String message = splitParams[2].toLowerCase();
-            return Font.SMALL_CAPS.apply(message);
+            return MappedFont.SMALL_CAPS.apply(message);
         }
         return "ERROR";
     }
