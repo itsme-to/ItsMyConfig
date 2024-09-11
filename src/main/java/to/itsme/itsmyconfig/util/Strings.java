@@ -4,17 +4,18 @@ import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.Normalizer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class Strings {
 
+    public static String symbolPrefix;
+    public static Pattern symbolPrefixPattern;
+
     public static final Pattern LETTERS_PATTERN = Pattern.compile("[A-Za-zÀ-ÿ]");
     public static final Pattern HEX_PATTERN = Pattern.compile("#[a-fA-F0-9]{6}");
+    public static final Pattern COLOR_SYMBOL_PATTERN = Pattern.compile(Pattern.quote("§"));
     public static final Pattern TAG_PATTERN = Pattern.compile("<(\\w+)(?::\"([^\"]*)\"|:([^<]*))*>");
 
     private static final Pattern COLOR_FILTER = Pattern.compile("[§&][a-zA-Z0-9]");
@@ -38,6 +39,14 @@ public final class Strings {
     private static final String[] romanLiterals = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
 
     /**
+     * Sets the symbol prefix that is used for editing Strings
+     */
+    public static void setSymbolPrefix(final String symbolPrefix) {
+        Strings.symbolPrefix = symbolPrefix;
+        Strings.symbolPrefixPattern = Pattern.compile(Pattern.quote(symbolPrefix));
+    }
+
+    /**
      * Processes a given text and escapes tags based on specified properties.
      *
      * @param text The text to be processed for escaping tags.
@@ -52,7 +61,7 @@ public final class Strings {
             final String matchedText = matcher.group(2) != null ? matcher.group(2) : "";
             final String escapedText = escapeTags(
                     matchedText,
-                    Arrays.asList(
+                    List.of(
                             properties.toLowerCase().split(":")
                     )
             );
@@ -74,7 +83,7 @@ public final class Strings {
      * @param string The string from which to extract integer arguments.
      * @return A List of Integer containing the extracted integer arguments.
      */
-    public static List<Integer> getArguments(final String string) {
+    public static Collection<Integer> getArguments(final String string) {
         if (string == null || string.length() < 3) {
             return Collections.emptyList();
         }
@@ -221,11 +230,11 @@ public final class Strings {
     /**
      * Converts a list of strings to a string, where each string is represented on a new line.
      *
-     * @param list The list of strings to be converted to a string.
+     * @param  collection The collection of strings to be converted to a string.
      * @return The string representation of the list.
      */
-    public static String toString(final @NotNull List<String> list) {
-        return String.join(System.lineSeparator(), list.stream().map(Object::toString).toArray(String[]::new));
+    public static String toString(final @NotNull Collection<String> collection) {
+        return String.join(System.lineSeparator(), collection);
     }
 
     /**
@@ -244,6 +253,29 @@ public final class Strings {
     public static String englishify(final String text) {
         final String normalized = Normalizer.normalize(text, Normalizer.Form.NFD);
         return DIACRITICAL_MARKS_PATTERN.matcher(normalized).replaceAll("");
+    }
+
+    /**
+     * Checks if the provided message starts with the "$" symbol
+     * @param message the checked message
+     */
+    public static boolean startsWithSymbol(final String message) {
+        if (message == null || message.isEmpty()) {
+            return false;
+        }
+
+        return TAG_PATTERN.matcher(colorless(message)).replaceAll("").trim().startsWith(symbolPrefix);
+    }
+
+    /**
+     * Removes the '§' symbol and replaces it with '&'
+     * <br>
+     * Also removes the first '$' symbol it meets
+     *
+     * @param message the provided message
+     */
+    public static String processMessage(final String message) {
+        return Strings.COLOR_SYMBOL_PATTERN.matcher(symbolPrefixPattern.matcher(message).replaceFirst("")).replaceAll("&");
     }
 
 }

@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.ChatMessageType;
 import org.bukkit.entity.Player;
+import to.itsme.itsmyconfig.message.AudienceResolver;
 import to.itsme.itsmyconfig.tag.api.ArgumentsTag;
 import to.itsme.itsmyconfig.util.Utilities;
 import to.itsme.itsmyconfig.util.Versions;
@@ -26,6 +27,7 @@ public class ActiobarTag extends ArgumentsTag {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public String process(
             final Player player,
             final String[] arguments
@@ -39,7 +41,7 @@ public class ActiobarTag extends ArgumentsTag {
                     BungeeComponentSerializer.get().serialize(component)
             );
         } else {
-            plugin.adventure().player(player).sendActionBar(component);
+            AudienceResolver.resolve(player).sendActionBar(component);
         }
 
         return "";

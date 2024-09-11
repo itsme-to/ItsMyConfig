@@ -5,6 +5,7 @@ import net.kyori.adventure.title.Title;
 import net.kyori.adventure.util.Ticks;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import to.itsme.itsmyconfig.message.AudienceResolver;
 import to.itsme.itsmyconfig.tag.api.ArgumentsTag;
 import to.itsme.itsmyconfig.util.Strings;
 import to.itsme.itsmyconfig.util.Utilities;
@@ -47,7 +48,7 @@ public class SubtitleTag extends ArgumentsTag {
             title = null;
         }
 
-        if (title != null) plugin.adventure().player(player).showTitle(title);
+        if (title != null) AudienceResolver.resolve(player).showTitle(title);
 
         return "";
     }

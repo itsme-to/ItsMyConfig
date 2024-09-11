@@ -1,11 +1,13 @@
-package to.itsme.itsmyconfig.util;
+package to.itsme.itsmyconfig.message;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.entity.Player;
-import revxrsal.commands.bukkit.BukkitCommandActor;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.command.CommandActor;
 import to.itsme.itsmyconfig.ItsMyConfig;
+import to.itsme.itsmyconfig.util.Strings;
+import to.itsme.itsmyconfig.util.Utilities;
 
 import java.util.List;
 
@@ -24,7 +26,7 @@ public enum Message {
 
     public void send(final Player player, final TagResolver... resolvers) {
         final Component component = Utilities.translate(this.toString(), player, resolvers);
-        plugin.adventure().player(player).sendMessage(component);
+        AudienceResolver.resolve(player).sendMessage(component);
     }
 
     public void send(final CommandActor actor, final TagResolver... replacers) {
@@ -35,7 +37,7 @@ public enum Message {
         if (actor.isPlayer()) {
             send(actor.requirePlayer(), replacers);
         } else {
-            actor.reply(Utilities.MM.deserialize(toString(), replacers));
+            AudienceResolver.resolve(actor).sendMessage(Utilities.MM.deserialize(toString(), replacers));
         }
     }
 

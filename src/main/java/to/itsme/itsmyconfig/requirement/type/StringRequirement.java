@@ -2,7 +2,6 @@ package to.itsme.itsmyconfig.requirement.type;
 
 import to.itsme.itsmyconfig.requirement.Requirement;
 import to.itsme.itsmyconfig.util.Strings;
-import to.itsme.itsmyconfig.util.Utilities;
 
 import java.util.Arrays;
 

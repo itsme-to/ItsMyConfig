@@ -1,9 +1,10 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
+import to.itsme.itsmyconfig.placeholder.PlaceholderDependancy;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 
 /**
@@ -49,7 +50,7 @@ public final class ProgressbarPlaceholder extends Placeholder {
             final String filePath,
             final ConfigurationSection section
     ) {
-        super(section, filePath, PlaceholderType.PROGRESS_BAR);
+        super(section, filePath, PlaceholderType.PROGRESS_BAR, PlaceholderDependancy.NONE);
         this.pattern = section.getString("value");
         this.completedColor =  section.getString("completed-color");
         this.progressColor = section.getString("progress-color");
@@ -108,8 +109,9 @@ public final class ProgressbarPlaceholder extends Placeholder {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public String getResult(
-            final Player player,
+            final OfflinePlayer player,
             final String[] args
     ) {
         if (args.length < 2) {

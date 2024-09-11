@@ -1,8 +1,9 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
+import to.itsme.itsmyconfig.placeholder.PlaceholderDependancy;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Scheduler;
 
@@ -26,7 +27,7 @@ public final class AnimatedPlaceholder extends Placeholder {
             final String filePath,
             final ConfigurationSection section
     ) {
-        super(section, filePath, PlaceholderType.ANIMATION);
+        super(section, filePath, PlaceholderType.ANIMATION, PlaceholderDependancy.NONE);
         final List<String> messages = section.getStringList("values");
         this.queue = new ArrayBlockingQueue<>(messages.size());
 
@@ -61,7 +62,7 @@ public final class AnimatedPlaceholder extends Placeholder {
      * @return The result of the placeholder evaluation as a string.
      */
     @Override
-    public String getResult(final Player player, final String[] args) {
+    public String getResult(final OfflinePlayer player, final String[] args) {
         final String entry = queue.peek();
 
         if (entry == null) {
@@ -70,4 +71,5 @@ public final class AnimatedPlaceholder extends Placeholder {
 
         return this.replaceArguments(args, entry);
     }
+
 }

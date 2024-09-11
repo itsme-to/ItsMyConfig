@@ -3,7 +3,7 @@ package to.itsme.itsmyconfig.placeholder;
 import java.util.Locale;
 
 /**
- * Represents the type of a placeholder.
+ * Represents the types of a placeholder.
  */
 public enum PlaceholderType {
 
@@ -39,21 +39,10 @@ public enum PlaceholderType {
      */
     public static PlaceholderType find(final String type) {
         try {
-            return convertToPlaceholderType(type);
+            return PlaceholderType.valueOf(type.toUpperCase(Locale.ENGLISH));
         } catch (final Exception exception) {
             return STRING;
         }
-    }
-
-    /**
-     * Converts a given string to a PlaceholderType enumeration value.
-     *
-     * @param type the string representing the placeholder type
-     * @return the PlaceholderType enumeration value corresponding to the given type string
-     * @throws IllegalArgumentException if the given type is not a valid PlaceholderType value
-     */
-    private static PlaceholderType convertToPlaceholderType(final String type) {
-        return PlaceholderType.valueOf(type.toUpperCase(Locale.ENGLISH));
     }
 
 }

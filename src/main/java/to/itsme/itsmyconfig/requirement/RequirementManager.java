@@ -1,14 +1,14 @@
 package to.itsme.itsmyconfig.requirement;
 
 import me.clip.placeholderapi.PlaceholderAPI;
-import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.Nullable;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.requirement.type.NumberRequirement;
 import to.itsme.itsmyconfig.requirement.type.RegexRequirement;
 import to.itsme.itsmyconfig.requirement.type.StringRequirement;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 
 /**
  * This class is responsible for managing requirements and validating them.
@@ -17,7 +17,7 @@ public final class RequirementManager {
     /**
      * The RequirementManager class is responsible for managing requirements and validating them.
      */
-    private final List<Requirement<?>> requirements = Arrays.asList(
+    private final Set<Requirement<?>> requirements = Set.of(
             new NumberRequirement(),
             new RegexRequirement(),
             new StringRequirement()
@@ -48,7 +48,7 @@ public final class RequirementManager {
      */
     public String getDenyMessage(
             final Placeholder placeholder,
-            final Player player,
+            final @Nullable OfflinePlayer player,
             final String[] params
     ) {
         for (final RequirementData requirement : placeholder.getRequirements()) {
@@ -72,41 +72,46 @@ public final class RequirementManager {
     private String processRequirementData(
             final RequirementData requirementData,
             final Placeholder data,
-            final Player player,
+            final @Nullable OfflinePlayer player,
             final String[] params
     ) {
-        final Requirement<?> requirement = this.getRequirementByType(requirementData.getIdentifier());
+        final Requirement<?> requirement = this.getRequirementByType(requirementData.identifier());
 
         if (requirement == null) {
             return null;
         }
 
-        final String input = getParameters(player, data, requirementData.getInput(), params);
-        final String output = getParameters(player, data, requirementData.getOutput(), params);
+        final String input = getParameters(player, data, requirementData.input(), params);
+        final String output = getParameters(player, data, requirementData.output(), params);
 
-        if (requirement.validate(requirementData.getIdentifier(), input, output)) {
+        if (requirement.validate(requirementData.identifier(), input, output)) {
             return null;
         }
 
-        return requirementData.getDeny();
+        return requirementData.deny();
     }
 
     /**
      * Retrieves the parameters for a placeholder evaluation by replacing arguments in a given message string.
      *
-     * @param player     The Player object.
+     * @param player     The OfflinePlayer object.
      * @param data       The PlaceholderData object.
      * @param parameter  The parameter to be replaced.
      * @param params     The array of parameters to use for replacement.
      * @return The message string with replaced arguments.
      */
     private String getParameters(
-            final Player player,
+            final @Nullable OfflinePlayer player,
             final Placeholder data,
             final String parameter,
             final String[] params
     ) {
-        return PlaceholderAPI.setPlaceholders(player, data.replaceArguments(params, parameter));
+        final String replacedArgs = data.replaceArguments(params, parameter);
+        if (player == null) {
+            return replacedArgs;
+        }
+
+        return PlaceholderAPI.setPlaceholders(player, replacedArgs);
     }
 
 }

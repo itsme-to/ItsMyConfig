@@ -8,15 +8,15 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.intellij.lang.annotations.Subst;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.font.Font;
-import to.itsme.itsmyconfig.font.FontImpl;
 import to.itsme.itsmyconfig.font.FontTag;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholder;
@@ -36,13 +36,14 @@ public final class Utilities {
     private static final ItsMyConfig plugin = ItsMyConfig.getInstance();
 
     public static final MiniMessage MM, EMPTY_MM;
+    public static final GsonComponentSerializer GSON_SERIALIZER = GsonComponentSerializer.gson();
 
     private static final TagResolver FONT_RESOLVER;
     private static final Field TEXT_COMPONENT_CONTENT;
 
     static {
         final TagResolver.Builder builder = TagResolver.builder();
-        for (final @Subst("") Font font : FontImpl.values()) {
+        for (final @Subst("") Font font : Font.values()) {
             builder.tag(font.getName(), new FontTag(font));
         }
         FONT_RESOLVER = builder.build();
@@ -117,6 +118,33 @@ public final class Utilities {
     }
 
     /**
+     * Translates a String into a component
+     *
+     * @param text The text to translate.
+     * @param player The player translated-for.
+     * @return The translated component.
+     */
+    public static Component translate(
+            final String text,
+            final OfflinePlayer player,
+            final TagResolver... placeholders
+    ) {
+        if (player.isOnline()) {
+            return translate(text, player.getPlayer(), placeholders);
+        }
+
+        final Component translated = EMPTY_MM.deserialize(
+                Strings.quote(text),
+                itsMyConfigTag(player), papiTag(player),
+                FONT_RESOLVER, StandardTags.defaults(),
+                TagResolver.resolver(placeholders)
+        );
+
+        applyChatColors(translated);
+        return translated;
+    }
+
+    /**
      * Serialized then deserialized components with a click event have their value starting with "&f"
      * <br>
      * This fixes it.
@@ -124,9 +152,8 @@ public final class Utilities {
      * @return  the fixed component
      * @deprecated I have NOT seen that happen so far. Hopefully it never does and is already fixed?
      */
-    @Deprecated
     @SuppressWarnings("unused")
-    @ApiStatus.ScheduledForRemoval
+    @Deprecated(forRemoval = true)
     private static Component fixClickEvent(final Component component) {
         final ClickEvent event = component.clickEvent();
         Component copied = component;
@@ -146,7 +173,7 @@ public final class Utilities {
      * @param player The player for whom the resolver is being created.
      * @return The ItsMyConfig placeholder tag resolver.
      */
-    public static TagResolver itsMyConfigTag(final Player player) {
+    public static TagResolver itsMyConfigTag(final OfflinePlayer player) {
         return TagResolver.resolver("p", (argumentQueue, context) -> {
             if (!argumentQueue.hasNext()) {
                 return Tag.preProcessParsed("Unknown Placeholder");
@@ -158,8 +185,8 @@ public final class Utilities {
                 return Tag.preProcessParsed("Unknown Placeholder");
             }
 
-            if (data instanceof ColorPlaceholder) {
-                return ((ColorPlaceholder) data).getStyle();
+            if (data instanceof ColorPlaceholder colorPlaceholder) {
+                return colorPlaceholder.getStyle();
             }
 
             final List<String> args = new LinkedList<>();
@@ -178,7 +205,7 @@ public final class Utilities {
      * @param player The player for whom the resolver is being created.
      * @return The PlaceholderAPI tag resolver.
      */
-    public static TagResolver papiTag(final Player player) {
+    public static TagResolver papiTag(final OfflinePlayer player) {
         return TagResolver.resolver("papi", (argumentQueue, context) -> {
             final String papiPlaceholder = argumentQueue.popOr("papi tag requires an argument").value();
             final String parsedPlaceholder = PlaceholderAPI.setPlaceholders(player, '%' + papiPlaceholder + '%');
@@ -191,9 +218,10 @@ public final class Utilities {
      *
      * @param rootComponent The root component to apply chat colors to.
      */
+    @SuppressWarnings("all")
+    @Deprecated(forRemoval = true)
     public static void applyChatColors(final Component rootComponent) {
-        if (rootComponent instanceof TextComponent) {
-            final TextComponent textComponent = (TextComponent) rootComponent;
+        if (rootComponent instanceof TextComponent textComponent) {
             final String translateAlternateColorCodes = ChatColor.translateAlternateColorCodes('&', textComponent.content());
             modifyTextComponent(textComponent, translateAlternateColorCodes);
             for (final Component component : rootComponent.children()) {

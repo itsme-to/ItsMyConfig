@@ -1,14 +1,15 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
+import to.itsme.itsmyconfig.placeholder.PlaceholderDependancy;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Strings;
 
 import java.util.List;
 
-public class ListPlaceholder extends Placeholder {
+public final class ListPlaceholder extends Placeholder {
 
     private final List<String> list;
 
@@ -16,13 +17,14 @@ public class ListPlaceholder extends Placeholder {
             final String filePath,
             final ConfigurationSection section
     ) {
-        super(section, filePath, PlaceholderType.LIST);
+        super(section, filePath, PlaceholderType.LIST, PlaceholderDependancy.NONE);
         this.list = section.getStringList("values");
     }
 
     @Override
     public String getResult(
-            final Player player, final String[] args
+            final OfflinePlayer player,
+            final String[] args
     ) {
         if (args.length == 0) {
             return "";

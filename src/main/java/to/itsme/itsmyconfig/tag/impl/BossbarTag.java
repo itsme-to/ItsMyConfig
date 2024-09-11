@@ -5,6 +5,7 @@ import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import to.itsme.itsmyconfig.message.AudienceResolver;
 import to.itsme.itsmyconfig.tag.api.ArgumentsTag;
 import to.itsme.itsmyconfig.tag.api.Cancellable;
 import to.itsme.itsmyconfig.util.Scheduler;
@@ -94,14 +95,14 @@ public class BossbarTag extends ArgumentsTag implements Cancellable {
 
 
         barMap.computeIfAbsent(player.getUniqueId(), id -> new CopyOnWriteArrayList<>()).add(bar);
-        plugin.adventure().player(player).showBossBar(bar);
+        AudienceResolver.resolve(player).showBossBar(bar);
 
         final AtomicInteger atomicTicks = new AtomicInteger();
         Scheduler.runTimerAsync((task) -> {
             final List<BossBar> barList = barMap.get(player.getUniqueId());
             if (barList == null || !barList.contains(bar)) {
                 task.cancel();
-                plugin.adventure().player(player).hideBossBar(bar);
+                AudienceResolver.resolve(player).hideBossBar(bar);
                 return;
             }
 
@@ -115,7 +116,7 @@ public class BossbarTag extends ArgumentsTag implements Cancellable {
             }
 
             if (leftTicks <= 0) {
-                plugin.adventure().player(player).hideBossBar(bar);
+                AudienceResolver.resolve(player).hideBossBar(bar);
                 barList.remove(bar);
                 task.cancel();
             }
@@ -142,7 +143,7 @@ public class BossbarTag extends ArgumentsTag implements Cancellable {
         }
 
         if (!bars.isEmpty()) {
-            final Audience audience = plugin.adventure().player(player);
+            final Audience audience = AudienceResolver.resolve(player);
             for (final BossBar bar : bars) {
                 audience.hideBossBar(bar);
             }

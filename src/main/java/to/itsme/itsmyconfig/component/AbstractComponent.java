@@ -2,9 +2,6 @@ package to.itsme.itsmyconfig.component;
 
 import com.google.gson.*;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.KeybindComponent;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.TranslatableComponent;
 import org.jetbrains.annotations.NotNull;
 import to.itsme.itsmyconfig.component.event.ClickEvent;
 import to.itsme.itsmyconfig.component.event.HoverEvent;
@@ -27,8 +24,6 @@ public abstract class AbstractComponent {
             .registerTypeAdapter(TranslatingComponent.class, new TranslatingComponent.Adapter())
             .create();
 
-    private static final JsonParser PARSER = new JsonParser();
-
     /**
      * Translates {@link AbstractComponent} to a JSON String
      *
@@ -48,9 +43,9 @@ public abstract class AbstractComponent {
      */
     public static AbstractComponent parse(@NotNull final String json) {
         try {
-            return parse(PARSER.parse(json));
-        } catch (final Throwable ignored) {
-            Utilities.debug(() -> "Couldn't parse json: " + json + " so returning PsedoComponent", ignored);
+            return parse(JsonParser.parseString(json));
+        } catch (final Throwable throwable) {
+            Utilities.debug(() -> "Couldn't parse json: " + json + " so returning PsedoComponent", throwable);
             return new PseudoComponent(json);
         }
     }
@@ -62,6 +57,7 @@ public abstract class AbstractComponent {
      * @return an instance of {@link AbstractComponent}.
      */
     public static AbstractComponent parse(@NotNull final Component component) {
+        /* Disable manual formatting temporarily
         if (component instanceof TextComponent) {
             return new TextfulComponent((TextComponent) component);
         } else if (component instanceof KeybindComponent) {
@@ -69,7 +65,8 @@ public abstract class AbstractComponent {
         } else if (component instanceof TranslatableComponent) {
             return new TranslatingComponent((TranslatableComponent) component);
         }
-        return new PseudoComponent(component);
+        */
+        return parse(Utilities.GSON_SERIALIZER.serialize(component));
     }
 
     /**

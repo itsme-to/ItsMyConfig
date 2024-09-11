@@ -14,16 +14,16 @@ import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.component.AbstractComponent;
 import to.itsme.itsmyconfig.listener.PacketListener;
+import to.itsme.itsmyconfig.util.Strings;
 import to.itsme.itsmyconfig.util.Utilities;
+import to.itsme.itsmyconfig.util.Versions;
 
-import java.lang.reflect.Method;
-
+@SuppressWarnings("deprecation")
 public final class PacketChatListener extends PacketListener {
 
     private static final String DEBUG_HYPHEN = "###############################################";
 
     private final boolean internalAdventure;
-    private final Method fromComponent;
     private final BungeeComponentSerializer bungee = BungeeComponentSerializer.get();
 
     public PacketChatListener(
@@ -36,18 +36,7 @@ public final class PacketChatListener extends PacketListener {
                 PacketType.Play.Server.KICK_DISCONNECT
         );
 
-        Method fromComponent;
-        try {
-            fromComponent = AdventureComponentConverter.class.getDeclaredMethod(
-                    "fromComponent",
-                    AdventureComponentConverter.getComponentClass()
-            );
-        } catch (final Throwable ignored) {
-            fromComponent = null;
-        }
-
-        this.fromComponent = fromComponent;
-        this.internalAdventure = this.fromComponent != null;
+        this.internalAdventure = Versions.IS_PAPER;
     }
 
     @Override
@@ -62,13 +51,13 @@ public final class PacketChatListener extends PacketListener {
 
         final String message = response.message;
         Utilities.debug(() -> "Checking: " + message);
-        if (!this.startsWithSymbol(message)) {
+        if (!Strings.startsWithSymbol(message)) {
             Utilities.debug(() -> "Message doesn't start w/ the symbol-prefix: " + message + "\n" + DEBUG_HYPHEN);
             return;
         }
 
         final Player player = event.getPlayer();
-        final Component parsed = Utilities.translate(this.processMessage(message), player);
+        final Component parsed = Utilities.translate(Strings.processMessage(message), player);
         if (parsed.equals(Component.empty())) {
             event.setCancelled(true);
             Utilities.debug(() -> "Component is empty, cancelling...\n" + DEBUG_HYPHEN);
@@ -78,11 +67,11 @@ public final class PacketChatListener extends PacketListener {
         Utilities.debug(() -> "Overriding Message as " + response.type.name());
         switch (response.type) {
             case JSON:
-                container.getStrings().write(0, gsonComponentSerializer.serialize(parsed));
+                container.getStrings().write(0, Utilities.GSON_SERIALIZER.serialize(parsed));
                 break;
             case WRAPPED_COMPONENT:
                 container.getChatComponents().write(0, WrappedChatComponent.fromJson(
-                        gsonComponentSerializer.serialize(parsed)
+                        Utilities.GSON_SERIALIZER.serialize(parsed)
                 ));
                 break;
             case BUNGEE_COMPONENT:
@@ -92,7 +81,7 @@ public final class PacketChatListener extends PacketListener {
                 break;
             case SERVER_ADVENTURE:
                 final StructureModifier<Object> modifier = container.getModifier().withType(AdventureComponentConverter.getComponentClass());
-                final String json = gsonComponentSerializer.serialize(parsed);
+                final String json = Utilities.GSON_SERIALIZER.serialize(parsed);
                 modifier.write(0, AdventureComponentConverter.fromJsonAsObject(json));
                 break;
         }
@@ -101,6 +90,18 @@ public final class PacketChatListener extends PacketListener {
     }
 
     private PacketResponse processPacket(final PacketContainer container) {
+        if (internalAdventure) {
+            final StructureModifier<Component> modifier = container.getModifier().withType(Component.class);
+            if (modifier.size() == 1) {
+                Utilities.debug(() -> "Trying SERVER_ADVENTRURE..");
+                final Component component = modifier.readSafely(0);
+                if (component != null) {
+                    Utilities.debug(() -> "Found an adventure component!");
+                    return new PacketResponse(ResponseType.SERVER_ADVENTURE, AbstractComponent.parse(component).toMiniMessage());
+                }
+            }
+        }
+
         final WrappedChatComponent wrappedComponent = container.getChatComponents().readSafely(0);
         if (wrappedComponent != null) {
             Utilities.debug(() -> "Trying ProtocolLib's ChatComponent..");
@@ -113,19 +114,6 @@ public final class PacketChatListener extends PacketListener {
                     Utilities.debug(() -> "An error happened while de/serializing " + found + ": ", e);
                 }
             }
-        }
-
-        if (internalAdventure) {
-            try {
-                final StructureModifier<?> modifier = container.getModifier().withType(AdventureComponentConverter.getComponentClass());
-                if (modifier.size() == 1) {
-                    Utilities.debug(() -> "Trying SERVER_ADVENTRURE..");
-                    final WrappedChatComponent wrappedAComponent = (WrappedChatComponent) fromComponent.invoke(null, modifier.readSafely(0));
-                    final String json = wrappedAComponent.getJson();
-                    Utilities.debug(() -> "Found JSON: " + json);
-                    return new PacketResponse(ResponseType.SERVER_ADVENTURE, AbstractComponent.parse(json).toMiniMessage());
-                }
-            } catch (Throwable ignored) {}
         }
 
         final StructureModifier<TextComponent> textComponentModifier = container.getModifier().withType(TextComponent.class);
@@ -147,20 +135,7 @@ public final class PacketChatListener extends PacketListener {
         return AbstractComponent.parse(bungee.deserialize(components)).toMiniMessage();
     }
 
-    private static final class PacketResponse {
-
-        private final ResponseType type;
-        private final String message;
-
-        private PacketResponse(
-                final ResponseType type,
-                final String message
-        ) {
-            this.type = type;
-            this.message = message;
-        }
-
-    }
+    private record PacketResponse(ResponseType type, String message) {}
 
     private enum ResponseType {
         JSON, WRAPPED_COMPONENT, BUNGEE_COMPONENT, SERVER_ADVENTURE

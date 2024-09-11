@@ -10,7 +10,6 @@ import to.itsme.itsmyconfig.tag.impl.title.SubtitleTag;
 import to.itsme.itsmyconfig.tag.impl.title.TitleTag;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,11 +20,11 @@ public final class TagManager {
     private static final Pattern ARG_PATTERN = Pattern.compile(":\"([^\"]*)\"|:'([^']*)'|:([^:\"]*)");
 
     private static int INITIAL_CAPACITY;
-    private static final Map<String, Tag> tags = new ConcurrentHashMap<>();
+    private static final Map<String, Tag> tags = new LinkedHashMap<>();
 
     static {
         final AtomicInteger defaultCapacity = new AtomicInteger();
-        Arrays.asList(
+        List.of(
                 new RepeatTag(), new DelayTag(),
                 new BossbarTag(), new ActiobarTag(),
                 new TitleTag(), new SubtitleTag(), new SoundTag()
@@ -64,7 +63,7 @@ public final class TagManager {
 
             final String tagName = matcher.group(1);
             final Tag tag = tags.get(tagName);
-            if (!(tag instanceof ArgumentsTag)) {
+            if (!(tag instanceof ArgumentsTag argumentsTag)) {
                 continue;
             }
 
@@ -72,14 +71,13 @@ public final class TagManager {
             final ArrayList<String> args = getArguments(arguments);
 
             if (args.size() == 1 && args.get(0).equals("cancel")) {
-                if (tag instanceof Cancellable) {
-                    ((Cancellable) tag).cancelFor(player);
+                if (tag instanceof Cancellable cancellable) {
+                    cancellable.cancelFor(player);
                     return "";
                 }
             }
 
             final String replaced;
-            final ArgumentsTag argumentsTag = (ArgumentsTag) tag;
             if (args.size() < argumentsTag.minArguments()) {
                 replaced = "[Not enough argument for Tag: " + tagName + "]";
             } else if (args.size() > argumentsTag.maxArguments()) {

@@ -16,16 +16,10 @@ public class MappedFont extends FontImpl {
             "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘꞯʀsᴛᴜᴠᴡxʏᴢᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘꞯʀsᴛᴜᴠᴡxʏᴢ"
     );
 
-    public static final MappedFont UPSIDE_DOWN = new MappedFont(
-            "upsidedown",
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-            "∀qƆpƎℲפHIſʞ˥WNOԀQɹS┴∩ΛMX⅄Zɐqɔpǝɟƃɥᴉɾʞlɯuodbɹsʇnʌʍxʎz"
-    );
-
     private final Map<Character, Character> characterMap;
 
     MappedFont(
-            @TagPattern final String name,
+            final @TagPattern String name,
             final String original,
             final String replacements
     ) {

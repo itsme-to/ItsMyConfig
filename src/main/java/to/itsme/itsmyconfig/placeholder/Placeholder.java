@@ -2,21 +2,22 @@ package to.itsme.itsmyconfig.placeholder;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 import to.itsme.itsmyconfig.ItsMyConfig;
-import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholder;
 import to.itsme.itsmyconfig.requirement.RequirementData;
 import to.itsme.itsmyconfig.util.Strings;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
  * The PlaceholderData class is an abstract class that represents the basic structure of a placeholder data object.
  * It provides methods for registering requirements, obtaining the placeholder type, and generating the placeholder result.
  */
+@SuppressWarnings("deprecation")
 public abstract class Placeholder {
 
     /**
@@ -42,13 +43,17 @@ public abstract class Placeholder {
      */
     private final PlaceholderType type;
     /**
-     * Represents a list of all argument numbers.
+     * Represents a set of all argument numbers.
      */
-    protected final List<Integer> arguments = new ArrayList<>();
+    protected final Set<Integer> arguments = new HashSet<>();
     /**
-     * Represents a list of requirement data.
+     * Represents a set of requirement data.
      */
-    private final List<RequirementData> requirements = new ArrayList<>();
+    private final Set<RequirementData> requirements = new HashSet<>();
+    /**
+     * Represents a list of dependancy arguments.
+     */
+    private final Set<PlaceholderDependancy> dependancies;
 
     /**
      * Represents a placeholder data object.
@@ -56,11 +61,13 @@ public abstract class Placeholder {
     public Placeholder(
             final ConfigurationSection section,
             final String filePath,
-            final PlaceholderType type
+            final PlaceholderType type,
+            final PlaceholderDependancy... dependancies
     ) {
         this.type = type;
         this.section = section;
         this.filePath = filePath;
+        this.dependancies = Set.of(dependancies);
     }
 
     /**
@@ -98,18 +105,44 @@ public abstract class Placeholder {
     /**
      * Converts the given Player and arguments to a formatted string.
      *
+     * @param args   The array of strings.
+     * @return The formatted string.
+     */
+    @SuppressWarnings("unused")
+    public String asString(final String[] args) {
+        if (this.hasDependency(PlaceholderDependancy.NONE)) {
+            throw new RuntimeException("This method requires a player / offline player to be used.");
+        }
+
+        final String deny = getColorTranslatedMessage(null, args);
+        if (deny != null) {
+            return deny;
+        }
+
+        return this.getResult(null, args);
+    }
+
+    /**
+     * Converts the given Player and arguments to a formatted string.
+     *
      * @param player The Player object.
      * @param args   The array of strings.
      * @return The formatted string.
      */
-    public String asString(final Player player, final String[] args) {
+    public String asString(final OfflinePlayer player, final String[] args) {
         final String deny = getColorTranslatedMessage(player, args);
         if (deny != null) {
             return deny;
         }
 
-        final String result = PlaceholderAPI.setPlaceholders(player, this.getResult(player, args));
-        return needColorTranslation() ? ChatColor.translateAlternateColorCodes('&', result) : result;
+        final String result;
+        if (player.isOnline()) {
+            result = PlaceholderAPI.setPlaceholders(player.getPlayer(), this.getResult(player.getPlayer(), args));
+        } else {
+            result = PlaceholderAPI.setPlaceholders(player, this.getResult(player, args));
+        }
+
+        return result;
     }
 
     /**
@@ -120,18 +153,9 @@ public abstract class Placeholder {
      * @param args   The arguments to use in the translation.
      * @return The translated message if a deny message is found, null otherwise.
      */
-    private String getColorTranslatedMessage(final Player player, final String[] args) {
+    private String getColorTranslatedMessage(final @Nullable OfflinePlayer player, final String[] args) {
         final String deny = this.plugin.getRequirementManager().getDenyMessage(this, player, args);
         return deny != null ? ChatColor.translateAlternateColorCodes('&', deny) : null;
-    }
-
-    /**
-     * Determines if a color translation is needed based on the type of placeholder data.
-     *
-     * @return true if color translation is needed, false otherwise
-     */
-    private boolean needColorTranslation() {
-        return !(this instanceof ColorPlaceholder);
     }
 
     /**
@@ -140,7 +164,30 @@ public abstract class Placeholder {
      * @param args The arguments used for the placeholder evaluation.
      * @return The result of the placeholder evaluation as a string.
      */
-    public abstract String getResult(final Player player, final String[] args);
+    @SuppressWarnings("unused")
+    public String getResult(final String[] args)  {
+        throw new RuntimeException("Placeholder " + this.type.name() + " does not accept empty requirements");
+    }
+
+    /**
+     * This method is used to retrieve the result of a placeholder evaluation.
+     *
+     * @param args The arguments used for the placeholder evaluation.
+     * @return The result of the placeholder evaluation as a string.
+     */
+    public String getResult(final Player player, final String[] args) {
+        return this.getResult((OfflinePlayer) player, args);
+    }
+
+    /**
+     * This method is used to retrieve the result of a placeholder evaluation.
+     *
+     * @param args The arguments used for the placeholder evaluation.
+     * @return The result of the placeholder evaluation as a string.
+     */
+    public String getResult(final OfflinePlayer player, final String[] args)  {
+        throw new RuntimeException("Placeholder " + this.type.name() + " does not accept OfflinePlayer");
+    }
 
     /**
      * Replaces arguments in a given message string.
@@ -185,7 +232,7 @@ public abstract class Placeholder {
      *
      * @return a list of RequirementData objects representing the requirements
      */
-    public List<RequirementData> getRequirements() {
+    public Collection<RequirementData> getRequirements() {
         return requirements;
     }
 
@@ -222,6 +269,10 @@ public abstract class Placeholder {
      */
     public PlaceholderType getType() {
         return this.type;
+    }
+
+    public boolean hasDependency(final PlaceholderDependancy dependancy) {
+        return this.dependancies.contains(dependancy);
     }
 
 }

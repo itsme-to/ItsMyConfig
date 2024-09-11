@@ -6,13 +6,7 @@ import net.kyori.adventure.text.minimessage.tag.TagPattern;
 import org.jetbrains.annotations.NotNull;
 import to.itsme.itsmyconfig.util.Strings;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 public abstract class FontImpl implements Font {
-
-    private static final Map<String, Font> FONTS = new HashMap<>();
 
     private final @TagPattern String name;
     private final TextReplacementConfig config = this.createConfig();
@@ -37,10 +31,6 @@ public abstract class FontImpl implements Font {
             return Component.text().content(text);
         });
         return config.build();
-    }
-
-    public static Collection<Font> values() {
-        return FONTS.values();
     }
 
 }

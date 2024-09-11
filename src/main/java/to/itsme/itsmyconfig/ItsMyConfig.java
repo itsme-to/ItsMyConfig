@@ -2,21 +2,25 @@ package to.itsme.itsmyconfig;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import to.itsme.itsmyconfig.command.CommandManager;
+import to.itsme.itsmyconfig.listener.PlayerListener;
 import to.itsme.itsmyconfig.listener.impl.PacketChatListener;
 import to.itsme.itsmyconfig.hook.PAPIHook;
+import to.itsme.itsmyconfig.message.AudienceResolver;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderManager;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.placeholder.type.*;
 import to.itsme.itsmyconfig.placeholder.type.ProgressbarPlaceholder;
 import to.itsme.itsmyconfig.requirement.RequirementManager;
+import to.itsme.itsmyconfig.util.LibraryLoader;
+import to.itsme.itsmyconfig.util.Strings;
+import to.itsme.itsmyconfig.util.Versions;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,8 +40,6 @@ public final class ItsMyConfig extends JavaPlugin {
     private String symbolPrefix;
     private boolean debug;
 
-    private BukkitAudiences adventure;
-
     /**
      * Gets the instance of ItsMyConfig.
      *
@@ -50,12 +52,18 @@ public final class ItsMyConfig extends JavaPlugin {
     @Override
     public void onEnable() {
         this.getLogger().info("Loading ItsMyConfig...");
+        if (Versions.isBelow(1, 16, 5)) {
+            this.getLogger().info("Unsupported version. Please consider updating to 1.16.5+");
+            this.getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
         final long start = System.currentTimeMillis();
         instance = this;
-        Arrays.asList("imc", "itsmyconfig").forEach(alias -> new PAPIHook(this, alias).register());
+        LibraryLoader.loadLibraries();
+        AudienceResolver.load(this);
+        List.of("imc", "itsmyconfig").forEach(alias -> new PAPIHook(this, alias).register());
         new CommandManager(this);
-
-        this.adventure = BukkitAudiences.create(this);
 
         this.loadConfig();
 
@@ -64,16 +72,18 @@ public final class ItsMyConfig extends JavaPlugin {
         final ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
         protocolManager.addPacketListener(new PacketChatListener(this));
 
+        if (Versions.IS_PAPER && Versions.isOrOver(1, 17, 2)) {
+            this.getLogger().info("Registering Kick Listener");
+            this.getServer().getPluginManager().registerEvents(new PlayerListener(),this);
+        }
+
         this.getLogger().info("ItsMyConfig loaded in " + (System.currentTimeMillis() - start) + "ms");
     }
 
     @Override
     public void onDisable() {
+        AudienceResolver.close();
         this.placeholderManager.unregisterAll();
-        if (this.adventure != null) {
-            this.adventure.close();
-            this.adventure = null;
-        }
     }
 
     /**
@@ -167,6 +177,8 @@ public final class ItsMyConfig extends JavaPlugin {
     private void reloadConfigParams() {
         this.debug = this.config.getBoolean("debug");
         this.symbolPrefix = this.config.getString("symbol-prefix");
+        Strings.setSymbolPrefix(this.symbolPrefix);
+        MathPlaceholder.UPDATE_FORMATTINGS();
     }
 
     /**
@@ -215,6 +227,7 @@ public final class ItsMyConfig extends JavaPlugin {
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     private void migrateConfig(final File directory) {
         File migratedConfig = new File(directory, "migrated-config.yml");
         if (migratedConfig.exists()) {
@@ -230,13 +243,13 @@ public final class ItsMyConfig extends JavaPlugin {
             final YamlConfiguration migratedConf = YamlConfiguration.loadConfiguration(migratedConfig);
             final ConfigurationSection newSection = migratedConf.createSection("custom-placeholder");
             if (this.config.isConfigurationSection("custom-placeholder")) {
-                for (final String name : this.config.getConfigurationSection("custom-placeholder").getKeys(false)) {
+                for (final String name : Objects.requireNonNull(this.config.getConfigurationSection("custom-placeholder")).getKeys(false)) {
                     newSection.set(name, this.config.get("custom-placeholder." + name));
                 }
             }
 
             if (this.config.isConfigurationSection("custom-progress")) {
-                for (final String name : this.config.getConfigurationSection("custom-progress").getKeys(false)) {
+                for (final String name : Objects.requireNonNull(this.config.getConfigurationSection("custom-progress")).getKeys(false)) {
                     final ConfigurationSection section = this.config.getConfigurationSection("custom-progress." + name);
                     section.set("value", section.getString("symbol"));
                     section.set("type", "progress_bar");
@@ -262,6 +275,7 @@ public final class ItsMyConfig extends JavaPlugin {
      * @param section                The YAML configuration section containing placeholder data.
      * @param paths                  A map of registered placeholders to avoid duplicates.
      */
+    @SuppressWarnings("ConstantConditions")
     private void loadPlaceholdersSection(
             final ConfigurationSection section,
             final File file,
@@ -315,24 +329,16 @@ public final class ItsMyConfig extends JavaPlugin {
      */
     private Placeholder getPlaceholder(String filePath, final ConfigurationSection section) {
         final PlaceholderType type = PlaceholderType.find(section.getString("type"));
-        switch (type) {
-            case MATH:
-                return new MathPlaceholder(filePath, section);
-            case RANDOM:
-                return new RandomPlaceholder(filePath, section);
-            case LIST:
-                return new ListPlaceholder(filePath, section);
-            case ANIMATION:
-                return new AnimatedPlaceholder(filePath, section);
-            case COLOR:
-                return new ColorPlaceholder(filePath, section);
-            case COLORED_TEXT:
-                return new ColoredTextPlaceholder(filePath, section);
-            case PROGRESS_BAR:
-                return new ProgressbarPlaceholder(filePath, section);
-            default:
-                return new StringPlaceholder(filePath, section);
-        }
+        return switch (type) {
+            case MATH -> new MathPlaceholder(filePath, section);
+            case RANDOM -> new RandomPlaceholder(filePath, section);
+            case LIST -> new ListPlaceholder(filePath, section);
+            case ANIMATION -> new AnimatedPlaceholder(filePath, section);
+            case COLOR -> new ColorPlaceholder(filePath, section);
+            case COLORED_TEXT -> new ColoredTextPlaceholder(filePath, section);
+            case PROGRESS_BAR -> new ProgressbarPlaceholder(filePath, section);
+            default -> new StringPlaceholder(filePath, section);
+        };
     }
 
     /**
@@ -355,19 +361,6 @@ public final class ItsMyConfig extends JavaPlugin {
             return shortenedPath.toString();
         }
         return path;
-    }
-
-    /**
-     * Retrieves the instance of the `BukkitAudiences` class used for sending chat messages and titles.
-     *
-     * @return The instance of the `BukkitAudiences` class.
-     * @throws IllegalStateException if the plugin is disabled and the `Adventure` instance is accessed.
-     */
-    public BukkitAudiences adventure() {
-        if (this.adventure == null) {
-            throw new IllegalStateException("Tried to access Adventure when the plugin was disabled!");
-        }
-        return this.adventure;
     }
 
     /**

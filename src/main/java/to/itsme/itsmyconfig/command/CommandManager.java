@@ -1,64 +1,78 @@
 package to.itsme.itsmyconfig.command;
 
-import revxrsal.commands.bukkit.BukkitCommandHandler;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import revxrsal.commands.Lamp;
+import revxrsal.commands.bukkit.BukkitLamp;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import to.itsme.itsmyconfig.ItsMyConfig;
+import to.itsme.itsmyconfig.command.annotation.ModifiablePlaceholder;
 import to.itsme.itsmyconfig.command.handler.ExceptionHandler;
 import to.itsme.itsmyconfig.command.handler.PlaceholderException;
+import to.itsme.itsmyconfig.command.handler.SelectorException;
 import to.itsme.itsmyconfig.command.impl.ItsMyConfigCommand;
+import to.itsme.itsmyconfig.command.util.PlayerSelector;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public final class CommandManager {
 
     private final ItsMyConfig plugin;
-    private final BukkitCommandHandler handler;
+    private final Lamp<BukkitCommandActor> handler;
 
     public CommandManager(final ItsMyConfig plugin) {
         this.plugin = plugin;
-        this.handler = BukkitCommandHandler.create(plugin);
+        this.handler = BukkitLamp.builder(plugin)
+                .parameterTypes(builder -> {
+                    builder.addParameterType(Placeholder.class, (input, context) -> {
+                        final String name = input.readString();
+                        final Placeholder placeholder = plugin.getPlaceholderManager().get(name);
+                        if (placeholder != null) {
+                            return placeholder;
+                        }
 
-        // set the help-writer format
-        this.handler.setHelpWriter((cmd, actor) ->
-                String.format(
-                        "  <gray>• <white>/%s <gold>%s",
-                        cmd.getPath().toRealString(),
-                        cmd.getUsage().isEmpty() ? "" : cmd.getUsage() + " "
-                )
-        );
+                        throw new PlaceholderException(name);
+                    });
+                    builder.addParameterType(PlayerSelector.class, (input, context) -> {
+                        final String name = input.readString();
+                        if (name.equals("*")) {
+                            return PlayerSelector.all();
+                        }
 
-        this.handler.registerValueResolver(
-                Placeholder.class, context -> {
-                    final String name = context.pop();
-                    final Placeholder placeholder = plugin.getPlaceholderManager().get(name);
-                    if (placeholder != null) {
-                        return placeholder;
-                    }
+                        final Player player = Bukkit.getPlayer(name);
+                        if (player != null) {
+                            return PlayerSelector.of(player);
+                        }
 
-                    throw new PlaceholderException(name);
-                }
-        );
+                        throw new SelectorException(name);
+                    });
+                })
+                .suggestionProviders(builder -> {
+                    builder.addProvider(Placeholder.class, (input, context) ->
+                            plugin.getPlaceholderManager().getPlaceholdersMap().keySet());
 
-        this.handler.getAutoCompleter().registerSuggestion(
-                "placeholders", (args, sender, command) -> plugin.getPlaceholderManager().getPlaceholdersMap().keySet()
-        );
+                    builder.addProviderForAnnotation(
+                            ModifiablePlaceholder.class,
+                            annotation -> (input, context) ->
+                                    plugin.getPlaceholderManager().getPlaceholdersMap().keySet().stream().filter(name -> {
+                                final Placeholder data = plugin.getPlaceholderManager().get(name);
+                                return data.getConfigurationSection().contains("value");
+                            }).collect(Collectors.toSet())
+                    );
 
-        this.handler.getAutoCompleter().registerParameterSuggestions(
-                Placeholder.class, "placeholders"
-        );
-
-        this.handler.getAutoCompleter().registerSuggestion("singleValuePlaceholder", (args, sender, command) ->
-                plugin.getPlaceholderManager().getPlaceholdersMap().keySet().stream().filter(name -> {
-                    final Placeholder data = plugin.getPlaceholderManager().get(name);
-                    return data.getConfigurationSection().contains("value");
-                }).collect(Collectors.toList())
-        );
-
-        this.handler.setExceptionHandler(new ExceptionHandler());
-        this.handler.getAutoCompleter();
+                    builder.addProvider(PlayerSelector.class, (input, context) -> {
+                        final List<String> names = new ArrayList<>();
+                        names.add("*");
+                        Bukkit.getOnlinePlayers().stream().map(Player::getName).forEach(names::add);
+                        return names;
+                    });
+                })
+                .exceptionHandler(new ExceptionHandler())
+                .build();
         this.registerCommands();
-        this.handler.registerBrigadier();
-        this.handler.enableAdventure();
     }
 
     public void registerCommands() {

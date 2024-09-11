@@ -46,12 +46,12 @@ public class HoverEvent {
         builder.append("<hover:").append(this.action).append(":\"");
         if (this.value instanceof String) {
             builder.append(this.value);
-        } else if (this.value instanceof AbstractComponent) {
-            builder.append(((AbstractComponent) this.value).toMiniMessage());
-        } else if (this.value instanceof ShowItem) {
-            builder.append(((ShowItem) this.value).toMMArg());
-        } else if (this.value instanceof ShowEntity) {
-            builder.append(((ShowEntity) this.value).toMMArg());
+        } else if (this.value instanceof AbstractComponent component) {
+            builder.append(component.toMiniMessage());
+        } else if (this.value instanceof ShowItem item) {
+            builder.append(item.toMMArg());
+        } else if (this.value instanceof ShowEntity entity) {
+            builder.append(entity.toMMArg());
         }
         return builder.append("\">").toString();
     }
@@ -129,15 +129,6 @@ public class HoverEvent {
             if (jsonObject.has("value")) {
                 final JsonElement element = jsonObject.get("value");
                 switch (event.action) {
-                    default:
-                        if (element.isJsonPrimitive()) {
-                            event.value = new TextfulComponent(element.getAsString());
-                        } else if (element.isJsonArray()) {
-                            event.value = AbstractComponent.parse(element.getAsJsonArray());
-                        } else if (element.isJsonObject()) {
-                            event.value = context.deserialize(element, TextfulComponent.class);
-                        }
-                        break;
                     case "show_achievement":
                         event.value = element.getAsString();
                         break;
@@ -146,6 +137,15 @@ public class HoverEvent {
                         break;
                     case "show_entity":
                         event.value = context.deserialize(element, HoverEvent.ShowEntity.class);
+                        break;
+                    default:
+                        if (element.isJsonPrimitive()) {
+                            event.value = new TextfulComponent(element.getAsString());
+                        } else if (element.isJsonArray()) {
+                            event.value = AbstractComponent.parse(element.getAsJsonArray());
+                        } else if (element.isJsonObject()) {
+                            event.value = context.deserialize(element, TextfulComponent.class);
+                        }
                         break;
                 }
             } else if (jsonObject.has("contents")) {

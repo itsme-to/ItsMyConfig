@@ -26,3 +26,10 @@ messages:
     - "<red><bold>ERROR</bold></red> <white>┃ You don't have permission"
   message-sent:
     - "<green><bold>SUCCES</bold></green> <white>┃ Message Sent !"
+
+formatting:
+  thousands: k
+  millions: M
+  billions: B
+  trillions: T
+  quadrillions: Q

@@ -4,6 +4,7 @@ import com.tcoded.folialib.wrapper.task.WrappedTask;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import to.itsme.itsmyconfig.message.AudienceResolver;
 import to.itsme.itsmyconfig.tag.api.ArgumentsTag;
 import to.itsme.itsmyconfig.tag.api.Cancellable;
 import to.itsme.itsmyconfig.util.Scheduler;
@@ -86,7 +87,7 @@ public class RepeatTag extends ArgumentsTag implements Cancellable {
             );
 
             if (!Component.empty().equals(translated)) {
-                plugin.adventure().player(player).sendMessage(translated);
+                AudienceResolver.resolve(player).sendMessage(translated);
             }
 
         }, 0L, delayInTicks);

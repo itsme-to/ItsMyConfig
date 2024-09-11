@@ -11,22 +11,21 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import revxrsal.commands.annotation.*;
-import revxrsal.commands.bukkit.BukkitCommandActor;
-import revxrsal.commands.bukkit.EntitySelector;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.annotation.CommandPermission;
-import revxrsal.commands.help.CommandHelp;
 import to.itsme.itsmyconfig.ItsMyConfig;
+import to.itsme.itsmyconfig.command.annotation.ModifiablePlaceholder;
+import to.itsme.itsmyconfig.command.util.PlayerSelector;
+import to.itsme.itsmyconfig.message.AudienceResolver;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
-import to.itsme.itsmyconfig.util.Message;
-import to.itsme.itsmyconfig.util.Strings;
+import to.itsme.itsmyconfig.message.Message;
 import to.itsme.itsmyconfig.util.Utilities;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
 
 @Command("itsmyconfig")
+@SuppressWarnings("deprecation")
 public final class ItsMyConfigCommand {
 
     private final ItsMyConfig plugin;
@@ -35,65 +34,64 @@ public final class ItsMyConfigCommand {
         this.plugin = plugin;
     }
 
-    @DefaultFor("~")
+    //@DefaultFor("~")
+    @Command("itsmyconfig")
     public void usage(
-            final BukkitCommandActor actor,
-            final CommandHelp<String> help
+            final BukkitCommandActor actor
     ) {
-        final StringBuilder builder = new StringBuilder();
-        builder.append('\n')
-                .append("<gold><plugin></gold> | Config has never been easier");
+        final String message = """
+                  <gold><plugin></gold> | Config has never been easier
+                
+                    <gray>• <white>/itsmyconfig reload
+                    <gray>• <white>/itsmyconfig parse <gold><target> <message>
+                    <gray>• <white>/itsmyconfig message <gold><target> <message>
+                    <gray>• <white>/itsmyconfig config <gold><placeholder> <value>
+                
+                  <gray>• <white>Project: <aqua>ItsMe.to
+                  <gray>• <white>Support: <click:open_url:'https://discord.gg/itsme-to'><green>discord.gg/itsme-to</click>
+                  <gray>• <white>Developer: <yellow><author> <gray>(%s)
+                
+                """.formatted(plugin.getDescription().getVersion());
 
-        Collections.reverse(help);
-        for (final String line : help) {
-            builder.append('\n').append(line);
-        }
-
-        builder.append("\n\n  <gray>• <white>Project: <aqua>ItsMe.to");
-        builder.append("\n  <gray>• <white>Support: <click:open_url:'https://discord.gg/itsme-to'><green>discord.gg/itsme-to</click>");
-        builder.append("\n  <gray>• <white>Developer: <yellow><author> <gray>(").append(plugin.getDescription().getVersion()).append(")");
-        builder.append("\n");
-        actor.reply(Utilities.MM.deserialize(builder.toString(), pluginInfo(), authorInfo()));
+        AudienceResolver.send(actor, Utilities.MM.deserialize(message, pluginInfo(), authorInfo()));
     }
 
     private TagResolver pluginInfo() {
         final PluginDescriptionFile description = plugin.getDescription();
-        return TagResolver.resolver("plugin", (argumentQueue, context) -> Tag.selfClosingInserting(
-                Component.text().content(description.getName())
-                        .decorate(TextDecoration.BOLD)
-                        .hoverEvent(
-                                Utilities.MM.deserialize(
-                                        Strings.toString(
-                                                Arrays.asList(
-                                                        " ",
-                                                        "<white>Name: <gold>" + description.getName(),
-                                                        "<white>Version: <gold>" + description.getVersion(),
-                                                        "<white>Support Server: <gold>https://discord.gg/itsme-to",
-                                                        " "
-                                                )
-                                        )
-                                )
-                        )
-                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, description.getWebsite()))
-        ));
+
+        // Create a text block for the hover message
+        final String hoverMessage = """
+            <white>Name: <gold>%s
+            <white>Version: <gold>%s
+            <white>Support Server: <gold>https://discord.gg/itsme-to
+            """.formatted(description.getName(), description.getVersion());
+
+        // Return the TagResolver with the plugin information
+        return TagResolver.resolver("plugin", (argumentQueue, context) -> {
+            assert description.getWebsite() != null;
+            return Tag.selfClosingInserting(
+                    Component.text()
+                            .content(description.getName())
+                            .decorate(TextDecoration.BOLD)
+                            .hoverEvent(Utilities.MM.deserialize(hoverMessage))
+                            .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, description.getWebsite()))
+            );
+        });
     }
 
     private TagResolver authorInfo() {
+        // Create a text block for the hover message
+        final String hoverMessage = """
+            <white>Discord: <aqua>@iiAhmedYT</aqua>
+            <white>Github: <aqua>https://github.com/iiAhmedYT</aqua>
+            """;
+
+        // Return the TagResolver with the author information
         return TagResolver.resolver("author", (argumentQueue, context) -> Tag.selfClosingInserting(
-                Component.text().content("iiAhmedYT")
+                Component.text()
+                        .content("iiAhmedYT")
                         .decorate(TextDecoration.UNDERLINED)
-                        .hoverEvent(
-                                Utilities.MM.deserialize(
-                                        Strings.toString(
-                                                Arrays.asList(
-                                                        " ",
-                                                        "<white>Discord: <aqua>@iiAhmedYT</aqua>",
-                                                        "<white>Github: <aqua>https://github.com/iiAhmedYT</aqua>",
-                                                        " "
-                                                )
-                                        )
-                                )
-                        )
+                        .hoverEvent(Utilities.MM.deserialize(hoverMessage))
                         .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, "https://github.com/iiAhmedYT"))
         ));
     }
@@ -111,7 +109,7 @@ public final class ItsMyConfigCommand {
     @Description("Sends messages to players")
     public void message(
             final BukkitCommandActor actor,
-            final @Named("target") EntitySelector<Player> players,
+            final @Named("target") PlayerSelector players,
             final @Named("message") String message
     ) {
         for (final Player player : players) {
@@ -131,13 +129,13 @@ public final class ItsMyConfigCommand {
     @Description("Parses messages to players")
     public void parse(
             final BukkitCommandActor actor,
-            final @Named("target") EntitySelector<Player> players,
+            final @Named("target") PlayerSelector players,
             final @Named("message") String message
     ) {
         for (final Player player : players) {
             final Component component = Utilities.translate(message, player);
             if (!Component.empty().equals(component)) {
-                plugin.adventure().player(player).sendMessage(component);
+                AudienceResolver.resolve(player).sendMessage(component);
             }
         }
 
@@ -147,25 +145,23 @@ public final class ItsMyConfigCommand {
     }
 
     @Subcommand("config")
-    @AutoComplete("@singleValuePlaceholder *")
     @CommandPermission("itsmyconfig.config")
     @Description("Sets config values for placeholder")
     public void config(
             final BukkitCommandActor actor,
-            final Placeholder placeholder,
+            @ModifiablePlaceholder final Placeholder placeholder,
             @Named("value") final String value
     ) {
         final ConfigurationSection section = placeholder.getConfigurationSection();
         final PlaceholderType type = PlaceholderType.find(section.getString("type"));
         if (type == PlaceholderType.ANIMATION || type == PlaceholderType.RANDOM) {
-            actor.reply(Utilities.MM.deserialize("<red>Placeholder <yellow>" + placeholder + "</yellow>'s type is not supported via commands.</red>"));
+            AudienceResolver.send(actor, Utilities.MM.deserialize("<red>Placeholder <yellow>" + placeholder + "</yellow>'s type is not supported via commands.</red>"));
             return;
         }
 
         section.set("value", value);
         final Configuration root = section.getRoot();
-        if (root instanceof YamlConfiguration) {
-            final YamlConfiguration conf = (YamlConfiguration) root;
+        if (root instanceof YamlConfiguration conf) {
             try {
                 conf.save(placeholder.getFilePath());
             } catch (IOException e) {
@@ -173,7 +169,7 @@ public final class ItsMyConfigCommand {
             }
         }
 
-        actor.reply(Utilities.MM.deserialize("<green>Placeholder <yellow>" + section.getName() + "</yellow>'s value was updated successfully!</green>"));
+        AudienceResolver.send(actor, Utilities.MM.deserialize("<green>Placeholder <yellow>" + section.getName() + "</yellow>'s value was updated successfully!</green>"));
         this.reload(actor);
     }
 
@@ -181,18 +177,17 @@ public final class ItsMyConfigCommand {
     @CommandPermission("itsmyconfig.message")
     public void msgCommand(
             final BukkitCommandActor actor,
-            final @Named("target") EntitySelector<Player> players,
+            final @Named("target") PlayerSelector players,
             final @Named("message") String message
     ) {
         this.message(actor, players, message);
     }
 
     @Command("config")
-    @AutoComplete("@singleValuePlaceholder *")
     @CommandPermission("itsmyconfig.config")
     public void configCommand(
             final BukkitCommandActor actor,
-            final Placeholder placeholder,
+            @ModifiablePlaceholder final Placeholder placeholder,
             @Named("value") final String value
     ) {
         this.config(actor, placeholder, value);

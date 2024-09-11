@@ -63,6 +63,7 @@ public final class PAPIHook extends PlaceholderExpansion {
      *         they are joined by commas.
      */
     @Override
+    @SuppressWarnings("deprecation")
     public @NotNull String getAuthor() {
         return String.join(", ", this.plugin.getDescription().getAuthors());
     }
@@ -73,6 +74,7 @@ public final class PAPIHook extends PlaceholderExpansion {
      * @return The version of the plugin.
      */
     @Override
+    @SuppressWarnings("deprecation")
     public @NotNull String getVersion() {
         return this.plugin.getDescription().getVersion();
     }
@@ -178,6 +180,24 @@ public final class PAPIHook extends PlaceholderExpansion {
                     default:
                         builder.append("_");
                         break;
+                }
+                break;
+            case MATH:
+                final String lower = firstParam.toLowerCase();
+                if (lower.endsWith("dp")) {
+                    builder.append("::");
+                    break;
+                } else {
+                    switch (lower) {
+                        case "commas":
+                        case "fixed":
+                        case "formatted":
+                            builder.append("::");
+                            break;
+                        default:
+                            builder.append("_");
+                            break;
+                    }
                 }
                 break;
             default:

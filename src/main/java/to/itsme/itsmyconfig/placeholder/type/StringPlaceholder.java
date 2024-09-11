@@ -1,8 +1,9 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
+import to.itsme.itsmyconfig.placeholder.PlaceholderDependancy;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 
 /**
@@ -26,7 +27,7 @@ public final class StringPlaceholder extends Placeholder {
             final String filePath,
             final ConfigurationSection section
     ) {
-        super(section, filePath, PlaceholderType.STRING);
+        super(section, filePath, PlaceholderType.STRING, PlaceholderDependancy.NONE);
         this.message = section.getString("value", "");
         this.registerArguments(this.message);
     }
@@ -38,7 +39,7 @@ public final class StringPlaceholder extends Placeholder {
      * @return The message string with replaced arguments.
      */
     @Override
-    public String getResult(final Player player, final String[] params) {
+    public String getResult(final OfflinePlayer player, final String[] params) {
         return this.replaceArguments(params, this.message);
     }
 

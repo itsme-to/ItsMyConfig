@@ -5,27 +5,20 @@ plugins {
 }
 
 group = 'to.itsme'
-version = '3.3.0-BETA'
+version = '4.0.0-BETA'
 description = 'ItsMyConfig'
-java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.sourceCompatibility = JavaVersion.VERSION_17
+
 repositories {
     mavenLocal()
     mavenCentral()
     maven {
-        name = "spigot-repo"
-        url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
+        name = "papermc-repo"
+        url = "https://repo.papermc.io/repository/maven-public/"
     }
     maven {
-        name = "sonatype"
-        url = "https://oss.sonatype.org/content/repositories/snapshots/"
-    }
-    maven {
-        name = "sonatype-snapshots"
+        name = "libby-repo"
         url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-    }
-    maven {
-        name = "jitpack"
-        url = "https://jitpack.io"
     }
     maven {
         name = "protocollib-repo"
@@ -40,34 +33,32 @@ repositories {
         url = "https://redempt.dev"
     }
     maven {
-        name = "devmart-other"
-        url = "https://nexuslite.gcnt.net/repos/other/"
+        name = "jitpack"
+        url = "https://jitpack.io"
     }
 }
 
-def lampVersion = "3.2.1"
-def adventureVersion = "4.17.0"
+def lampVersion = "4.0.0-beta.7"
 dependencies {
-    // adventure ->
-    implementation "net.kyori:adventure-platform-bukkit:4.3.3"
-    implementation "net.kyori:adventure-text-minimessage:${adventureVersion}"
-    implementation "net.kyori:adventure-text-serializer-gson:${adventureVersion}"
-
     // lamp ->
-    implementation "com.github.Revxrsal.Lamp:common:${lampVersion}"
-    implementation "com.github.Revxrsal.Lamp:bukkit:${lampVersion}"
+    implementation "io.github.revxrsal:lamp.common:${lampVersion}"
+    implementation "io.github.revxrsal:lamp.bukkit:${lampVersion}"
+    implementation "com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT"
 
     // other ->
-    implementation "com.tcoded:FoliaLib:0.3.4"
     implementation "org.bstats:bstats-bukkit:3.0.2"
     implementation "com.github.Redempt:Crunch:2.0.3"
+    implementation "com.github.technicallycoded:FoliaLib:0.4.3"
 
-    compileOnly "org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT"
+    compileOnly "io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT"
     compileOnly "com.comphenix.protocol:ProtocolLib:5.3.0-SNAPSHOT"
+    compileOnly "net.kyori:adventure-platform-bukkit:4.3.4"
     compileOnly "me.clip:placeholderapi:2.11.1"
 }
 
 tasks.withType(JavaCompile).configureEach {
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
     options.encoding = "UTF-8"
     options.compilerArgs += ["-parameters"]
 }
@@ -83,11 +74,10 @@ processResources {
 
 def shadePath = "to.itsme.itsmyconfig.shade."
 shadowJar {
-    relocate("net.kyori", "${shadePath}kyori")
     relocate("com.tcoded.folialib", "${shadePath}folialib")
-    relocate("com.google.gson", "${shadePath}gson")
+    relocate("redempt.crunch", "${shadePath}crunch")
     relocate("revxrsal.commands", "${shadePath}lamp")
     relocate("org.bstats", "${shadePath}bstats")
-    relocate("dev.dejvokep.boostedyaml", "${shadePath}boostedyaml")
+    relocate("com.alessiodp.libby", "${shadePath}libby")
     archiveFileName = "${project.name}-${project.version}.jar"
 }

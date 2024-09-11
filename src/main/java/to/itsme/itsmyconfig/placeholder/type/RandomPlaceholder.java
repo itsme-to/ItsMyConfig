@@ -1,8 +1,9 @@
 package to.itsme.itsmyconfig.placeholder.type;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
+import to.itsme.itsmyconfig.placeholder.PlaceholderDependancy;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 
 import java.util.*;
@@ -29,7 +30,7 @@ public final class RandomPlaceholder extends Placeholder {
             final String filePath,
             final ConfigurationSection section
     ) {
-        super(section, filePath, PlaceholderType.RANDOM);
+        super(section, filePath, PlaceholderType.RANDOM, PlaceholderDependancy.NONE);
         final List<String> messages = section.getStringList("values");
         for (final String message : messages) {
             this.messages.add(message);
@@ -58,7 +59,7 @@ public final class RandomPlaceholder extends Placeholder {
      * @return The result of the evaluation as a string.
      */
     @Override
-    public String getResult(final Player player, final String[] params) {
+    public String getResult(final OfflinePlayer player, final String[] params) {
         final String entry = this.getRandomEntry();
         return (entry == null) ? null : this.replaceArguments(params, entry);
     }

@@ -3,9 +3,10 @@ package to.itsme.itsmyconfig.placeholder.type;
 import net.kyori.adventure.text.format.*;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
+import to.itsme.itsmyconfig.placeholder.PlaceholderDependancy;
 import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.util.Strings;
 
@@ -14,6 +15,7 @@ import java.util.*;
 /**
  * Represents a color placeholder data that can be used in placeholders.
  */
+@SuppressWarnings("deprecation")
 public final class ColorPlaceholder extends Placeholder {
 
     /**
@@ -59,7 +61,7 @@ public final class ColorPlaceholder extends Placeholder {
     /**
      * Represents a map of decoration properties.
      */
-    private final static Map<String, String> DECORATIONS_PROPERTIES = new HashMap<String, String>() {
+    private final static Map<String, String> DECORATIONS_PROPERTIES = new HashMap<>() {
         {
             put("bold", "&l");
             put("italic", "&o");
@@ -76,7 +78,7 @@ public final class ColorPlaceholder extends Placeholder {
             final String filePath,
             final ConfigurationSection section
     ) {
-        super(section, filePath, PlaceholderType.COLOR);
+        super(section, filePath, PlaceholderType.COLOR, PlaceholderDependancy.NONE);
         this.value = section.getString("value", "").toLowerCase();
 
         final NamedTextColor namedTextColor = NamedTextColor.NAMES.value(this.value);
@@ -150,7 +152,7 @@ public final class ColorPlaceholder extends Placeholder {
      * @return The result of the placeholder evaluation as a string.
      */
     @Override
-    public String getResult(final Player player, final String[] params) {
+    public String getResult(final OfflinePlayer player, final String[] params) {
         if (this.invalid) {
             return "";
         }
