@@ -24,7 +24,7 @@ public enum Message {
 
     public void send(final Player player, final TagResolver... resolvers) {
         final Component component = Utilities.translate(this.toString(), player, resolvers);
-        plugin.adventure().player(player).sendMessage(component);
+        plugin.adventure().audience(player).sendMessage(component);
     }
 
     public void send(final CommandActor actor, final TagResolver... replacers) {

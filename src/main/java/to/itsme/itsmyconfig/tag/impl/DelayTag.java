@@ -33,7 +33,7 @@ public class DelayTag extends ArgumentsTag {
         final String text = arguments[1];
         final Component component = Utilities.translate(text, player);
         if (!Component.empty().equals(component)) {
-            Scheduler.runLaterAsync(() -> plugin.adventure().player(player).sendMessage(
+            Scheduler.runLaterAsync(() -> plugin.adventure().audience(player).sendMessage(
                     component
             ), delayInTicks);
         }

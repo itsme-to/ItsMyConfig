@@ -2,12 +2,18 @@ package to.itsme.itsmyconfig;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.audience.Audience;
 import org.bstats.bukkit.Metrics;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import to.itsme.itsmyconfig.adventure.AdventureProvider;
+import to.itsme.itsmyconfig.adventure.BukkitAdventure;
+import to.itsme.itsmyconfig.adventure.CastingAdventure;
+import to.itsme.itsmyconfig.adventure.NoAdventure;
 import to.itsme.itsmyconfig.command.CommandManager;
 import to.itsme.itsmyconfig.listener.impl.PacketChatListener;
 import to.itsme.itsmyconfig.hook.PAPIHook;
@@ -17,6 +23,7 @@ import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.placeholder.type.*;
 import to.itsme.itsmyconfig.placeholder.type.ProgressbarPlaceholder;
 import to.itsme.itsmyconfig.requirement.RequirementManager;
+import to.itsme.itsmyconfig.util.Reflections;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +43,7 @@ public final class ItsMyConfig extends JavaPlugin {
     private String symbolPrefix;
     private boolean debug;
 
-    private BukkitAudiences adventure;
+    private AdventureProvider<CommandSender> adventure;
 
     /**
      * Gets the instance of ItsMyConfig.
@@ -55,7 +62,7 @@ public final class ItsMyConfig extends JavaPlugin {
         Arrays.asList("imc", "itsmyconfig").forEach(alias -> new PAPIHook(this, alias).register());
         new CommandManager(this);
 
-        this.adventure = BukkitAudiences.create(this);
+        this.adventure = loadAdventure(this);
 
         this.loadConfig();
 
@@ -65,6 +72,17 @@ public final class ItsMyConfig extends JavaPlugin {
         protocolManager.addPacketListener(new PacketChatListener(this));
 
         this.getLogger().info("ItsMyConfig loaded in " + (System.currentTimeMillis() - start) + "ms");
+    }
+    
+    private static AdventureProvider<CommandSender> loadAdventure(Plugin plugin) {
+        if (Reflections.findClass("net.kyori.adventure.audience.Audience")) {
+             if (Audience.class.isAssignableFrom(CommandSender.class)) {
+                return new CastingAdventure<>();
+            } else if (Reflections.findClass("net.kyori.adventure.platform.bukkit.BukkitAudiences")) {
+                return new BukkitAdventure(plugin);
+            }
+        }
+        return new NoAdventure<>();
     }
 
     @Override
@@ -363,7 +381,7 @@ public final class ItsMyConfig extends JavaPlugin {
      * @return The instance of the `BukkitAudiences` class.
      * @throws IllegalStateException if the plugin is disabled and the `Adventure` instance is accessed.
      */
-    public BukkitAudiences adventure() {
+    public AdventureProvider<CommandSender> adventure() {
         if (this.adventure == null) {
             throw new IllegalStateException("Tried to access Adventure when the plugin was disabled!");
         }

@@ -39,7 +39,7 @@ public class ActiobarTag extends ArgumentsTag {
                     BungeeComponentSerializer.get().serialize(component)
             );
         } else {
-            plugin.adventure().player(player).sendActionBar(component);
+            plugin.adventure().audience(player).sendActionBar(component);
         }
 
         return "";

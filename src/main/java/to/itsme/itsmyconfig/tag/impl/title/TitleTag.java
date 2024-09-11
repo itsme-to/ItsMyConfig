@@ -63,7 +63,7 @@ public class TitleTag extends ArgumentsTag {
             title = null;
         }
 
-        if (title != null) plugin.adventure().player(player).showTitle(title);
+        if (title != null) plugin.adventure().audience(player).showTitle(title);
 
         return "";
     }

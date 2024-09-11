@@ -94,14 +94,14 @@ public class BossbarTag extends ArgumentsTag implements Cancellable {
 
 
         barMap.computeIfAbsent(player.getUniqueId(), id -> new CopyOnWriteArrayList<>()).add(bar);
-        plugin.adventure().player(player).showBossBar(bar);
+        plugin.adventure().audience(player).showBossBar(bar);
 
         final AtomicInteger atomicTicks = new AtomicInteger();
         Scheduler.runTimerAsync((task) -> {
             final List<BossBar> barList = barMap.get(player.getUniqueId());
             if (barList == null || !barList.contains(bar)) {
                 task.cancel();
-                plugin.adventure().player(player).hideBossBar(bar);
+                plugin.adventure().audience(player).hideBossBar(bar);
                 return;
             }
 
@@ -115,7 +115,7 @@ public class BossbarTag extends ArgumentsTag implements Cancellable {
             }
 
             if (leftTicks <= 0) {
-                plugin.adventure().player(player).hideBossBar(bar);
+                plugin.adventure().audience(player).hideBossBar(bar);
                 barList.remove(bar);
                 task.cancel();
             }
@@ -142,7 +142,7 @@ public class BossbarTag extends ArgumentsTag implements Cancellable {
         }
 
         if (!bars.isEmpty()) {
-            final Audience audience = plugin.adventure().player(player);
+            final Audience audience = plugin.adventure().audience(player);
             for (final BossBar bar : bars) {
                 audience.hideBossBar(bar);
             }

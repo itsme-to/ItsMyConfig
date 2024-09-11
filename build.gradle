@@ -49,9 +49,9 @@ def lampVersion = "3.2.1"
 def adventureVersion = "4.17.0"
 dependencies {
     // adventure ->
-    implementation "net.kyori:adventure-platform-bukkit:4.3.3"
-    implementation "net.kyori:adventure-text-minimessage:${adventureVersion}"
-    implementation "net.kyori:adventure-text-serializer-gson:${adventureVersion}"
+    compileOnly "net.kyori:adventure-platform-bukkit:4.3.3"
+    compileOnly "net.kyori:adventure-text-minimessage:${adventureVersion}"
+    compileOnly "net.kyori:adventure-text-serializer-gson:${adventureVersion}"
 
     // lamp ->
     implementation "com.github.Revxrsal.Lamp:common:${lampVersion}"
@@ -83,7 +83,7 @@ processResources {
 
 def shadePath = "to.itsme.itsmyconfig.shade."
 shadowJar {
-    relocate("net.kyori", "${shadePath}kyori")
+    //relocate("net.kyori", "${shadePath}kyori")
     relocate("com.tcoded.folialib", "${shadePath}folialib")
     relocate("com.google.gson", "${shadePath}gson")
     relocate("revxrsal.commands", "${shadePath}lamp")

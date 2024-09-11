@@ -86,7 +86,7 @@ public class RepeatTag extends ArgumentsTag implements Cancellable {
             );
 
             if (!Component.empty().equals(translated)) {
-                plugin.adventure().player(player).sendMessage(translated);
+                plugin.adventure().audience(player).sendMessage(translated);
             }
 
         }, 0L, delayInTicks);
