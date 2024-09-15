@@ -38,7 +38,7 @@ public final class CommandManager {
                     });
                     builder.addParameterType(PlayerSelector.class, (input, context) -> {
                         final String name = input.readString();
-                        if (name.equals("*")) {
+                        if (name.equals("all")) {
                             return PlayerSelector.all();
                         }
 
@@ -65,7 +65,7 @@ public final class CommandManager {
 
                     builder.addProvider(PlayerSelector.class, (input, context) -> {
                         final List<String> names = new ArrayList<>();
-                        names.add("*");
+                        names.add("all");
                         Bukkit.getOnlinePlayers().stream().map(Player::getName).forEach(names::add);
                         return names;
                     });
