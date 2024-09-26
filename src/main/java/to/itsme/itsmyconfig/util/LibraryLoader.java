@@ -18,7 +18,7 @@ public enum LibraryLoader {
     ADVENTURE(
             "net.kyori",
             "adventure-text-minimessage",
-            "4.17.0",
+            BuildParameters.ADVENTURE_VERSION,
             () -> !Reflections.findClass("net.kyori.adventure.text.Component")
     ),
     // ========================================================= //
@@ -27,7 +27,7 @@ public enum LibraryLoader {
     ADVENTURE_PLATFORM(
             "net.kyori",
             "adventure-platform-bukkit",
-            "4.3.4",
+            BuildParameters.ADVENTURE_PLATFORM_VERSION,
             () -> !Audience.class.isAssignableFrom(CommandSender.class)
     ),
     // ========================================================= //
@@ -35,7 +35,7 @@ public enum LibraryLoader {
     ADVENTURE_BUNGEE_SERIALIZER(
             "net.kyori",
             "adventure-text-serializer-bungeecord",
-            "4.3.4",
+            BuildParameters.ADVENTURE_PLATFORM_VERSION,
             () -> !Reflections.findClass("net.kyori.adventure.text.serializer.bungeecord")
     )
     // ========================================================= //

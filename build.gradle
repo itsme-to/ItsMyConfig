@@ -1,7 +1,9 @@
 plugins {
     id 'java'
     id 'maven-publish'
+    id "net.kyori.blossom" version "2.1.0"
     id "io.github.goooler.shadow" version "8.1.7"
+    id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.9"
 }
 
 group = 'to.itsme'
@@ -39,20 +41,23 @@ repositories {
 }
 
 def lampVersion = "4.0.0-beta.7"
+
+def adventureVersion = "4.17.0"
+def adventurePlatformVersion = "4.3.4"
 dependencies {
     // lamp ->
     implementation "io.github.revxrsal:lamp.common:${lampVersion}"
     implementation "io.github.revxrsal:lamp.bukkit:${lampVersion}"
-    implementation "com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT"
 
     // other ->
     implementation "org.bstats:bstats-bukkit:3.0.2"
     implementation "com.github.Redempt:Crunch:2.0.3"
     implementation "com.github.technicallycoded:FoliaLib:0.4.3"
+    implementation "com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT"
 
-    compileOnly "io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT"
+    compileOnly "net.kyori:adventure-platform-bukkit:$adventurePlatformVersion"
     compileOnly "com.comphenix.protocol:ProtocolLib:5.3.0-SNAPSHOT"
-    compileOnly "net.kyori:adventure-platform-bukkit:4.3.4"
+    compileOnly "io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT"
     compileOnly "me.clip:placeholderapi:2.11.6"
 }
 
@@ -69,6 +74,17 @@ processResources {
     filteringCharset 'UTF-8'
     filesMatching('plugin.yml') {
         expand props
+    }
+}
+
+sourceSets {
+    main {
+        blossom {
+            javaSources {
+                property("adventureVersion", adventureVersion)
+                property("adventurePlatformVersion", adventurePlatformVersion)
+            }
+        }
     }
 }
 

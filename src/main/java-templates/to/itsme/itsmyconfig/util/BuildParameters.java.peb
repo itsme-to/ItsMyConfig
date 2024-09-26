@@ -1,0 +1,8 @@
+package to.itsme.itsmyconfig.util;
+
+class BuildParameters {
+
+    public static final String ADVENTURE_VERSION = "{# @pebvariable name="adventureVersion" type="" #}{{ adventureVersion }}";
+    public static final String ADVENTURE_PLATFORM_VERSION = "{# @pebvariable name="adventurePlatformVersion" type="" #}{{ adventurePlatformVersion }}";
+
+}
