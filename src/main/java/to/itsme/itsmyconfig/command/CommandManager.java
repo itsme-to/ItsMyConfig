@@ -58,9 +58,9 @@ public final class CommandManager {
                             ModifiablePlaceholder.class,
                             annotation -> (input, context) ->
                                     plugin.getPlaceholderManager().getPlaceholdersMap().keySet().stream().filter(name -> {
-                                final Placeholder data = plugin.getPlaceholderManager().get(name);
-                                return data.getConfigurationSection().contains("value");
-                            }).collect(Collectors.toSet())
+                                        final Placeholder data = plugin.getPlaceholderManager().get(name);
+                                        return data.getConfigurationSection().contains("value");
+                                    }).collect(Collectors.toSet())
                     );
 
                     builder.addProvider(PlayerSelector.class, (input, context) -> {
