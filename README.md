@@ -1,4 +1,4 @@
-# ItsMyConfig ![Minecraft Version](https://img.shields.io/badge/Minecraft-1.8+-blue.svg) ![Plugin Version](https://img.shields.io/badge/version-3.1.0-green.svg)
+# ItsMyConfig ![Minecraft Version](https://img.shields.io/badge/Minecraft-1.16.5+-blue.svg) ![Plugin Version](https://img.shields.io/badge/version-4.0.0-green.svg)
 
 Welcome to the official GitHub repository for the ItsMyConfig plugin! This plugin is designed to enhance your Minecraft server configuration, offering extensive support for MiniMessage, PlaceholderAPI, and Custom Tags across any message within your plugins.
 
