@@ -3,7 +3,6 @@ package to.itsme.itsmyconfig.util;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
@@ -19,6 +18,7 @@ import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.font.Font;
 import to.itsme.itsmyconfig.font.FontTag;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
+import to.itsme.itsmyconfig.placeholder.PlaceholderDependancy;
 import to.itsme.itsmyconfig.placeholder.type.ColorPlaceholder;
 import to.itsme.itsmyconfig.tag.TagManager;
 
@@ -26,7 +26,6 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 /**
  * The Utilities class provides various utility methods for performing common tasks.
@@ -93,22 +92,18 @@ public final class Utilities {
     }
 
     /**
-     * Translates a String into a component
+     * Translates a String into a {@link Component}
      *
      * @param text The text to translate.
-     * @param player The player translated-for.
-     * @return The translated component.
+     * @return The translated {@link Component}.
      */
     public static Component translate(
             final String text,
-            final Player player,
             final TagResolver... placeholders
     ) {
         final Component translated = EMPTY_MM.deserialize(
-                TagManager.process(
-                        player, Strings.quote(text)
-                ),
-                itsMyConfigTag(player), papiTag(player),
+                Strings.quote(text),
+                emptyItsMyConfigTag(),
                 FONT_RESOLVER, StandardTags.defaults(),
                 TagResolver.resolver(placeholders)
         );
@@ -118,11 +113,11 @@ public final class Utilities {
     }
 
     /**
-     * Translates a String into a component
+     * Translates a String into a {@link Component}
      *
      * @param text The text to translate.
      * @param player The player translated-for.
-     * @return The translated component.
+     * @return The translated {@link Component}.
      */
     public static Component translate(
             final String text,
@@ -145,26 +140,63 @@ public final class Utilities {
     }
 
     /**
-     * Serialized then deserialized components with a click event have their value starting with "&f"
-     * <br>
-     * This fixes it.
+     * Translates a String into a {@link Component}
      *
-     * @return  the fixed component
-     * @deprecated I have NOT seen that happen so far. Hopefully it never does and is already fixed?
+     * @param text The text to translate.
+     * @param player The player translated-for.
+     * @return The translated {@link Component}.
      */
-    @SuppressWarnings("unused")
-    @Deprecated(forRemoval = true)
-    private static Component fixClickEvent(final Component component) {
-        final ClickEvent event = component.clickEvent();
-        Component copied = component;
+    public static Component translate(
+            final String text,
+            final Player player,
+            final TagResolver... placeholders
+    ) {
+        final Component translated = EMPTY_MM.deserialize(
+                TagManager.process(
+                        player, Strings.quote(text)
+                ),
+                itsMyConfigTag(player), papiTag(player),
+                FONT_RESOLVER, StandardTags.defaults(),
+                TagResolver.resolver(placeholders)
+        );
 
-        // Serialized then deserialized components with a click event have their value starting with "&f".
-        if (event != null && event.value().startsWith("&f")) {
-            copied = component.clickEvent(ClickEvent.clickEvent(event.action(), event.value().substring(2)));
-        }
+        applyChatColors(translated);
+        return translated;
+    }
 
-        copied = copied.children(copied.children().stream().map(Utilities::fixClickEvent).collect(Collectors.toList()));
-        return copied;
+    /**
+     * Provides a ItsMyConfig placeholders tag resolver.
+     *
+     * @return The ItsMyConfig placeholder tag resolver.
+     */
+    public static TagResolver emptyItsMyConfigTag() {
+        return TagResolver.resolver("p", (argumentQueue, context) -> {
+            if (!argumentQueue.hasNext()) {
+                return Tag.preProcessParsed("Unknown Placeholder");
+            }
+
+            final String name = argumentQueue.popOr("").value();
+            final Placeholder data = plugin.getPlaceholderManager().get(name);
+            if (data == null) {
+                return Tag.preProcessParsed("Unknown Placeholder");
+            }
+
+            if (data instanceof ColorPlaceholder colorPlaceholder) {
+                return colorPlaceholder.getStyle();
+            }
+
+            final List<String> args = new LinkedList<>();
+            while (argumentQueue.hasNext()) {
+                args.add(argumentQueue.pop().value());
+            }
+
+            if (!data.hasDependency(PlaceholderDependancy.NONE)) {
+                return Tag.preProcessParsed("");
+            }
+
+            final String parsed = data.asString(args.toArray(new String[0]));
+            return Tag.preProcessParsed((parsed == null ? "" : parsed).replace("§", "&"));
+        });
     }
 
     /**

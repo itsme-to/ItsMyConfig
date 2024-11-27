@@ -38,11 +38,37 @@ public final class ColoredTextPlaceholder extends Placeholder {
                 section,
                 filePath,
                 PlaceholderType.COLORED_TEXT,
+                PlaceholderDependancy.NONE,
                 PlaceholderDependancy.PLAYER,
                 PlaceholderDependancy.OFFLINE_PLAYER
         );
         this.miniText = section.getString("value", "");
         this.registerArguments(this.miniText);
+    }
+
+    @Override
+    public String getResult(String[] args) {
+        if (args.length == 0) {
+            return this.miniText;
+        }
+
+        final String firstArg = args[0].toLowerCase(Locale.ROOT);
+        return switch (firstArg) {
+            case "l", "legacy" -> this.replaceArguments(
+                    args,
+                    AMPERSAND_SERIALIZER.serialize(
+                            Utilities.translate(this.miniText)
+                    ), 1
+            );
+            case "c", "console" -> this.replaceArguments(
+                    args,
+                    SECTION_SERIALIZER.serialize(
+                            Utilities.translate(this.miniText)
+                    ), 1
+            );
+            case "m", "mini" -> this.replaceArguments(args, this.miniText, 1);
+            default -> this.replaceArguments(args, this.miniText);
+        };
     }
 
     @Override

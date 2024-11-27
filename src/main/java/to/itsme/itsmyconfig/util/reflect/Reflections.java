@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 @SuppressWarnings("unused")
 public final class Reflections {
@@ -131,6 +132,17 @@ public final class Reflections {
             if (getClass(path) != null) return true;
         }
         return false;
+    }
+
+    /**
+     * @return false if the {@link Class} was NOT found
+     */
+    public static boolean findClass(final Supplier<Class<?>> classSupplier) {
+        try {
+            return classSupplier.get() != null;
+        } catch (final Exception e) {
+            return false;
+        }
     }
 
     /**

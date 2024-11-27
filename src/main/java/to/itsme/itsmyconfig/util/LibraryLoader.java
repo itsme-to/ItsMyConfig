@@ -5,6 +5,8 @@ import com.alessiodp.libby.Library;
 import com.alessiodp.libby.LibraryManager;
 import com.alessiodp.libby.relocation.Relocation;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import org.bukkit.command.CommandSender;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.util.reflect.Reflections;
@@ -19,7 +21,7 @@ public enum LibraryLoader {
             "net.kyori",
             "adventure-text-minimessage",
             BuildParameters.ADVENTURE_VERSION,
-            () -> !Reflections.findClass("net.kyori.adventure.text.Component")
+            () -> !Reflections.findClass(() -> Component.class)
     ),
     // ========================================================= //
     // Adventure Bukkit Platfrom //
@@ -36,7 +38,7 @@ public enum LibraryLoader {
             "net.kyori",
             "adventure-text-serializer-bungeecord",
             BuildParameters.ADVENTURE_PLATFORM_VERSION,
-            () -> !Reflections.findClass("net.kyori.adventure.text.serializer.bungeecord")
+            () -> !Reflections.findClass(() -> BungeeComponentSerializer.class)
     )
     // ========================================================= //
     ;
@@ -83,7 +85,7 @@ public enum LibraryLoader {
         }
 
         this.library = builder.build();
-        this.shouldLoad = load.get();
+        this.shouldLoad = this.canLoad(load);
     }
 
     public static void loadLibraries() {
@@ -94,6 +96,14 @@ public enum LibraryLoader {
 
     public boolean shouldLoad() {
         return shouldLoad;
+    }
+
+    private boolean canLoad(final Supplier<Boolean> load) {
+        try {
+            return load.get();
+        } catch (final Throwable ignored) {
+            return false;
+        }
     }
 
 }
