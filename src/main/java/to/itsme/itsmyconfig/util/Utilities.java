@@ -7,6 +7,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -36,6 +37,7 @@ public final class Utilities {
 
     public static final MiniMessage MM, EMPTY_MM;
     public static final GsonComponentSerializer GSON_SERIALIZER = GsonComponentSerializer.gson();
+    public static final BungeeComponentSerializer BUNGEE_SERIALIZER = BungeeComponentSerializer.get();
 
     private static final TagResolver FONT_RESOLVER;
     private static final Field TEXT_COMPONENT_CONTENT;
