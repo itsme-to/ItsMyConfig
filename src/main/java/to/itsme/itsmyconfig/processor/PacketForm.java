@@ -2,7 +2,6 @@ package to.itsme.itsmyconfig.processor;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
-import com.comphenix.protocol.wrappers.AdventureComponentConverter;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -17,9 +16,7 @@ public enum PacketForm {
 
         @Override
         public void edit(PacketContainer container, Component component) {
-            final StructureModifier<Object> modifier = container.getModifier().withType(AdventureComponentConverter.getComponentClass());
-            final String json = Utilities.GSON_SERIALIZER.serialize(component);
-            modifier.write(0, AdventureComponentConverter.fromJsonAsObject(json));
+            container.getModifier().withType(Component.class).write(0, component);
         }
 
         @Override
@@ -29,13 +26,16 @@ public enum PacketForm {
             }
 
             final StructureModifier<Component> modifier = container.getModifier().withType(Component.class);
-            if (modifier.size() == 1) {
-                final Component component = modifier.readSafely(0);
-                if (component != null) {
-                    return this.of(AbstractComponent.parse(component).toMiniMessage());
-                }
+            if (modifier.size() != 1) {
+                return null;
             }
-            return null;
+
+            final Component component = modifier.readSafely(0);
+            if (component == null) {
+                return null;
+            }
+
+            return this.of(AbstractComponent.parse(component).toMiniMessage());
         }
     },
 
@@ -51,15 +51,19 @@ public enum PacketForm {
         @Override
         public UnpackedPacket unpack(PacketContainer container) {
             final WrappedChatComponent wrappedComponent = container.getChatComponents().readSafely(0);
-            if (wrappedComponent != null) {
-                final String found = wrappedComponent.getJson();
-                if (!found.isEmpty()) {
-                    try {
-                        return this.of(AbstractComponent.parse(found).toMiniMessage());
-                    } catch (final Exception e) {
-                        Utilities.debug(() -> "An error happened while de/serializing " + found + ": ", e);
-                    }
-                }
+            if (wrappedComponent == null) {
+                return null;
+            }
+
+            final String found = wrappedComponent.getJson();
+            if (found.isEmpty()) {
+                return null;
+            }
+
+            try {
+                return this.of(AbstractComponent.parse(found).toMiniMessage());
+            } catch (final Exception e) {
+                Utilities.debug(() -> "An error happened while de/serializing " + found + ": ", e);
             }
             return null;
         }
@@ -100,10 +104,10 @@ public enum PacketForm {
         @Override
         public UnpackedPacket unpack(final PacketContainer container) {
             final String rawMessage = container.getStrings().readSafely(0);
-            if (rawMessage != null) {
-                return this.of(AbstractComponent.parse(rawMessage).toMiniMessage());
+            if (rawMessage == null) {
+                return null;
             }
-            return null;
+            return this.of(AbstractComponent.parse(rawMessage).toMiniMessage());
         }
 
     };

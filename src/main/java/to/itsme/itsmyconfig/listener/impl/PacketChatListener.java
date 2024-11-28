@@ -46,7 +46,7 @@ public final class PacketChatListener extends PacketListener {
         }
 
         final String message = packet.message();
-        Utilities.debug(() -> "Checking: " + message);
+        Utilities.debug(() -> "Found message: " + message);
         if (!Strings.startsWithSymbol(message)) {
             Utilities.debug(() -> "Message doesn't start w/ the symbol-prefix: " + message + "\n" + DEBUG_HYPHEN);
             return;
@@ -67,19 +67,19 @@ public final class PacketChatListener extends PacketListener {
 
     private UnpackedPacket processPacket(final PacketContainer container) {
         final PacketType type = container.getType();
-        final PacketForm form = packetTypeMap.get(type);
-        if (form != null) {
-            Utilities.debug(() -> "Using " + form.name() + " to unpack the packet (cached)");
-            return form.unpack(container);
+        final PacketForm foundForm = packetTypeMap.get(type);
+        if (foundForm != null) {
+            Utilities.debug(() -> "Using " + foundForm.name() + " to unpack the packet (cached)");
+            return foundForm.unpack(container);
         }
 
         Utilities.debug(() -> "Figuring " + type.name() + "'s packet form..");
-        for (final PacketForm packetForm : PacketForm.values()) {
-            Utilities.debug(() -> "Trying " + packetForm.name() + "..");
-            final UnpackedPacket unpacked = packetForm.unpack(container);
+        for (final PacketForm form : PacketForm.values()) {
+            Utilities.debug(() -> "Trying " + form.name() + "..");
+            final UnpackedPacket unpacked = form.unpack(container);
             if (unpacked != null) {
-                packetTypeMap.put(type, packetForm);
-                Utilities.debug(() -> "Figuired out " + packetForm.name() + " for " + type.name());
+                packetTypeMap.put(type, form);
+                Utilities.debug(() -> "Matched form " + form.name() + " for packet " + type.name());
                 return unpacked;
             }
             Utilities.debug(() -> "Didn't work, trying next (if there is) ..");

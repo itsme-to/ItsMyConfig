@@ -1,7 +1,6 @@
 package to.itsme.itsmyconfig.tag.impl;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.ChatMessageType;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.message.AudienceResolver;
@@ -38,7 +37,7 @@ public class ActiobarTag extends ArgumentsTag {
         if (Versions.isOver(19)) {
             player.spigot().sendMessage(
                     ChatMessageType.ACTION_BAR,
-                    BungeeComponentSerializer.get().serialize(component)
+                    Utilities.BUNGEE_SERIALIZER.serialize(component)
             );
         } else {
             AudienceResolver.resolve(player).sendActionBar(component);
