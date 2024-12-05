@@ -1,4 +1,4 @@
-package to.itsme.itsmyconfig.processor;
+package to.itsme.itsmyconfig.processor.impl;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
@@ -7,10 +7,12 @@ import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import to.itsme.itsmyconfig.component.AbstractComponent;
+import to.itsme.itsmyconfig.processor.PacketProcessor;
+import to.itsme.itsmyconfig.processor.PacketContent;
 import to.itsme.itsmyconfig.util.Utilities;
 import to.itsme.itsmyconfig.util.Versions;
 
-public enum PacketForm {
+public enum ProtocolLibProcessor implements PacketProcessor<PacketContainer> {
 
     SERVER_ADVENTURE {
 
@@ -20,7 +22,7 @@ public enum PacketForm {
         }
 
         @Override
-        public UnpackedPacket unpack(PacketContainer container) {
+        public PacketContent<PacketContainer> unpack(PacketContainer container) {
             if (!Versions.IS_PAPER || Versions.MINOR < 16) {
                 return null;
             }
@@ -49,7 +51,7 @@ public enum PacketForm {
         }
 
         @Override
-        public UnpackedPacket unpack(PacketContainer container) {
+        public PacketContent<PacketContainer> unpack(PacketContainer container) {
             final WrappedChatComponent wrappedComponent = container.getChatComponents().readSafely(0);
             if (wrappedComponent == null) {
                 return null;
@@ -80,7 +82,7 @@ public enum PacketForm {
         }
 
         @Override
-        public UnpackedPacket unpack(PacketContainer container) {
+        public PacketContent<PacketContainer> unpack(PacketContainer container) {
             final StructureModifier<TextComponent> textComponentModifier = container.getModifier().withType(TextComponent.class);
             if (textComponentModifier.size() == 1) {
                 return this.of(processBaseComponents(textComponentModifier.readSafely(0)));
@@ -102,7 +104,7 @@ public enum PacketForm {
         }
 
         @Override
-        public UnpackedPacket unpack(final PacketContainer container) {
+        public PacketContent<PacketContainer> unpack(final PacketContainer container) {
             final String rawMessage = container.getStrings().readSafely(0);
             if (rawMessage == null) {
                 return null;
@@ -112,11 +114,8 @@ public enum PacketForm {
 
     };
 
-    public abstract void edit(final PacketContainer container, final Component component);
-    public abstract UnpackedPacket unpack(final PacketContainer container);
-
-    UnpackedPacket of(final String message) {
-        return new UnpackedPacket(this, message);
+    PacketContent<PacketContainer> of(final String message) {
+        return new PacketContent<>(this, message);
     }
 
 }

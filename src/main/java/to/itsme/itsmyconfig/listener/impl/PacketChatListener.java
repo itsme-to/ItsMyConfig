@@ -8,8 +8,8 @@ import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.component.AbstractComponent;
 import to.itsme.itsmyconfig.listener.PacketListener;
-import to.itsme.itsmyconfig.processor.PacketForm;
-import to.itsme.itsmyconfig.processor.UnpackedPacket;
+import to.itsme.itsmyconfig.processor.impl.ProtocolLibProcessor;
+import to.itsme.itsmyconfig.processor.PacketContent;
 import to.itsme.itsmyconfig.util.Strings;
 import to.itsme.itsmyconfig.util.Utilities;
 
@@ -21,7 +21,7 @@ public final class PacketChatListener extends PacketListener {
     private static final String DEBUG_HYPHEN = "###############################################";
 
     /* Here we cache the packet check types for faster handling */
-    private final Map<PacketType, PacketForm> packetTypeMap = new HashMap<>(4);
+    private final Map<PacketType, ProtocolLibProcessor> packetTypeMap = new HashMap<>(4);
 
     public PacketChatListener(
             final ItsMyConfig plugin
@@ -39,7 +39,7 @@ public final class PacketChatListener extends PacketListener {
         final PacketContainer container = event.getPacket();
         final PacketType type = container.getType();
         Utilities.debug(() -> "################# CHAT PACKET #################\nProccessing packet " + type.name());
-        final UnpackedPacket packet = this.processPacket(container);
+        final PacketContent<PacketContainer> packet = this.processPacket(container);
         if (packet == null || packet.isEmpty()) {
             Utilities.debug(() -> "Packet is null or empty\n" + DEBUG_HYPHEN);
             return;
@@ -65,21 +65,21 @@ public final class PacketChatListener extends PacketListener {
         Utilities.debug(() -> DEBUG_HYPHEN);
     }
 
-    private UnpackedPacket processPacket(final PacketContainer container) {
+    private PacketContent<PacketContainer> processPacket(final PacketContainer container) {
         final PacketType type = container.getType();
-        final PacketForm foundForm = packetTypeMap.get(type);
-        if (foundForm != null) {
-            Utilities.debug(() -> "Using " + foundForm.name() + " to unpack the packet (cached)");
-            return foundForm.unpack(container);
+        final ProtocolLibProcessor foundProcessor = packetTypeMap.get(type);
+        if (foundProcessor != null) {
+            Utilities.debug(() -> "Using " + foundProcessor.name() + " to unpack the packet (cached)");
+            return foundProcessor.unpack(container);
         }
 
-        Utilities.debug(() -> "Figuring " + type.name() + "'s packet form..");
-        for (final PacketForm form : PacketForm.values()) {
-            Utilities.debug(() -> "Trying " + form.name() + "..");
-            final UnpackedPacket unpacked = form.unpack(container);
+        Utilities.debug(() -> "Figuring " + type.name() + "'s packet processor..");
+        for (final ProtocolLibProcessor processor : ProtocolLibProcessor.values()) {
+            Utilities.debug(() -> "Trying " + processor.name() + "..");
+            final PacketContent<PacketContainer> unpacked = processor.unpack(container);
             if (unpacked != null) {
-                packetTypeMap.put(type, form);
-                Utilities.debug(() -> "Matched form " + form.name() + " for packet " + type.name());
+                packetTypeMap.put(type, processor);
+                Utilities.debug(() -> "Matched processor " + processor.name() + " for packet " + type.name());
                 return unpacked;
             }
             Utilities.debug(() -> "Didn't work, trying next (if there is) ..");
