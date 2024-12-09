@@ -139,7 +139,8 @@ public final class Reflections {
      */
     public static boolean findClass(final Supplier<Class<?>> classSupplier) {
         try {
-            return classSupplier.get() != null;
+            final Class<?> clazz = classSupplier.get();
+            return clazz != null && clazz != Object.class;
         } catch (final Exception e) {
             return false;
         }

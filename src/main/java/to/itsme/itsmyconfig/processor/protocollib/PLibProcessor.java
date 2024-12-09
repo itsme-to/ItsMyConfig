@@ -1,4 +1,4 @@
-package to.itsme.itsmyconfig.processor.impl;
+package to.itsme.itsmyconfig.processor.protocollib;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
@@ -12,7 +12,7 @@ import to.itsme.itsmyconfig.processor.PacketContent;
 import to.itsme.itsmyconfig.util.Utilities;
 import to.itsme.itsmyconfig.util.Versions;
 
-public enum ProtocolLibProcessor implements PacketProcessor<PacketContainer> {
+public enum PLibProcessor implements PacketProcessor<PacketContainer> {
 
     SERVER_ADVENTURE {
 

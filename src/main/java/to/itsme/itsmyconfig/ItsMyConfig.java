@@ -1,7 +1,5 @@
 package to.itsme.itsmyconfig;
 
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -9,7 +7,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import to.itsme.itsmyconfig.command.CommandManager;
 import to.itsme.itsmyconfig.listener.PlayerListener;
-import to.itsme.itsmyconfig.listener.impl.PacketChatListener;
+import to.itsme.itsmyconfig.processor.PacketListener;
+import to.itsme.itsmyconfig.processor.ProcessorManager;
 import to.itsme.itsmyconfig.hook.PAPIHook;
 import to.itsme.itsmyconfig.message.AudienceResolver;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
@@ -36,6 +35,7 @@ public final class ItsMyConfig extends JavaPlugin {
     private static ItsMyConfig instance;
     private final PlaceholderManager placeholderManager = new PlaceholderManager();
     private final RequirementManager requirementManager = new RequirementManager();
+    private ProcessorManager processorManager;
     private FileConfiguration config;
     private String symbolPrefix;
     private boolean debug;
@@ -69,8 +69,17 @@ public final class ItsMyConfig extends JavaPlugin {
 
         new Metrics(this, 21713);
 
-        final ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-        protocolManager.addPacketListener(new PacketChatListener(this));
+        this.processorManager = new ProcessorManager(this);
+
+        final PacketListener listener = this.processorManager.getListener();
+        if (listener == null) {
+            this.getLogger().warning("No suitable packet listener found. Disabling plugin...");
+            this.getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        this.getLogger().info("Using packet listener: " + listener.name());
+        this.processorManager.load();
 
         if (Versions.IS_PAPER && Versions.isOrOver(1, 17, 2)) {
             this.getLogger().info("Registering Kick Listener");
@@ -83,6 +92,7 @@ public final class ItsMyConfig extends JavaPlugin {
     @Override
     public void onDisable() {
         AudienceResolver.close();
+        this.processorManager.close();
         this.placeholderManager.unregisterAll();
     }
 

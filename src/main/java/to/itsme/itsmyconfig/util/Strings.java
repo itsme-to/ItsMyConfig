@@ -13,6 +13,8 @@ public final class Strings {
     public static String symbolPrefix;
     public static Pattern symbolPrefixPattern;
 
+    public static final String DEBUG_HYPHEN = "###############################################";
+
     public static final Pattern LETTERS_PATTERN = Pattern.compile("[A-Za-zÀ-ÿ]");
     public static final Pattern HEX_PATTERN = Pattern.compile("#[a-fA-F0-9]{6}");
     public static final Pattern COLOR_SYMBOL_PATTERN = Pattern.compile(Pattern.quote("§"));

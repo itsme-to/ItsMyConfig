@@ -6,5 +6,7 @@ main: to.itsme.itsmyconfig.ItsMyConfig
 api-version: 1.16
 folia-supported: true
 depend:
-  - ProtocolLib
   - PlaceholderAPI
+softdepend:
+  - ProtocolLib
+  - PacketEvents

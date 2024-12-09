@@ -12,6 +12,7 @@ import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.util.reflect.Reflections;
 
 import java.util.function.Supplier;
+import java.util.logging.Level;
 
 public enum LibraryLoader {
 
@@ -90,7 +91,12 @@ public enum LibraryLoader {
 
     public static void loadLibraries() {
         for (final LibraryLoader value : values()) {
-            if (value.shouldLoad) MANAGER.loadLibrary(value.library);
+            if (value.shouldLoad) {
+                ItsMyConfig.getInstance().getLogger().warning("Loading library " + value.library.getArtifactId() + "...");
+                MANAGER.loadLibrary(value.library);
+            } else {
+                ItsMyConfig.getInstance().getLogger().warning("Library " + value.library.getArtifactId() + " is not needed.");
+            }
         }
     }
 
@@ -101,8 +107,9 @@ public enum LibraryLoader {
     private boolean canLoad(final Supplier<Boolean> load) {
         try {
             return load.get();
-        } catch (final Throwable ignored) {
-            return false;
+        } catch (final Throwable err) {
+            ItsMyConfig.getInstance().getLogger().log(Level.WARNING, "Failed to check load library " + this.library.getArtifactId() + ", loading anyway...");
+            return true;
         }
     }
 
