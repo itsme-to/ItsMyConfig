@@ -72,7 +72,7 @@ public class PEventsListener implements PacketListener, com.github.retrooper.pac
 
         Utilities.debug(() -> "Final Product: " + AbstractComponent.parse(parsed).toMiniMessage() + "\n" + "Overriding...");
         event.markForReEncode(true);
-        packet.save(event, parsed);
+        packet.save(parsed);
         Utilities.debug(() -> Strings.DEBUG_HYPHEN);
     }
 

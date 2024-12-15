@@ -37,7 +37,7 @@ public enum PLibProcessor implements PacketProcessor<PacketContainer> {
                 return null;
             }
 
-            return this.of(AbstractComponent.parse(component).toMiniMessage());
+            return this.of(container, AbstractComponent.parse(component).toMiniMessage());
         }
     },
 
@@ -63,7 +63,7 @@ public enum PLibProcessor implements PacketProcessor<PacketContainer> {
             }
 
             try {
-                return this.of(AbstractComponent.parse(found).toMiniMessage());
+                return this.of(container, AbstractComponent.parse(found).toMiniMessage());
             } catch (final Exception e) {
                 Utilities.debug(() -> "An error happened while de/serializing " + found + ": ", e);
             }
@@ -85,7 +85,7 @@ public enum PLibProcessor implements PacketProcessor<PacketContainer> {
         public PacketContent<PacketContainer> unpack(PacketContainer container) {
             final StructureModifier<TextComponent> textComponentModifier = container.getModifier().withType(TextComponent.class);
             if (textComponentModifier.size() == 1) {
-                return this.of(processBaseComponents(textComponentModifier.readSafely(0)));
+                return this.of(container, processBaseComponents(textComponentModifier.readSafely(0)));
             }
             return null;
         }
@@ -109,13 +109,13 @@ public enum PLibProcessor implements PacketProcessor<PacketContainer> {
             if (rawMessage == null) {
                 return null;
             }
-            return this.of(AbstractComponent.parse(rawMessage).toMiniMessage());
+            return this.of(container, AbstractComponent.parse(rawMessage).toMiniMessage());
         }
 
     };
 
-    PacketContent<PacketContainer> of(final String message) {
-        return new PacketContent<>(this, message);
+    PacketContent<PacketContainer> of(final PacketContainer container, final String message) {
+        return new PacketContent<>(container, this, message);
     }
 
 }

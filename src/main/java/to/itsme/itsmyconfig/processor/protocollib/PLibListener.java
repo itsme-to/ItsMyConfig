@@ -72,7 +72,7 @@ public final class PLibListener extends PacketAdapter implements PacketListener 
         }
 
         Utilities.debug(() -> "Final Product: " + AbstractComponent.parse(parsed).toMiniMessage() + "\n" + "Overriding...");
-        packet.save(container, parsed);
+        packet.save(parsed);
         Utilities.debug(() -> Strings.DEBUG_HYPHEN);
     }
 
