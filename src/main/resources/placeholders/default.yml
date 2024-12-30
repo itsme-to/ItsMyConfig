@@ -17,7 +17,7 @@ custom-placeholder:
   prefix:
     value: "<p:server-name> <p:text-color>┃"
   error-prefix:
-    value: "<gradient:#ff0f7b:#f89b29><bold>ServerName</bold></gradient>"
+    value: "<red><bold>ERROR</bold></red> <p:text-color>┃"
     
   # Can be #RRGGBB or color names: black, dark_blue, dark_green, dark_aqua, dark_red, dark_purple, gold, gray, dark_gray, blue, green, aqua, red, light_purple, yellow, or white.
   primary-color:
