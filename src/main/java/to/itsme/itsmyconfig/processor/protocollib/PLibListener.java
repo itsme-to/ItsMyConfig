@@ -63,12 +63,6 @@ public final class PLibListener extends PacketAdapter implements PacketListener 
             return;
         }
 
-        if (message.startsWith("<color:red><lang:multiplayer.message_not_delivered:")) {
-            Utilities.debug(()-> "Message send failure message, cancelling...");
-            event.setCancelled(true);
-            return;
-        }
-
         final Player player = event.getPlayer();
         final Component parsed = Utilities.translate(Strings.processMessage(message), player);
         if (parsed.equals(Component.empty())) {

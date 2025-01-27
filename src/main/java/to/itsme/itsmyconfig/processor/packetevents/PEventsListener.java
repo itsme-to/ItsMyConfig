@@ -57,6 +57,13 @@ public class PEventsListener implements PacketListener, com.github.retrooper.pac
 
         final String message = packet.message();
         Utilities.debug(() -> "Found message: " + message);
+
+        if (message.startsWith("<color:red><lang:multiplayer.message_not_delivered:")) {
+            Utilities.debug(()-> "Message send failure message, cancelling...");
+            event.setCancelled(true);
+            return;
+        }
+
         if (!Strings.startsWithSymbol(message)) {
             Utilities.debug(() -> "Message doesn't start w/ the symbol-prefix: " + message + "\n" + Strings.DEBUG_HYPHEN);
             return;
