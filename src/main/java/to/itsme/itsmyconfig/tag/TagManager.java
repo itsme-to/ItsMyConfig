@@ -73,7 +73,7 @@ public final class TagManager {
             if (args.size() == 1 && args.get(0).equals("cancel")) {
                 if (tag instanceof Cancellable cancellable) {
                     cancellable.cancelFor(player);
-                    return "";
+                    return text.substring(0, index) + text.substring(matcher.end());
                 }
             }
 
