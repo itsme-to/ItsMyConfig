@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class PEventsListener implements PacketListener, com.github.retrooper.packetevents.event.PacketListener {
 
-    private static final FAIL_MESSAGE_PREFIX = "<color:red><lang:multiplayer.message_not_delivered:";
+    private static final String FAIL_MESSAGE_PREFIX = "<color:red><lang:multiplayer.message_not_delivered:";
 
     /* Here we cache the packet check types for faster handling */
     private final Map<PacketTypeCommon, PacketProcessor<PacketSendEvent>> packetTypeMap = Map.of(
