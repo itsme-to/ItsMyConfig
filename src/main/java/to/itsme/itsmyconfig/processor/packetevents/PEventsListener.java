@@ -18,6 +18,8 @@ import java.util.Map;
 
 public class PEventsListener implements PacketListener, com.github.retrooper.packetevents.event.PacketListener {
 
+    private static final FAIL_MESSAGE_PREFIX = "<color:red><lang:multiplayer.message_not_delivered:";
+
     /* Here we cache the packet check types for faster handling */
     private final Map<PacketTypeCommon, PacketProcessor<PacketSendEvent>> packetTypeMap = Map.of(
             PacketType.Play.Server.CHAT_MESSAGE, PEventsProcessor.CHAT_MESSAGE,
@@ -58,7 +60,7 @@ public class PEventsListener implements PacketListener, com.github.retrooper.pac
         final String message = packet.message();
         Utilities.debug(() -> "Found message: " + message);
 
-        if (message.startsWith("<color:red><lang:multiplayer.message_not_delivered:")) {
+        if (message.startsWith(FAIL_MESSAGE_PREFIX)) {
             Utilities.debug(()-> "Message send failure message, cancelling...");
             event.setCancelled(true);
             return;
