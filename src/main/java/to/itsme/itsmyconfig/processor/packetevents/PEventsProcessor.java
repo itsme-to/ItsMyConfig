@@ -1,6 +1,5 @@
 package to.itsme.itsmyconfig.processor.packetevents;
 
-import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerChatMessage;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDisconnect;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSystemChatMessage;
@@ -12,7 +11,7 @@ import to.itsme.itsmyconfig.processor.PacketProcessor;
 
 public class PEventsProcessor {
 
-    public static final PacketProcessor<PacketSendEvent> CHAT_MESSAGE = new PacketProcessor<>() {
+    public static final PacketProcessor<WrapperPlayServerChatMessage> CHAT_MESSAGE = new PacketProcessor<>() {
 
         @Override
         public String name() {
@@ -20,18 +19,18 @@ public class PEventsProcessor {
         }
 
         @Override
-        public void edit(PacketSendEvent container, Component component) {
-            new WrapperPlayServerChatMessage(container).getMessage().setChatContent(component);
+        public void edit(WrapperPlayServerChatMessage wrappedPacket, Component component) {
+            wrappedPacket.getMessage().setChatContent(component);
         }
 
         @Override
-        public @NotNull PacketContent<PacketSendEvent> unpack(PacketSendEvent container) {
-            return new PacketContent<>(container,this, AbstractComponent.parse(new WrapperPlayServerChatMessage(container).getMessage().getChatContent()).toMiniMessage());
+        public @NotNull PacketContent<WrapperPlayServerChatMessage> unpack(WrapperPlayServerChatMessage wrappedPacket) {
+            return new PacketContent<>(wrappedPacket, this, 
+                AbstractComponent.parse(wrappedPacket.getMessage().getChatContent()).toMiniMessage());
         }
-
     };
 
-    public static final PacketProcessor<PacketSendEvent> SYSTEM_CHAT_MESSAGE = new PacketProcessor<>() {
+    public static final PacketProcessor<WrapperPlayServerSystemChatMessage> SYSTEM_CHAT_MESSAGE = new PacketProcessor<>() {
 
         @Override
         public String name() {
@@ -39,18 +38,17 @@ public class PEventsProcessor {
         }
 
         @Override
-        public void edit(PacketSendEvent container, Component component) {
-            new WrapperPlayServerSystemChatMessage(container).setMessage(component);
+        public void edit(WrapperPlayServerSystemChatMessage wrappedPacket, Component component) {
+            wrappedPacket.setMessage(component);
         }
 
         @Override
-        public @NotNull PacketContent<PacketSendEvent> unpack(PacketSendEvent container) {
-            return new PacketContent<>(container, this, AbstractComponent.parse(new WrapperPlayServerSystemChatMessage(container).getMessage()).toMiniMessage());
+        public @NotNull PacketContent<WrapperPlayServerSystemChatMessage> unpack(WrapperPlayServerSystemChatMessage wrappedPacket) {
+            return new PacketContent<>(wrappedPacket, this, AbstractComponent.parse(wrappedPacket.getMessage()).toMiniMessage());
         }
-
     };
 
-    public static final PacketProcessor<PacketSendEvent> DISCONNECT = new PacketProcessor<>() {
+    public static final PacketProcessor<WrapperPlayServerDisconnect> DISCONNECT = new PacketProcessor<>() {
 
         @Override
         public String name() {
@@ -58,15 +56,14 @@ public class PEventsProcessor {
         }
 
         @Override
-        public void edit(PacketSendEvent container, Component component) {
-            new WrapperPlayServerDisconnect(container).setReason(component);
+        public void edit(WrapperPlayServerDisconnect wrappedPacket, Component component) {
+            wrappedPacket.setReason(component);
         }
 
         @Override
-        public @NotNull PacketContent<PacketSendEvent> unpack(PacketSendEvent container) {
-            return new PacketContent<>(container, this, AbstractComponent.parse(new WrapperPlayServerDisconnect(container).getReason()).toMiniMessage());
+        public @NotNull PacketContent<WrapperPlayServerDisconnect> unpack(WrapperPlayServerDisconnect wrappedPacket) {
+            return new PacketContent<>(wrappedPacket, this, AbstractComponent.parse(wrappedPacket.getReason()).toMiniMessage());
         }
-
     };
 
 }
