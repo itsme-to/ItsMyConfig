@@ -1,5 +1,5 @@
 #CI
-name: Java CI with Gradle
+name: Build ✨ ItsMyConfig ✨
 
 on:
   push:
@@ -16,8 +16,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # Cache Gradle dependencies and wrapper
-    - uses: actions/cache@v4
+    # Cache Gradle dependencies and wrapper (skip for pull requests)
+    - name: Cache Gradle dependencies
+      uses: actions/cache@v4
+      if: github.event_name != 'pull_request'
       with:
         path: |
           ~/.gradle/caches
