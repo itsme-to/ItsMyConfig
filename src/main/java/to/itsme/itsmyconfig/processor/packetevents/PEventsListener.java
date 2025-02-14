@@ -5,6 +5,9 @@ import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerChatMessage;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDisconnect;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSystemChatMessage;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.component.AbstractComponent;
@@ -20,8 +23,8 @@ public class PEventsListener implements PacketListener, com.github.retrooper.pac
 
     private static final String FAIL_MESSAGE_PREFIX = "<color:red><lang:multiplayer.message_not_delivered:";
 
-    /* Here we cache the packet check types for faster handling */
-    private final Map<PacketTypeCommon, PacketProcessor<PacketSendEvent>> packetTypeMap = Map.of(
+    /* Cache packet processors for quick access */
+    private final Map<PacketType.Play.Server, PacketProcessor<?>> packetTypeMap = Map.of(
             PacketType.Play.Server.CHAT_MESSAGE, PEventsProcessor.CHAT_MESSAGE,
             PacketType.Play.Server.SYSTEM_CHAT_MESSAGE, PEventsProcessor.SYSTEM_CHAT_MESSAGE,
             PacketType.Play.Server.DISCONNECT, PEventsProcessor.DISCONNECT
@@ -45,13 +48,27 @@ public class PEventsListener implements PacketListener, com.github.retrooper.pac
             return;
         }
 
-        final PacketProcessor<PacketSendEvent> processor = packetTypeMap.get(server);
+        final PacketProcessor<?> processor = packetTypeMap.get(server);
         if (processor == null) {
             return;
         }
 
-        Utilities.debug(() -> "################# CHAT PACKET #################\nProccessing packet " + server.name());
-        final PacketContent<PacketSendEvent> packet = processor.unpack(event);
+        Utilities.debug(() -> "################# CHAT PACKET #################\nProcessing packet " + server.name());
+
+        // Convert to wrapped packet only once
+        Object wrappedPacket = switch (server) {
+            case CHAT_MESSAGE -> new WrapperPlayServerChatMessage(event);
+            case SYSTEM_CHAT_MESSAGE -> new WrapperPlayServerSystemChatMessage(event);
+            case DISCONNECT -> new WrapperPlayServerDisconnect(event);
+            default -> null;
+        };
+
+        if (wrappedPacket == null) {
+            return;
+        }
+
+        // Unpack the wrapped packet
+        final PacketContent<?> packet = ((PacketProcessor<Object>) processor).unpack(wrappedPacket);
         if (packet == null || packet.isEmpty()) {
             Utilities.debug(() -> "Packet is null or empty\n" + Strings.DEBUG_HYPHEN);
             return;
@@ -61,7 +78,7 @@ public class PEventsListener implements PacketListener, com.github.retrooper.pac
         Utilities.debug(() -> "Found message: " + message);
 
         if (message.startsWith(FAIL_MESSAGE_PREFIX)) {
-            Utilities.debug(()-> "Message send failure message, cancelling...");
+            Utilities.debug(() -> "Message send failure message, cancelling...");
             event.setCancelled(true);
             return;
         }
@@ -84,5 +101,4 @@ public class PEventsListener implements PacketListener, com.github.retrooper.pac
         packet.save(parsed);
         Utilities.debug(() -> Strings.DEBUG_HYPHEN);
     }
-
 }
