@@ -51,19 +51,19 @@ public final class CommandManager {
                     });
                 })
                 .suggestionProviders(builder -> {
-                    builder.addProvider(Placeholder.class, (input, context) ->
+                    builder.addProvider(Placeholder.class, (context) ->
                             plugin.getPlaceholderManager().getPlaceholdersMap().keySet());
 
                     builder.addProviderForAnnotation(
                             ModifiablePlaceholder.class,
-                            annotation -> (input, context) ->
+                            annotation -> (context) ->
                                     plugin.getPlaceholderManager().getPlaceholdersMap().keySet().stream().filter(name -> {
                                         final Placeholder data = plugin.getPlaceholderManager().get(name);
                                         return data.getConfigurationSection().contains("value");
                                     }).collect(Collectors.toSet())
                     );
 
-                    builder.addProvider(PlayerSelector.class, (input, context) -> {
+                    builder.addProvider(PlayerSelector.class, (context) -> {
                         final List<String> names = new ArrayList<>();
                         names.add("all");
                         Bukkit.getOnlinePlayers().stream().map(Player::getName).forEach(names::add);
