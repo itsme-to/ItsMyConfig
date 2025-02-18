@@ -44,7 +44,7 @@ repositories {
     }
 }
 
-def lampVersion = "4.0.0-beta.7"
+def lampVersion = "4.0.0-rc.9"
 
 def adventureVersion = "4.17.0"
 def adventurePlatformVersion = "4.3.4"
