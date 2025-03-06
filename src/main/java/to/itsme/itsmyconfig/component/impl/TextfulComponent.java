@@ -41,7 +41,7 @@ public final class TextfulComponent extends AbstractComponent {
     }
 
     /**
-     * {@link TextComponent} convetrer to a {@link TextfulComponent}
+     * {@link TextComponent} converter to a {@link TextfulComponent}
      */
     @SuppressWarnings("all")
     public TextfulComponent(final TextComponent component) {
@@ -238,30 +238,62 @@ public final class TextfulComponent extends AbstractComponent {
         ) throws JsonParseException {
             final JsonObject jsonObject = json.getAsJsonObject();
             final TextfulComponent component = new TextfulComponent();
-            component.text = jsonObject.has("text") ? jsonObject.get("text").getAsString() : null;
-            component.color = jsonObject.has("color") ? jsonObject.get("color").getAsString() : null;
-            component.bold = jsonObject.has("bold") && jsonObject.get("bold").getAsBoolean();
-            component.italic = jsonObject.has("italic") && jsonObject.get("italic").getAsBoolean();
-            component.underlined = jsonObject.has("underlined") && jsonObject.get("underlined").getAsBoolean();
-            component.strikethrough = jsonObject.has("strikethrough") && jsonObject.get("strikethrough").getAsBoolean();
-            component.obfuscated = jsonObject.has("obfuscated") && jsonObject.get("obfuscated").getAsBoolean();
-            component.insertion = jsonObject.has("insertion") ? jsonObject.get("insertion").getAsString() : null;
-            component.clickEvent = jsonObject.has("clickEvent") ? context.deserialize(jsonObject.get("clickEvent"), ClickEvent.class) : null;
-            component.hoverEvent = jsonObject.has("hoverEvent") ? context.deserialize(jsonObject.get("hoverEvent"), HoverEvent.class) : null;
 
-            if (jsonObject.has("extra")) {
-                final JsonArray extraArray = jsonObject.getAsJsonArray("extra");
-                for (final JsonElement element : extraArray) {
-                    final AbstractComponent extraComponent = AbstractComponent.parse(element);
-                    if (extraComponent != null) {
-                        component.extra.add(extraComponent);
+            if (jsonObject.has("component")) {
+                // New format
+                JsonObject componentObject = jsonObject.getAsJsonObject("component");
+                component.text = componentObject.get("content").getAsString();
+
+                if (componentObject.has("style")) {
+                    JsonObject styleObject = componentObject.getAsJsonObject("style");
+                    if (styleObject.has("color")) {
+                        JsonObject colorObject = styleObject.getAsJsonObject("color");
+                        component.color = colorObject.get("value").getAsString();
+                    }
+                    if (styleObject.has("decorations")) {
+                        JsonObject decorationsObject = styleObject.getAsJsonObject("decorations");
+                        component.bold = decorationsObject.has("bold") && decorationsObject.get("bold").getAsBoolean();
+                        component.italic = decorationsObject.has("italic") && decorationsObject.get("italic").getAsBoolean();
+                        component.underlined = decorationsObject.has("underlined") && decorationsObject.get("underlined").getAsBoolean();
+                        component.strikethrough = decorationsObject.has("strikethrough") && decorationsObject.get("strikethrough").getAsBoolean();
+                        component.obfuscated = decorationsObject.has("obfuscated") && decorationsObject.get("obfuscated").getAsBoolean();
+                    }
+                }
+
+                if (componentObject.has("children")) {
+                    JsonArray childrenArray = componentObject.getAsJsonArray("children");
+                    for (JsonElement element : childrenArray) {
+                        TextfulComponent childComponent = context.deserialize(element, TextfulComponent.class);
+                        if (childComponent != null) {
+                            component.extra.add(childComponent);
+                        }
+                    }
+                }
+            } else {
+                // Old format
+                component.text = jsonObject.has("text") ? jsonObject.get("text").getAsString() : null;
+                component.color = jsonObject.has("color") ? jsonObject.get("color").getAsString() : null;
+                component.bold = jsonObject.has("bold") && jsonObject.get("bold").getAsBoolean();
+                component.italic = jsonObject.has("italic") && jsonObject.get("italic").getAsBoolean();
+                component.underlined = jsonObject.has("underlined") && jsonObject.get("underlined").getAsBoolean();
+                component.strikethrough = jsonObject.has("strikethrough") && jsonObject.get("strikethrough").getAsBoolean();
+                component.obfuscated = jsonObject.has("obfuscated") && jsonObject.get("obfuscated").getAsBoolean();
+                component.insertion = jsonObject.has("insertion") ? jsonObject.get("insertion").getAsString() : null;
+                component.clickEvent = jsonObject.has("clickEvent") ? context.deserialize(jsonObject.get("clickEvent"), ClickEvent.class) : null;
+                component.hoverEvent = jsonObject.has("hoverEvent") ? context.deserialize(jsonObject.get("hoverEvent"), HoverEvent.class) : null;
+
+                if (jsonObject.has("extra")) {
+                    final JsonArray extraArray = jsonObject.getAsJsonArray("extra");
+                    for (final JsonElement element : extraArray) {
+                        final AbstractComponent extraComponent = AbstractComponent.parse(element);
+                        if (extraComponent != null) {
+                            component.extra.add(extraComponent);
+                        }
                     }
                 }
             }
 
             return component;
         }
-
     }
-
 }
