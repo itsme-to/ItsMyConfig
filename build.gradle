@@ -46,7 +46,7 @@ repositories {
 
 def lampVersion = "4.0.0-rc.9"
 
-def adventureVersion = "4.17.0"
+def adventureVersion = "4.19.0"
 def adventurePlatformVersion = "4.3.4"
 dependencies {
     // lamp ->
