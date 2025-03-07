@@ -3,12 +3,12 @@ package to.itsme.itsmyconfig.component.impl;
 import com.google.gson.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.ShadowColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import to.itsme.itsmyconfig.component.AbstractComponent;
 import to.itsme.itsmyconfig.component.event.ClickEvent;
 import to.itsme.itsmyconfig.component.event.HoverEvent;
-import to.itsme.itsmyconfig.component.format.ShadowColor;
 
 import java.lang.reflect.Type;
 
