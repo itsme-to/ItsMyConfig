@@ -8,6 +8,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import to.itsme.itsmyconfig.component.AbstractComponent;
 import to.itsme.itsmyconfig.component.event.ClickEvent;
 import to.itsme.itsmyconfig.component.event.HoverEvent;
+import to.itsme.itsmyconfig.component.format.ShadowColor;
 
 import java.lang.reflect.Type;
 
@@ -15,6 +16,7 @@ public final class TextfulComponent extends AbstractComponent {
 
     private String text;
     private String color;
+    private String shadowColor;
 
     private boolean bold;
     private boolean italic;
@@ -52,6 +54,11 @@ public final class TextfulComponent extends AbstractComponent {
             this.color = color.asHexString();
         }
 
+        final ShadowColor shadowColor = component.style().shadowColor();
+        if (shadowColor != null) {
+            this.shadowColor = shadowColor.asHexString();
+        }
+
         // decorations
         this.bold = component.style().hasDecoration(TextDecoration.BOLD);
         this.italic = component.style().hasDecoration(TextDecoration.ITALIC);
@@ -84,6 +91,10 @@ public final class TextfulComponent extends AbstractComponent {
         final StringBuilder builder = new StringBuilder();
         if (color != null) {
             builder.append("<").append(color).append(">");
+        }
+
+        if (shadowColor != null) {
+            builder.append("<shadow:").append(shadowColor).append(">");
         }
 
         if (bold) {
@@ -162,6 +173,10 @@ public final class TextfulComponent extends AbstractComponent {
             builder.append("</bold>");
         }
 
+        if (shadowColor != null) {
+            builder.append("</shadow>");
+        }
+
         if (color != null) {
             builder.append("</").append(color).append(">");
         }
@@ -185,6 +200,10 @@ public final class TextfulComponent extends AbstractComponent {
 
             if (component.color != null) {
                 jsonObject.addProperty("color", component.color);
+            }
+
+            if (component.shadowColor != null) {
+                jsonObject.addProperty("shadowColor", component.shadowColor);
             }
 
             if (component.bold) {
@@ -248,7 +267,11 @@ public final class TextfulComponent extends AbstractComponent {
                     JsonObject styleObject = componentObject.getAsJsonObject("style");
                     if (styleObject.has("color")) {
                         JsonObject colorObject = styleObject.getAsJsonObject("color");
-                        component.color = colorObject.get("value").getAsString();
+                        component.color = String.format("#%06X", colorObject.get("value").getAsInt());
+                    }
+                    if (styleObject.has("shadowColor")) {
+                        JsonObject shadowColorObject = styleObject.getAsJsonObject("shadowColor");
+                        component.shadowColor = String.format("#%06X", shadowColorObject.get("value").getAsInt());
                     }
                     if (styleObject.has("decorations")) {
                         JsonObject decorationsObject = styleObject.getAsJsonObject("decorations");
@@ -273,6 +296,7 @@ public final class TextfulComponent extends AbstractComponent {
                 // Old format
                 component.text = jsonObject.has("text") ? jsonObject.get("text").getAsString() : null;
                 component.color = jsonObject.has("color") ? jsonObject.get("color").getAsString() : null;
+                component.shadowColor = jsonObject.has("shadowColor") ? jsonObject.get("shadowColor").getAsString() : null;
                 component.bold = jsonObject.has("bold") && jsonObject.get("bold").getAsBoolean();
                 component.italic = jsonObject.has("italic") && jsonObject.get("italic").getAsBoolean();
                 component.underlined = jsonObject.has("underlined") && jsonObject.get("underlined").getAsBoolean();
