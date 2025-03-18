@@ -19,6 +19,8 @@ import java.util.*;
 public final class MathPlaceholder extends Placeholder {
 
     private static final NavigableMap<Long, String> GLOBAL_SUFFIXES = new TreeMap<>();
+    private static final DecimalFormat FIXED_FORMAT = new DecimalFormat("#");
+    private static final DecimalFormat COMMAS_FORMAT = new DecimalFormat("#,###");
 
     static {
         UPDATE_FORMATTINGS();
@@ -38,8 +40,6 @@ public final class MathPlaceholder extends Placeholder {
 
     private final int precision;
     private final RoundingMode mode;
-    private final DecimalFormat fixedFormat = new DecimalFormat("#");
-    private final DecimalFormat commasFormat = new DecimalFormat("#,###");
 
     public MathPlaceholder(
             final String filePath,
@@ -87,9 +87,9 @@ public final class MathPlaceholder extends Placeholder {
                 } catch (final Throwable ignored) { return "Invalid DP calculation"; }
             } else switch (prefix) {
                 case "commas":
-                    return commasFormat.format(result);
+                    return COMMAS_FORMAT.format(result);
                 case "fixed":
-                    return fixedFormat.format(result);
+                    return FIXED_FORMAT.format(result);
                 case "formatted":
                     return formatNumber((long) result);
             }
