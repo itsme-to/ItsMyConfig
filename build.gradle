@@ -6,9 +6,9 @@ plugins {
     id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.9"
 }
 
-group = 'to.itsme'
-version = '4.1.0'
-description = 'ItsMyConfig'
+group = "to.itsme"
+version = "4.1.0"
+description = "ItsMyConfig"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
