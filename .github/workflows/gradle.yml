@@ -45,3 +45,15 @@ jobs:
 
     - name: Build with Gradle 8.5
       run: ./gradlew clean shadowJar
+
+    - name: Extract version and commit hash
+      run: |
+        echo "PLUGIN_VERSION=$(grep 'version =' build.gradle | awk -F'\"' '{print $2}')" >> $GITHUB_ENV
+        echo "COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+
+    - name: Upload JAR
+      uses: actions/upload-artifact@v4
+      with:
+        name: itsmyconfig-${{ env.PLUGIN_VERSION }}-${{ env.COMMIT_HASH }}
+        path: build/libs/*.jar
+        retention-days: 30
