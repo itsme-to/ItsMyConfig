@@ -136,7 +136,7 @@ public abstract class Placeholder {
         }
 
         final String result;
-        if (player.isOnline()) {
+        if (player != null && player.isOnline()) {
             result = PlaceholderAPI.setPlaceholders(player.getPlayer(), this.getResult(player.getPlayer(), args));
         } else {
             result = PlaceholderAPI.setPlaceholders(player, this.getResult(player, args));
