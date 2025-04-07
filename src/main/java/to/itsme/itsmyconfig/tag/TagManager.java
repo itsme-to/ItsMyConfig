@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 
 public final class TagManager {
 
-    private static final Pattern ARG_TAG_PATTERN = Pattern.compile("<(\\w+)((?::\"([^\"]*)\"|:'([^']*)'|:([^<]*))*)>");
+    private static final Pattern ARG_TAG_PATTERN = Pattern.compile("<(\\w+)((?::\"([^\"]*)\"|:'([^']*)'|:`([^`]*)`|:([^<]*))*)>");
     private static final Pattern ARG_PATTERN = Pattern.compile(":\"([^\"]*)\"|:'([^']*)'|:`([^`]*)`|:([^:\"]*)");
 
     private static int INITIAL_CAPACITY;
@@ -102,7 +102,9 @@ public final class TagManager {
             } else if (argMatcher.group(2) != null) {
                 args.add(argMatcher.group(2)); // Single-quoted argument
             } else if (argMatcher.group(3) != null) {
-                args.add(argMatcher.group(3)); // Unquoted argument
+                args.add(argMatcher.group(3)); // Backtick-quoted argument
+            } else if (argMatcher.group(4) != null) {
+                args.add(argMatcher.group(4)); // Unquoted argument
             }
         }
 
