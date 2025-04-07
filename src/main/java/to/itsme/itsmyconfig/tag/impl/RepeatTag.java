@@ -63,11 +63,7 @@ public class RepeatTag extends ArgumentsTag implements Cancellable {
         final String text = arguments[0];
         final int amount = Strings.intOrDefault(arguments[1], 1);
 
-        int delayInTicks = 20;
-
-        if (arguments.length > 2) {
-            delayInTicks = Strings.intOrDefault(arguments[2], 20);
-        }
+        final int delayInTicks = arguments.length > 2 ? Strings.intOrDefault(arguments[2], 20) : 20;
 
         final AtomicInteger times = new AtomicInteger(amount);
         Scheduler.runTimerAsync(task -> {
@@ -79,10 +75,9 @@ public class RepeatTag extends ArgumentsTag implements Cancellable {
             tasksMap.computeIfAbsent(player.getUniqueId(), id -> new ArrayList<>()).add(task);
             final Component translated = Utilities.translate(
                     text
-                            .replaceAll("<v:repeat_total>", String.valueOf(amount))
-                            .replaceAll("<v:repeat_left>", String.valueOf(times.get()))
-                            .replaceAll("<v:repeat_count>", String.valueOf(amount - times.get()))
-                    ,
+                            .replace("<v:repeat_total>", String.valueOf(amount))
+                            .replace("<v:repeat_left>", String.valueOf(times.get()))
+                            .replace("<v:repeat_count>", String.valueOf(amount - times.get())),
                     player
             );
 
@@ -97,16 +92,11 @@ public class RepeatTag extends ArgumentsTag implements Cancellable {
 
     @Override
     public void cancelFor(final Player player) {
-        final List<WrappedTask> tasks = tasksMap.get(player.getUniqueId());
-        if (tasks == null) {
-            return;
+        final List<WrappedTask> tasks = tasksMap.remove(player.getUniqueId());
+        if (tasks != null) {
+            for (final WrappedTask task : tasks) {
+                if (!task.isCancelled()) task.cancel();
+            }
         }
-
-        for (final WrappedTask task : tasks) {
-            if (!task.isCancelled()) task.cancel();
-        }
-
-        tasksMap.remove(player.getUniqueId());
     }
-
 }
