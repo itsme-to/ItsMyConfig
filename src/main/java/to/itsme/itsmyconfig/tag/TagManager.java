@@ -17,7 +17,9 @@ import java.util.regex.Pattern;
 public final class TagManager {
 
     private static final Pattern ARG_TAG_PATTERN = Pattern.compile("<(\\w+)((?::\"([^\"]*)\"|:'([^']*)'|:`([^`]*)`|:([^<]*))*)>");
-    private static final Pattern ARG_PATTERN = Pattern.compile(":\"([^\"]*)\"|:'([^']*)'|:`([^`]*)`|:([^:\"]*)");
+    private static final Pattern ARG_PATTERN = Pattern.compile(
+        ":\"([^\"]*)\"|:'([^']*)'|:`([^`]*)`|:([^:\"]*)"
+    );
 
     private static int INITIAL_CAPACITY;
     private static final Map<String, Tag> tags = new LinkedHashMap<>();
@@ -97,14 +99,12 @@ public final class TagManager {
         final Matcher argMatcher = ARG_PATTERN.matcher(arguments);
         final ArrayList<String> args = new ArrayList<>(INITIAL_CAPACITY);
         while (argMatcher.find()) {
-            if (argMatcher.group(1) != null) {
-                args.add(argMatcher.group(1)); // Double-quoted argument
-            } else if (argMatcher.group(2) != null) {
-                args.add(argMatcher.group(2)); // Single-quoted argument
-            } else if (argMatcher.group(3) != null) {
-                args.add(argMatcher.group(3)); // Backtick-quoted argument
-            } else if (argMatcher.group(4) != null) {
-                args.add(argMatcher.group(4)); // Unquoted argument
+            for (int i = 1; i <= 4; i++) { // 4 is the number of groups
+                final String match = argMatcher.group(i);
+                if (match != null) {
+                    args.add(match);
+                    break; // Only one group will be non-null per match
+                }
             }
         }
 
