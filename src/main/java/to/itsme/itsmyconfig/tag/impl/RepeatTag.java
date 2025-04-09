@@ -11,11 +11,11 @@ import to.itsme.itsmyconfig.util.Scheduler;
 import to.itsme.itsmyconfig.util.Strings;
 import to.itsme.itsmyconfig.util.Utilities;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class RepeatTag extends ArgumentsTag implements Cancellable {
@@ -72,7 +72,7 @@ public class RepeatTag extends ArgumentsTag implements Cancellable {
                 return;
             }
 
-            tasksMap.computeIfAbsent(player.getUniqueId(), id -> new ArrayList<>()).add(task);
+            tasksMap.computeIfAbsent(player.getUniqueId(), id -> new CopyOnWriteArrayList<>()).add(task);
             final Component translated = Utilities.translate(
                     text
                             .replace("<v:repeat_total>", String.valueOf(amount))
