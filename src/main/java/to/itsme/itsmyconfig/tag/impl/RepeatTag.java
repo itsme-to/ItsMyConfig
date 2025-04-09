@@ -77,6 +77,7 @@ public class RepeatTag extends ArgumentsTag implements Cancellable {
                     text
                             .replace("<v:repeat_total>", String.valueOf(amount))
                             .replace("<v:repeat_left>", String.valueOf(times.get()))
+                            .replace("<v:repeat_left_plus_one>", String.valueOf(times.get() + 1))
                             .replace("<v:repeat_count>", String.valueOf(amount - times.get())),
                     player
             );
