@@ -89,7 +89,7 @@ public final class PLibListener extends PacketAdapter implements PacketListener 
             Utilities.debug(() -> "Trying " + processor.name() + "..");
             final PacketContent<PacketContainer> unpacked = processor.unpack(container);
             if (unpacked != null) {
-                packetTypeMap.put(type, processor);
+                // packetTypeMap.put(type, processor);
                 Utilities.debug(() -> "Matched processor " + processor.name() + " for packet " + type.name());
                 return unpacked;
             }
