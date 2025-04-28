@@ -14,6 +14,19 @@ import java.lang.reflect.Type;
 
 public final class TextfulComponent extends AbstractComponent {
 
+    private static final boolean SHADOW_COLOR_SUPPORTED;
+
+    static {
+        boolean supported;
+        try {
+            Class.forName("net.kyori.adventure.text.format.ShadowColor");
+            supported = true;
+        } catch (ClassNotFoundException e) {
+            supported = false;
+        }
+        SHADOW_COLOR_SUPPORTED = supported;
+    }
+    
     private String text;
     private String color;
     private String shadowColor;
@@ -54,9 +67,11 @@ public final class TextfulComponent extends AbstractComponent {
             this.color = color.asHexString();
         }
 
-        final ShadowColor shadowColor = component.style().shadowColor();
-        if (shadowColor != null) {
-            this.shadowColor = shadowColor.asHexString();
+        if (SHADOW_COLOR_SUPPORTED) {
+            final ShadowColor shadowColor = component.style().shadowColor();
+            if (shadowColor != null) {
+                this.shadowColor = shadowColor.asHexString();
+            }
         }
 
         // decorations
