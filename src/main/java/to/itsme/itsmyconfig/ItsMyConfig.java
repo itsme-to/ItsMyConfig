@@ -5,6 +5,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import to.itsme.itsmyconfig.api.ItsMyConfigAPI;
 import to.itsme.itsmyconfig.command.CommandManager;
 import to.itsme.itsmyconfig.listener.PlayerListener;
 import to.itsme.itsmyconfig.processor.PacketListener;
@@ -33,12 +34,15 @@ import java.util.*;
 public final class ItsMyConfig extends JavaPlugin {
 
     private static ItsMyConfig instance;
+    private static ItsMyConfigAPI api;
+
     private final PlaceholderManager placeholderManager = new PlaceholderManager();
     private final RequirementManager requirementManager = new RequirementManager();
-    private ProcessorManager processorManager;
     private FileConfiguration config;
     private String symbolPrefix;
     private boolean debug;
+
+    protected ProcessorManager processorManager;
 
     /**
      * Gets the instance of ItsMyConfig.
@@ -47,6 +51,15 @@ public final class ItsMyConfig extends JavaPlugin {
      */
     public static ItsMyConfig getInstance() {
         return instance;
+    }
+
+    /**
+     * Gets the instance of the default ItsMyConfig api.
+     *
+     * @return The instance of ItsMyConfigAPI.
+     */
+    public static ItsMyConfigAPI getAPI() {
+        return api;
     }
 
     @Override
@@ -60,6 +73,7 @@ public final class ItsMyConfig extends JavaPlugin {
 
         final long start = System.currentTimeMillis();
         instance = this;
+        api = new DefaultIMCAPI(this);
         LibraryLoader.loadLibraries();
         AudienceResolver.load(this);
         List.of("imc", "itsmyconfig").forEach(alias -> new PAPIHook(this, alias).register());
