@@ -99,5 +99,8 @@ public final class PLibListener extends PacketAdapter implements PacketListener 
         return null;
     }
 
-
+    @Override
+    public void close() {
+        ProtocolLibrary.getProtocolManager().removePacketListener(this);
+    }
 }

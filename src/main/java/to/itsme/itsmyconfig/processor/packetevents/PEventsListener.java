@@ -1,6 +1,7 @@
 package to.itsme.itsmyconfig.processor.packetevents;
 
 import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.event.PacketListenerCommon;
 import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
@@ -21,6 +22,7 @@ import java.util.Map;
 
 public class PEventsListener implements PacketListener, com.github.retrooper.packetevents.event.PacketListener {
 
+    private PacketListenerCommon common;
     private static final String FAIL_MESSAGE_PREFIX = "<color:red><lang:multiplayer.message_not_delivered:";
 
     /* Cache packet processors for quick access */
@@ -37,7 +39,7 @@ public class PEventsListener implements PacketListener, com.github.retrooper.pac
 
     @Override
     public void load() {
-        PacketEvents.getAPI().getEventManager().registerListener(this, PacketListenerPriority.NORMAL);
+        this.common = PacketEvents.getAPI().getEventManager().registerListener(this, PacketListenerPriority.NORMAL);
     }
 
     @Override
@@ -100,5 +102,10 @@ public class PEventsListener implements PacketListener, com.github.retrooper.pac
         event.markForReEncode(true);
         packet.save(parsed);
         Utilities.debug(() -> Strings.DEBUG_HYPHEN);
+    }
+
+    @Override
+    public void close() {
+        PacketEvents.getAPI().getEventManager().unregisterListener(this.common);
     }
 }
