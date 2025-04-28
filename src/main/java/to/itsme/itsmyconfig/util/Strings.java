@@ -56,27 +56,28 @@ public final class Strings {
      */
     public static String quote(final String text) {
         final Matcher matcher = QUOTE_PATTERN.matcher(text);
-        final StringBuilder result = new StringBuilder(text);
-
-        while (matcher.find()) {
-            final String properties = matcher.group(1) != null ? matcher.group(1) : "";
-            final String matchedText = matcher.group(2) != null ? matcher.group(2) : "";
-            final String escapedText = escapeTags(
-                    matchedText,
-                    List.of(
-                            properties.toLowerCase().split(":")
-                    )
-            );
-
-            int start = matcher.start();
-            int end = matcher.end();
-            result.replace(start, end, escapedText);
-
-            int offset = escapedText.length() - (end - start);
-            matcher.region(end + offset, text.length() + offset);
+        if (!matcher.find()) {
+            return text;
         }
 
-        return result.toString();
+        StringBuilder builder = new StringBuilder();
+        int lastEnd = 0;
+
+        matcher.reset();
+        while (matcher.find()) {
+            builder.append(text, lastEnd, matcher.start());
+
+            final String propertyString = matcher.group(1) != null ? matcher.group(1) : "";
+            final Set<String> properties = propertyString.isEmpty() ? Collections.emptySet() : Set.of(propertyString.toLowerCase().split(":"));
+            final String content = matcher.group(2) != null ? matcher.group(2) : "";
+
+            builder.append(escapeTags(content, properties));
+
+            lastEnd = matcher.end();
+        }
+
+        builder.append(text.substring(lastEnd));
+        return builder.toString();
     }
 
     /**
@@ -117,32 +118,31 @@ public final class Strings {
      *
      * @return The text after escaping tags.
      */
-    private static String escapeTags(
-            final String text,
-            final List<String> properties
-    ) {
+    private static String escapeTags(final String text, final Set<String> properties) {
         final Matcher matcher = TAG_PATTERN.matcher(text);
-        final StringBuilder builder = new StringBuilder(text);
+        StringBuilder builder = new StringBuilder();
+        int lastEnd = 0;
 
-        int offset = 0;
         while (matcher.find()) {
-            if (!properties.isEmpty()) {
-                final String found = matcher.group();
-                final String content = found.substring(1, found.length() - 1);
-                if (properties.contains("ignorecolors")) {
-                    if (isColor(content)) continue;
-                }
-                if (properties.contains("ignoredecorations")) {
-                    if (isDecoration(content)) continue;
-                }
+            final String found = matcher.group();
+            final String content = found.substring(1, found.length() - 1);
+
+            boolean skip = false;
+            if (properties.contains("ignorecolors") && isColor(content)) {
+                skip = true;
+            } else if (properties.contains("ignoredecorations") && isDecoration(content)) {
+                skip = true;
             }
-            final int foundIndex = matcher.start() + offset;
-            if (foundIndex != -1 && builder.charAt(Math.max(0, foundIndex - 1)) != '\\') {
-                builder.insert(foundIndex, '\\');
-                offset++;
+
+            builder.append(text, lastEnd, matcher.start());
+            if (!skip) {
+                builder.append('\\');
             }
+            builder.append(found);
+            lastEnd = matcher.end();
         }
 
+        builder.append(text.substring(lastEnd));
         return builder.toString();
     }
 
@@ -200,16 +200,30 @@ public final class Strings {
         }
     }
 
+    /**
+     * Converts a string to an integer, returning a default value if the conversion fails.
+     *
+     * @param text the string to convert
+     * @param defaultInt the default value to return if conversion fails
+     * @return the converted integer or the default value
+     */
     public static int intOrDefault(final String text, final int defaultInt) {
         try {
             return Integer.parseInt(textless(text));
         } catch (final Throwable ignored) { return defaultInt; }
     }
 
-    public static float floatOrDefault(final String text, final float defaultDouble) {
+    /**
+     * Converts a string to a long, returning a default value if the conversion fails.\
+     *
+     * @param text the string to convert
+     * @param defaultFloat the default value to return if conversion fails
+     * @return the converted float or the default value
+     */
+    public static float floatOrDefault(final String text, final float defaultFloat) {
         try {
             return Float.parseFloat(textless(text));
-        } catch (final Throwable ignored) { return defaultDouble; }
+        } catch (final Throwable ignored) { return defaultFloat; }
     }
 
     /**
@@ -266,7 +280,29 @@ public final class Strings {
             return false;
         }
 
-        return TAG_PATTERN.matcher(colorless(message)).replaceAll("").trim().startsWith(symbolPrefix);
+        boolean isInTag = false;
+        for (var i = 0; i < message.length(); i++) {
+            char character = message.charAt(i);
+            if (character == '&' || character == '§') {
+                i++;
+                continue;
+            }
+            if (character == '<') {
+                isInTag = true;
+                continue;
+            } else if (character == '>') {
+                isInTag = false;
+                continue;
+            }
+
+            if (isInTag || Character.isWhitespace(character)) {
+                continue;
+            }
+
+            return message.startsWith(symbolPrefix, i);
+        }
+
+        return false;
     }
 
     /**

@@ -99,7 +99,7 @@ public final class Utilities {
      * @param text The text to translate.
      * @return The translated {@link Component}.
      */
-    public static Component translate(
+    public static @NotNull Component translate(
             final String text,
             final TagResolver... placeholders
     ) {
@@ -121,7 +121,7 @@ public final class Utilities {
      * @param player The player translated-for.
      * @return The translated {@link Component}.
      */
-    public static Component translate(
+    public static @NotNull Component translate(
             final String text,
             final OfflinePlayer player,
             final TagResolver... placeholders
@@ -148,7 +148,7 @@ public final class Utilities {
      * @param player The player translated-for.
      * @return The translated {@link Component}.
      */
-    public static Component translate(
+    public static @NotNull Component translate(
             final String text,
             final Player player,
             final TagResolver... placeholders
