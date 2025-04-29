@@ -280,7 +280,7 @@ public final class Strings {
             return false;
         }
 
-        boolean isInTag = false;
+        int tagDepth = 0;
         for (var i = 0; i < message.length(); i++) {
             char character = message.charAt(i);
             if (character == '&' || character == '§') {
@@ -288,14 +288,14 @@ public final class Strings {
                 continue;
             }
             if (character == '<') {
-                isInTag = true;
+                tagDepth++;
                 continue;
-            } else if (character == '>') {
-                isInTag = false;
+            } else if (character == '>' && tagDepth > 0) {
+                tagDepth--;
                 continue;
             }
 
-            if (isInTag || Character.isWhitespace(character)) {
+            if (tagDepth > 0 || Character.isWhitespace(character)) {
                 continue;
             }
 
