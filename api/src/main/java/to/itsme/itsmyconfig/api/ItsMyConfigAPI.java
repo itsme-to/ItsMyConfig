@@ -11,7 +11,7 @@ public interface ItsMyConfigAPI {
 
     @NotNull PacketListener getPacketListener();
     @NotNull Component translate(String text, TagResolver... args);
-    @NotNull Component translate(String text, OfflinePlayer player, TagResolver... args);
     @NotNull Component translate(String text, Player player, TagResolver... args);
+    @NotNull Component translate(String text, OfflinePlayer player, TagResolver... args);
 
 }

@@ -43,6 +43,7 @@ public class PEventsListener implements PacketListener, com.github.retrooper.pac
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void onPacketSend(final PacketSendEvent event) {
         final PacketTypeCommon type = event.getPacketType();
 

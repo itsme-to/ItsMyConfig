@@ -1,0 +1,25 @@
+plugins {
+    id 'java-library'
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "papermc-repo"
+        url = "https://repo.papermc.io/repository/maven-public/"
+    }
+}
+
+dependencies {
+    compileOnlyApi("${kyori(KyoriModule.API)}")
+    compileOnlyApi("${kyori(KyoriModule.MINI_MESSAGE)}")
+
+    compileOnly "io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT"
+}
+
+tasks.withType(JavaCompile).configureEach {
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+    options.encoding = "UTF-8"
+    options.compilerArgs += ["-parameters"]
+}

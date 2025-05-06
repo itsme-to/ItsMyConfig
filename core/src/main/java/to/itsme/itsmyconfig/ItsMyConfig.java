@@ -42,7 +42,7 @@ public final class ItsMyConfig extends JavaPlugin {
     private String symbolPrefix;
     private boolean debug;
 
-    protected ProcessorManager processorManager;
+    ProcessorManager processorManager;
 
     /**
      * Gets the instance of ItsMyConfig.

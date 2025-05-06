@@ -1,0 +1,100 @@
+plugins {
+    id 'java'
+    id "net.kyori.blossom" version "2.1.0"
+    id "io.github.goooler.shadow" version "8.1.7"
+    id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.9"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        name = "papermc-repo"
+        url = "https://repo.papermc.io/repository/maven-public/"
+    }
+    maven {
+        name = "libby-repo"
+        url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+    }
+    maven {
+        name = "protocollib-repo"
+        url = "https://repo.dmulloy2.net/repository/public/"
+    }
+    maven {
+        name = "helpchat-repo"
+        url = "https://repo.helpch.at/releases"
+    }
+    maven {
+        name = "redempt.dev"
+        url = "https://redempt.dev"
+    }
+    maven {
+        name = "jitpack"
+        url = "https://jitpack.io"
+    }
+    maven {
+        name = "codemc"
+        url = "https://repo.codemc.io/repository/maven-releases/"
+    }
+}
+
+def lampVersion = "4.0.0-rc.9"
+
+dependencies {
+    // api ->
+    implementation project(":api")
+
+    // lamp ->
+    implementation "io.github.revxrsal:lamp.common:${lampVersion}"
+    implementation "io.github.revxrsal:lamp.bukkit:${lampVersion}"
+
+    // other ->
+    implementation "org.bstats:bstats-bukkit:3.0.2"
+    implementation "com.github.Redempt:Crunch:2.0.3"
+    implementation "com.github.technicallycoded:FoliaLib:0.4.3"
+    implementation "com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT"
+
+    compileOnly("${kyori(KyoriModule.API)}")
+    compileOnly "${kyoriPlatform(KyoriModule.BUKKIT)}"
+    compileOnly "io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT"
+    compileOnly "com.github.retrooper:packetevents-spigot:2.6.0"
+    compileOnly "com.comphenix.protocol:ProtocolLib:5.3.0"
+    compileOnly "me.clip:placeholderapi:2.11.6"
+}
+
+tasks.withType(JavaCompile).configureEach {
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+    options.encoding = "UTF-8"
+    options.compilerArgs += ["-parameters"]
+}
+
+processResources {
+    def props = [version: version]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand props
+    }
+}
+
+sourceSets {
+    main {
+        blossom {
+            javaSources {
+                property("adventureVersion", kyoriVersion)
+                property("adventurePlatformVersion", kyoriPlatformVersion)
+            }
+        }
+    }
+}
+
+def shadePath = "to.itsme.itsmyconfig.shade."
+shadowJar {
+    relocate("com.tcoded.folialib", "${shadePath}folialib")
+    relocate("redempt.crunch", "${shadePath}crunch")
+    relocate("revxrsal.commands", "${shadePath}lamp")
+    relocate("org.bstats", "${shadePath}bstats")
+    relocate("com.alessiodp.libby", "${shadePath}libby")
+    archiveFileName = "itsmyconfig-${project.version}.jar"
+}
