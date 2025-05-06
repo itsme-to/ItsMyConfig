@@ -74,6 +74,12 @@ public final class ItsMyConfig extends JavaPlugin {
         final long start = System.currentTimeMillis();
         instance = this;
         api = new DefaultIMCAPI(this);
+        this.getServer().getServicesManager().register(
+                ItsMyConfigAPI.class,
+                api,
+                this,
+                org.bukkit.plugin.ServicePriority.Normal
+        );
         LibraryLoader.loadLibraries();
         AudienceResolver.load(this);
         List.of("imc", "itsmyconfig").forEach(alias -> new PAPIHook(this, alias).register());
