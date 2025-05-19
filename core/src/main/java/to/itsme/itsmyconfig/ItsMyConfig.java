@@ -208,6 +208,7 @@ public final class ItsMyConfig extends JavaPlugin {
     private void reloadConfigParams() {
         this.debug = this.config.getBoolean("debug");
         this.symbolPrefix = this.config.getString("symbol-prefix");
+        this.minimessageSerializer = this.config.getString("minimessage-serializer");
         Strings.setSymbolPrefix(this.symbolPrefix);
         IMCSerializer.UPDATE_SERIALIZERS();
         MathPlaceholder.UPDATE_FORMATTINGS();
