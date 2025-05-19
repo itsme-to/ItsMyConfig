@@ -18,6 +18,7 @@ import to.itsme.itsmyconfig.placeholder.PlaceholderType;
 import to.itsme.itsmyconfig.placeholder.type.*;
 import to.itsme.itsmyconfig.placeholder.type.ProgressbarPlaceholder;
 import to.itsme.itsmyconfig.requirement.RequirementManager;
+import to.itsme.itsmyconfig.util.IMCSerializer;
 import to.itsme.itsmyconfig.util.LibraryLoader;
 import to.itsme.itsmyconfig.util.Strings;
 import to.itsme.itsmyconfig.util.Versions;
@@ -39,7 +40,7 @@ public final class ItsMyConfig extends JavaPlugin {
     private final PlaceholderManager placeholderManager = new PlaceholderManager();
     private final RequirementManager requirementManager = new RequirementManager();
     private FileConfiguration config;
-    private String symbolPrefix;
+    private String symbolPrefix, minimessageSerializer;
     private boolean debug;
 
     ProcessorManager processorManager;
@@ -208,6 +209,7 @@ public final class ItsMyConfig extends JavaPlugin {
         this.debug = this.config.getBoolean("debug");
         this.symbolPrefix = this.config.getString("symbol-prefix");
         Strings.setSymbolPrefix(this.symbolPrefix);
+        IMCSerializer.UPDATE_SERIALIZERS();
         MathPlaceholder.UPDATE_FORMATTINGS();
     }
 
@@ -400,6 +402,15 @@ public final class ItsMyConfig extends JavaPlugin {
      */
     public String getSymbolPrefix() {
         return this.symbolPrefix;
+    }
+
+    /**
+     * Retrieves the minimessage serializer.
+     *
+     * @return The minimessage serializer used for serializing messages.
+     */
+    public String getMinimessageSerializer() {
+        return minimessageSerializer;
     }
 
     /**

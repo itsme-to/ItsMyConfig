@@ -11,10 +11,10 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDi
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSystemChatMessage;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
-import to.itsme.itsmyconfig.component.AbstractComponent;
 import to.itsme.itsmyconfig.processor.PacketContent;
 import to.itsme.itsmyconfig.processor.PacketListener;
 import to.itsme.itsmyconfig.processor.PacketProcessor;
+import to.itsme.itsmyconfig.util.IMCSerializer;
 import to.itsme.itsmyconfig.util.Strings;
 import to.itsme.itsmyconfig.util.Utilities;
 
@@ -99,7 +99,7 @@ public class PEventsListener implements PacketListener, com.github.retrooper.pac
             return;
         }
 
-        Utilities.debug(() -> "Final Product: " + AbstractComponent.parse(parsed).toMiniMessage() + "\n" + "Overriding...");
+        Utilities.debug(() -> "Final Product: " + IMCSerializer.toMiniMessage(parsed) + "\n" + "Overriding...");
         event.markForReEncode(true);
         packet.save(parsed);
         Utilities.debug(() -> Strings.DEBUG_HYPHEN);

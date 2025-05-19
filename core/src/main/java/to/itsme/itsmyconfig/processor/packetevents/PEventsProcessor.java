@@ -5,9 +5,9 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDi
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSystemChatMessage;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
-import to.itsme.itsmyconfig.component.AbstractComponent;
 import to.itsme.itsmyconfig.processor.PacketContent;
 import to.itsme.itsmyconfig.processor.PacketProcessor;
+import to.itsme.itsmyconfig.util.IMCSerializer;
 
 public class PEventsProcessor {
 
@@ -25,8 +25,7 @@ public class PEventsProcessor {
 
         @Override
         public @NotNull PacketContent<WrapperPlayServerChatMessage> unpack(WrapperPlayServerChatMessage wrappedPacket) {
-            return new PacketContent<>(wrappedPacket, this, 
-                AbstractComponent.parse(wrappedPacket.getMessage().getChatContent()).toMiniMessage());
+            return new PacketContent<>(wrappedPacket, this, IMCSerializer.toMiniMessage(wrappedPacket.getMessage().getChatContent()));
         }
     };
 
@@ -44,7 +43,7 @@ public class PEventsProcessor {
 
         @Override
         public @NotNull PacketContent<WrapperPlayServerSystemChatMessage> unpack(WrapperPlayServerSystemChatMessage wrappedPacket) {
-            return new PacketContent<>(wrappedPacket, this, AbstractComponent.parse(wrappedPacket.getMessage()).toMiniMessage());
+            return new PacketContent<>(wrappedPacket, this, IMCSerializer.toMiniMessage(wrappedPacket.getMessage()));
         }
     };
 
@@ -62,7 +61,7 @@ public class PEventsProcessor {
 
         @Override
         public @NotNull PacketContent<WrapperPlayServerDisconnect> unpack(WrapperPlayServerDisconnect wrappedPacket) {
-            return new PacketContent<>(wrappedPacket, this, AbstractComponent.parse(wrappedPacket.getReason()).toMiniMessage());
+            return new PacketContent<>(wrappedPacket, this, IMCSerializer.toMiniMessage(wrappedPacket.getReason()));
         }
     };
 

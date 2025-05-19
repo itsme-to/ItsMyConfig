@@ -8,7 +8,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
-import to.itsme.itsmyconfig.component.AbstractComponent;
+import to.itsme.itsmyconfig.util.IMCSerializer;
 import to.itsme.itsmyconfig.util.Strings;
 import to.itsme.itsmyconfig.util.Utilities;
 
@@ -24,7 +24,7 @@ public class PlayerListener implements Listener {
         }
 
         final Component kick = event.kickMessage();
-        final String miniMessage = AbstractComponent.parse(kick).toMiniMessage();
+        final String miniMessage = IMCSerializer.toMiniMessage(kick);
         if (Strings.startsWithSymbol(miniMessage)) {
             final String message = Strings.processMessage(miniMessage);
             Utilities.debug(() -> DEBUG.formatted("disallowed prejoin", message));
@@ -41,8 +41,7 @@ public class PlayerListener implements Listener {
         }
 
         final Component kick = event.kickMessage();
-        final String miniMessage = AbstractComponent.parse(kick).toMiniMessage();
-
+        final String miniMessage = IMCSerializer.toMiniMessage(kick);
 
         if (Strings.startsWithSymbol(miniMessage)) {
             final String message = Strings.processMessage(miniMessage);

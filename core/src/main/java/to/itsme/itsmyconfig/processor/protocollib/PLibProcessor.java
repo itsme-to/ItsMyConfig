@@ -6,9 +6,9 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
-import to.itsme.itsmyconfig.component.AbstractComponent;
 import to.itsme.itsmyconfig.processor.PacketProcessor;
 import to.itsme.itsmyconfig.processor.PacketContent;
+import to.itsme.itsmyconfig.util.IMCSerializer;
 import to.itsme.itsmyconfig.util.Utilities;
 import to.itsme.itsmyconfig.util.Versions;
 
@@ -37,7 +37,7 @@ public enum PLibProcessor implements PacketProcessor<PacketContainer> {
                 return null;
             }
 
-            return this.of(container, AbstractComponent.parse(component).toMiniMessage());
+            return this.of(container, IMCSerializer.toMiniMessage(component));
         }
     },
 
@@ -63,7 +63,7 @@ public enum PLibProcessor implements PacketProcessor<PacketContainer> {
             }
 
             try {
-                return this.of(container, AbstractComponent.parse(found).toMiniMessage());
+                return this.of(container, IMCSerializer.toMiniMessage(found));
             } catch (final Exception e) {
                 Utilities.debug(() -> "An error happened while de/serializing " + found + ": ", e);
             }
@@ -91,7 +91,7 @@ public enum PLibProcessor implements PacketProcessor<PacketContainer> {
         }
 
         private String processBaseComponents(final BaseComponent... components) {
-            return AbstractComponent.parse(Utilities.BUNGEE_SERIALIZER.deserialize(components)).toMiniMessage();
+            return IMCSerializer.toMiniMessage(Utilities.BUNGEE_SERIALIZER.deserialize(components));
         }
 
     },
@@ -109,7 +109,7 @@ public enum PLibProcessor implements PacketProcessor<PacketContainer> {
             if (rawMessage == null) {
                 return null;
             }
-            return this.of(container, AbstractComponent.parse(rawMessage).toMiniMessage());
+            return this.of(container, IMCSerializer.toMiniMessage(rawMessage));
         }
 
     };

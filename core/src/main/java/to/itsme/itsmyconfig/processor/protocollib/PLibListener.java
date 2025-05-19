@@ -9,9 +9,9 @@ import com.comphenix.protocol.events.PacketEvent;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.ItsMyConfig;
-import to.itsme.itsmyconfig.component.AbstractComponent;
 import to.itsme.itsmyconfig.processor.PacketContent;
 import to.itsme.itsmyconfig.processor.PacketListener;
+import to.itsme.itsmyconfig.util.IMCSerializer;
 import to.itsme.itsmyconfig.util.Strings;
 import to.itsme.itsmyconfig.util.Utilities;
 
@@ -22,9 +22,11 @@ public final class PLibListener extends PacketAdapter implements PacketListener 
 
     /* Here we cache the packet check types for faster handling */
     private final Map<PacketType, PLibProcessor> packetTypeMap = new HashMap<>(4);
+    private final boolean cacheProcessors;
 
     public PLibListener(
-            final ItsMyConfig plugin
+            final ItsMyConfig plugin,
+            final boolean cacheProcessors
     ) {
         super(
                 plugin,
@@ -33,6 +35,7 @@ public final class PLibListener extends PacketAdapter implements PacketListener 
                 PacketType.Play.Server.SYSTEM_CHAT,
                 PacketType.Play.Server.KICK_DISCONNECT
         );
+        this.cacheProcessors = cacheProcessors;
     }
 
     @Override
@@ -71,7 +74,7 @@ public final class PLibListener extends PacketAdapter implements PacketListener 
             return;
         }
 
-        Utilities.debug(() -> "Final Product: " + AbstractComponent.parse(parsed).toMiniMessage() + "\n" + "Overriding...");
+        Utilities.debug(() -> "Final Product: " + IMCSerializer.toMiniMessage(parsed) + "\n" + "Overriding...");
         packet.save(parsed);
         Utilities.debug(() -> Strings.DEBUG_HYPHEN);
     }
@@ -89,8 +92,10 @@ public final class PLibListener extends PacketAdapter implements PacketListener 
             Utilities.debug(() -> "Trying " + processor.name() + "..");
             final PacketContent<PacketContainer> unpacked = processor.unpack(container);
             if (unpacked != null) {
-                // packetTypeMap.put(type, processor);
-                Utilities.debug(() -> "Matched processor " + processor.name() + " for packet " + type.name());
+                if (cacheProcessors) {
+                    packetTypeMap.put(type, processor);
+                    Utilities.debug(() -> "Caching " + processor.name() + " for packet " + type.name());
+                } else Utilities.debug(() -> "Matched processor " + processor.name() + " for packet " + type.name());
                 return unpacked;
             }
             Utilities.debug(() -> "Didn't work, trying next (if there is) ..");

@@ -1,5 +1,8 @@
+import com.vanniktech.maven.publish.SonatypeHost
+
 plugins {
     id 'java-library'
+    id "com.vanniktech.maven.publish" version "0.31.0"
 }
 
 repositories {
@@ -22,4 +25,34 @@ tasks.withType(JavaCompile).configureEach {
     targetCompatibility = '17'
     options.encoding = "UTF-8"
     options.compilerArgs += ["-parameters"]
+}
+
+mavenPublishing {
+    coordinates(group as String, "itsmyconfig-" + name, version as String)
+
+    pom {
+        name = "ItsMyConfig"
+        description = "A modern customizable command framework."
+        inceptionYear = "2023"
+        url = "https://github.com/itsme-to/ItsMyConfig/"
+        developers {
+            developer {
+                id = "iiahmedyt"
+                name = "iiAhmedYT"
+                url = "https://github.com/iiAhmedYT/"
+            }
+        }
+        scm {
+            url = "https://github.com/itsme-to/ItsMyConfig"
+            connection = "scm:git:git://github.com/itsme-to/ItsMyConfig.git"
+            developerConnection = "scm:git:ssh://git@github.com/itsme-to/ItsMyConfig.git"
+        }
+    }
+
+    if (
+            !gradle.startParameter.taskNames.any { (it == "publishToMavenLocal") }
+    ) {
+        publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+        signAllPublications()
+    }
 }
