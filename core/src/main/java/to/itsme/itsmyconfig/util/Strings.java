@@ -30,10 +30,6 @@ public final class Strings {
      */
     private static final int[] values = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
     /**
-     * Class: DynamicPlaceHolder
-     * Variable: romanLiterals
-     * <p>
-     * Description:
      * The `romanLiterals` variable is an array of strings representing the Roman numerals.
      * It contains the following literals: ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"].
      * These literals are used in the `integerToRoman` method to convert an integer to its Roman numeral representation.
@@ -214,7 +210,7 @@ public final class Strings {
     }
 
     /**
-     * Converts a string to a long, returning a default value if the conversion fails.\
+     * Converts a string to a long, returning a default value if the conversion fails.
      *
      * @param text the string to convert
      * @param defaultFloat the default value to return if conversion fails
@@ -272,9 +268,67 @@ public final class Strings {
     }
 
     /**
+     * Parses a message that starts with a defined symbol prefix, ignoring formatting codes
+     * and legacy MiniMessage-style tags. If the prefix is found, it removes the prefix,
+     * replaces all occurrences of the '§' color symbol with '&', and returns the result.
+     * 
+     * The method skips over:
+     * <ul>
+     *   <li>Legacy formatting codes (e.g., &a or §a)</li>
+     *   <li>MiniMessage-style tags like &lt;bold&gt;</li>
+     *   <li>Leading whitespace</li>
+     * </ul>
+     *
+     * @param message the message to check and process
+     * @return an {@link Optional} containing the processed message if the symbol prefix is found;
+     *         otherwise, {@link Optional#empty()}
+     */
+    public static Optional<String> parsePrefixedMessage(final String message) {
+        if (message == null || message.isEmpty()) {
+            return Optional.empty();
+        }
+
+        int tagDepth = 0;
+        for (int i = 0; i < message.length(); i++) {
+            char character = message.charAt(i);
+            if (character == '&' || character == '§') {
+                i++; // skip formatting code
+                continue;
+            }
+            if (character == '<') {
+                tagDepth++;
+                continue;
+            } else if (character == '>' && tagDepth > 0) {
+                tagDepth--;
+                continue;
+            }
+
+            if (tagDepth > 0 || Character.isWhitespace(character)) {
+                continue;
+            }
+
+            if (message.startsWith(symbolPrefix, i)) {
+                StringBuilder sb = new StringBuilder(message.length());
+                sb.append(message, 0, i);
+                for (int j = i + symbolPrefix.length(); j < message.length(); j++) {
+                    char c = message.charAt(j);
+                    sb.append(c == '§' ? '&' : c);
+                }
+                return Optional.of(sb.toString());
+            } else {
+                return Optional.empty();
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    /**
      * Checks if the provided message starts with the "$" symbol
      * @param message the checked message
+     * @deprecated This method is deprecated and will be removed in a future release.
      */
+    @Deprecated
     public static boolean startsWithSymbol(final String message) {
         if (message == null || message.isEmpty()) {
             return false;
@@ -311,7 +365,9 @@ public final class Strings {
      * Also removes the first '$' symbol it meets
      *
      * @param message the provided message
+     * @deprecated This method is deprecated and will be removed in a future release.
      */
+    @Deprecated
     public static String processMessage(final String message) {
         return Strings.COLOR_SYMBOL_PATTERN.matcher(symbolPrefixPattern.matcher(message).replaceFirst("")).replaceAll("&");
     }
