@@ -19,6 +19,7 @@ import to.itsme.itsmyconfig.util.Strings;
 import to.itsme.itsmyconfig.util.Utilities;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class PEventsListener implements PacketListener, com.github.retrooper.packetevents.event.PacketListener {
 
@@ -86,22 +87,23 @@ public class PEventsListener implements PacketListener, com.github.retrooper.pac
             return;
         }
 
-        if (!Strings.startsWithSymbol(message)) {
+        final Optional<String> parsed = Strings.parsePrefixedMessage(message);
+        if (!parsed.isPresent()) {
             Utilities.debug(() -> "Message doesn't start w/ the symbol-prefix: " + message + "\n" + Strings.DEBUG_HYPHEN);
             return;
         }
 
         final Player player = event.getPlayer();
-        final Component parsed = Utilities.translate(Strings.processMessage(message), player);
-        if (parsed.equals(Component.empty())) {
+        final Component translated = Utilities.translate(parsed.get(), player);
+        if (translated.equals(Component.empty())) {
             event.setCancelled(true);
             Utilities.debug(() -> "Component is empty, cancelling...\n" + Strings.DEBUG_HYPHEN);
             return;
         }
 
-        Utilities.debug(() -> "Final Product: " + IMCSerializer.toMiniMessage(parsed) + "\n" + "Overriding...");
+        Utilities.debug(() -> "Final Product: " + IMCSerializer.toMiniMessage(translated) + "\n" + "Overriding...");
         event.markForReEncode(true);
-        packet.save(parsed);
+        packet.save(translated);
         Utilities.debug(() -> Strings.DEBUG_HYPHEN);
     }
 
