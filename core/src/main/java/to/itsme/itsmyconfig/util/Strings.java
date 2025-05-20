@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 public final class Strings {
 
     public static String symbolPrefix;
+    public static String incognitoPrefix;
     public static Pattern symbolPrefixPattern;
 
     public static final String DEBUG_HYPHEN = "###############################################";
@@ -41,6 +42,7 @@ public final class Strings {
      */
     public static void setSymbolPrefix(final String symbolPrefix) {
         Strings.symbolPrefix = symbolPrefix;
+        Strings.incognitoPrefix = "{" + symbolPrefix + "}";
         Strings.symbolPrefixPattern = Pattern.compile(Pattern.quote(symbolPrefix));
     }
 
@@ -307,14 +309,21 @@ public final class Strings {
                 continue;
             }
 
+            int prefixLength = -1;
             if (message.startsWith(symbolPrefix, i)) {
+                prefixLength = symbolPrefix.length();
+            } else if (message.startsWith(incognitoPrefix, i)) {
+                prefixLength = incognitoPrefix.length();
+            }
+
+            if (prefixLength > 0) {
                 StringBuilder sb = new StringBuilder(message.length());
                 sb.append(message, 0, i);
-                for (int j = i + symbolPrefix.length(); j < message.length(); j++) {
+                for (int j = i + prefixLength; j < message.length(); j++) {
                     char c = message.charAt(j);
                     sb.append(c == '§' ? '&' : c);
                 }
-                return Optional.of(sb.toString());
+                return Optional.of(sb.toString().replace(incognitoPrefix, ""));
             } else {
                 return Optional.empty();
             }
