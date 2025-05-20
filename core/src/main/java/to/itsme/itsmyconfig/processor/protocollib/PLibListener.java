@@ -17,6 +17,7 @@ import to.itsme.itsmyconfig.util.Utilities;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public final class PLibListener extends PacketAdapter implements PacketListener {
 
@@ -61,21 +62,23 @@ public final class PLibListener extends PacketAdapter implements PacketListener 
 
         final String message = packet.message();
         Utilities.debug(() -> "Found message: " + message);
-        if (!Strings.startsWithSymbol(message)) {
+
+        final Optional<String> parsed = Strings.parsePrefixedMessage(message);
+        if (!parsed.isPresent()) {
             Utilities.debug(() -> "Message doesn't start w/ the symbol-prefix: " + message + "\n" + Strings.DEBUG_HYPHEN);
             return;
         }
 
         final Player player = event.getPlayer();
-        final Component parsed = Utilities.translate(Strings.processMessage(message), player);
-        if (parsed.equals(Component.empty())) {
+        final Component translated = Utilities.translate(parsed.get(), player);
+        if (translated.equals(Component.empty())) {
             event.setCancelled(true);
             Utilities.debug(() -> "Component is empty, cancelling...\n" + Strings.DEBUG_HYPHEN);
             return;
         }
 
-        Utilities.debug(() -> "Final Product: " + IMCSerializer.toMiniMessage(parsed) + "\n" + "Overriding...");
-        packet.save(parsed);
+        Utilities.debug(() -> "Final Product: " + IMCSerializer.toMiniMessage(translated) + "\n" + "Overriding...");
+        packet.save(translated);
         Utilities.debug(() -> Strings.DEBUG_HYPHEN);
     }
 
