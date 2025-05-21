@@ -12,6 +12,8 @@ import to.itsme.itsmyconfig.util.IMCSerializer;
 import to.itsme.itsmyconfig.util.Strings;
 import to.itsme.itsmyconfig.util.Utilities;
 
+import java.util.Optional;
+
 public class PlayerListener implements Listener {
 
     private static final String DEBUG = "Detected a %s message with the following message: %s";
@@ -25,8 +27,9 @@ public class PlayerListener implements Listener {
 
         final Component kick = event.kickMessage();
         final String miniMessage = IMCSerializer.toMiniMessage(kick);
-        if (Strings.startsWithSymbol(miniMessage)) {
-            final String message = Strings.processMessage(miniMessage);
+        final Optional<String> parsed = Strings.parsePrefixedMessage(miniMessage);
+        if (parsed.isPresent()) {
+            final String message = parsed.get();
             Utilities.debug(() -> DEBUG.formatted("disallowed prejoin", message));
             final OfflinePlayer player = Bukkit.getOfflinePlayer(event.getUniqueId());
             event.kickMessage(Utilities.translate(message, player));
@@ -42,9 +45,9 @@ public class PlayerListener implements Listener {
 
         final Component kick = event.kickMessage();
         final String miniMessage = IMCSerializer.toMiniMessage(kick);
-
-        if (Strings.startsWithSymbol(miniMessage)) {
-            final String message = Strings.processMessage(miniMessage);
+        final Optional<String> parsed = Strings.parsePrefixedMessage(miniMessage);
+        if (parsed.isPresent()) {
+            final String message = parsed.get();
             Utilities.debug(() -> DEBUG.formatted("disallowed while logged in", message));
             event.kickMessage(Utilities.translate(message, event.getPlayer()));
         }
