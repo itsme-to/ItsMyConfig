@@ -169,12 +169,32 @@ public final class Strings {
         }
         return false;
     }
-
+    /**
+     * Extracts only the numeric digits and at most a single decimal point from the input string.
+     * <p>
+     * This method scans each character of the input string and appends digits to the result.
+     * It will also append the first decimal point ('.') it encounters, but only once.
+     * Any subsequent decimal points are ignored.
+     * <p>
+     * Example:
+     * <pre>
+     * textless("123.45.67abc") == "123.45"
+     * textless("abc9.8.7xyz") == "9.8"
+     * textless("no numbers") == ""
+     * </pre>
+     *
+     * @param text the source string to extract numbers from
+     * @return a string containing only the digits and at most one decimal point
+     */
     public static String textless(final String text) {
         final StringBuilder builder = new StringBuilder();
+        boolean dotAdded = false;
         for (final char character : text.toCharArray()) {
-            if (Character.isDigit(character) || (character == '.' && !builder.toString().contains("."))) {
+            if (Character.isDigit(character)) {
                 builder.append(character);
+            } else if (character == '.' && !dotAdded) {
+                builder.append(character);
+                dotAdded = true;
             }
         }
         return builder.toString();
