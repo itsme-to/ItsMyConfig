@@ -121,14 +121,16 @@ public final class Strings {
         StringBuilder builder = new StringBuilder();
         int lastEnd = 0;
 
+        final boolean ignoreColors = properties.contains("ignorecolors");
+        final boolean ignoreDecorations = properties.contains("ignoredecorations");
         while (matcher.find()) {
             final String found = matcher.group();
             final String content = found.substring(1, found.length() - 1);
 
             boolean skip = false;
-            if (properties.contains("ignorecolors") && isColor(content)) {
+            if (ignoreColors && isColor(content)) {
                 skip = true;
-            } else if (properties.contains("ignoredecorations") && isDecoration(content)) {
+            } else if (ignoreDecorations && isDecoration(content)) {
                 skip = true;
             }
 
