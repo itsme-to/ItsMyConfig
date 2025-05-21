@@ -10,9 +10,13 @@ import java.util.function.Function;
 public class IMCSerializer {
 
     /**
-     * A serializer that converts a String to a MiniMessage format.
+     * A serializer that converts a JSON String to MiniMessage format.
      */
-    public static Function<String, String> STRING_SERIALIZER;
+    public static Function<String, String> JSON_SERIALIZER;
+
+    /**
+     * A serializer that converts a Component to MiniMessage format.
+     */
     public static Function<Component, String> COMPONENT_SERIALIZER;
 
     static {
@@ -20,19 +24,19 @@ public class IMCSerializer {
     }
 
     public static void UPDATE_SERIALIZERS() {
-        STRING_SERIALIZER = createStringSerializer(ItsMyConfig.getInstance().getMinimessageSerializer());
+        JSON_SERIALIZER = createJsonSerializer(ItsMyConfig.getInstance().getMinimessageSerializer());
         COMPONENT_SERIALIZER = createComponentSerializer(ItsMyConfig.getInstance().getMinimessageSerializer());
     }
 
-    public static String toMiniMessage(final String text) {
-        return STRING_SERIALIZER.apply(text);
+    public static String toMiniMessage(final String json) {
+        return JSON_SERIALIZER.apply(json);
     }
 
     public static String toMiniMessage(final Component component) {
         return COMPONENT_SERIALIZER.apply(component);
     }
 
-    private static Function<String, String> createStringSerializer(final String serializer) {
+    private static Function<String, String> createJsonSerializer(final String serializer) {
         return switch (String.valueOf(serializer).toUpperCase()) {
             case "MM_COPY" -> text -> {
                 if (text == null || text.isEmpty()) {
