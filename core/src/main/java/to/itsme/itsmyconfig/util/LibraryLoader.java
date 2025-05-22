@@ -20,7 +20,7 @@ public enum LibraryLoader {
             "net.kyori",
             "adventure-text-minimessage",
             BuildParameters.ADVENTURE_VERSION,
-            () -> !Reflections.findClass("net.kyori.adventure.text.Component")
+            () -> true /*!Reflections.findClass("net.kyori.adventure.text.Component")*/
     ),
     // ========================================================= //
     // Adventure Bukkit Platfrom //
