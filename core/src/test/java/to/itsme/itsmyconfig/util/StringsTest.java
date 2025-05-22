@@ -180,7 +180,7 @@ class StringsTest {
                     .hoverEvent(HoverEvent.showText(Component.text("View your inventory online")))
             );
 
-        String mm = MMSerializer.serialize(component);
+        String mm = MMSerializer.serialize(component, null, false);
 
         System.out.println(mm);
         assertNotNull(mm);
