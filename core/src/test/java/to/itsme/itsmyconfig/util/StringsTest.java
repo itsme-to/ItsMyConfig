@@ -51,7 +51,7 @@ class StringsTest {
 
         // Prefix after tag and/or whitespace
         assertEquals(Optional.of(" <bold>after"), Strings.parsePrefixedMessage(" <bold>$after"));
-        assertEquals(Optional.of(" after"), Strings.parsePrefixedMessage("  $after"));
+        assertEquals(Optional.of("  after"), Strings.parsePrefixedMessage("  $after"));
     }
 
     @Test
