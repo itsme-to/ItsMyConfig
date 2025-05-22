@@ -67,11 +67,19 @@ jobs:
                   [[ -z "$method" ]] && method="(unknown method)"
                   [[ -z "$class" ]] && class="(unknown class)"
 
-                  # Extract line number from stack trace
+                  # Extract line number from stack trace (match on file name)
                   line_number=""
-                  if [[ "$stack" =~ $class.*\(([A-Za-z0-9_]+\.java):([0-9]+)\) ]]; then
-                      line_number="${BASH_REMATCH[2]}"
-                  fi
+                  file_name="${class##*.}.java"
+                  while IFS= read -r line; do
+                      if [[ "$line" =~ \((.*\.java):([0-9]+)\) ]]; then
+                          matched_file="${BASH_REMATCH[1]}"
+                          matched_line="${BASH_REMATCH[2]}"
+                          if [[ "$matched_file" == "$file_name" ]]; then
+                              line_number="$matched_line"
+                              break
+                          fi
+                      fi
+                  done <<< "$stack"
 
                   # Link to the exact method
                   file_path="$TEST_SRC/${class//./\/}.java"
