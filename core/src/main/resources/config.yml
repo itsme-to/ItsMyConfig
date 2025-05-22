@@ -24,7 +24,7 @@ symbol-prefix: $
 # - JSON_PARSER - Uses the JSON parser for minimessage. This is the default, recommended and tested option.
 # - MM_COPY - Uses a copied and modified minimessage parser. This is only recommended if it somehow works perfectly for you.
 # DO NOT CHANGE THIS UNLESS YOU KNOW WHAT YOU ARE DOING.
-minimessage-serializer: MM_COPY
+minimessage-serializer: JSON_PARSER
 
 listeners:
   PacketEvents:
