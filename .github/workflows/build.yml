@@ -56,7 +56,7 @@ jobs:
           TEST_SRC="core/src/test/java"
           declare -A seen=
 
-          sudo apt-get update && sudo apt-get install -y xmlstarlet
+          sudo apt-get install -y xmlstarlet
 
           mapfile -t files < <(find core/build/test-results/test/ -type f -name "*.xml")
 
@@ -67,28 +67,33 @@ jobs:
                   [[ -z "$method" ]] && method="(unknown method)"
                   [[ -z "$class" ]] && class="(unknown class)"
 
-                  # Extract line number from stack trace (line-by-line match)
+                  # Prepare variables for regex
+                  class_file="${class##*.}.java"
+                  escaped_class="${class//./\\.}"
+                  escaped_method="${method//./\\.}"
+
                   line_number=""
                   while IFS= read -r line; do
-                      if [[ "$line" =~ ${class//./\\.}\.${method}\(${class##*.}\.java:([0-9]+)\) ]]; then
+                      # Uncomment to debug matching
+                      # echo "DEBUG line: $line"
+
+                      regex="^${escaped_class}\.${escaped_method}\(${class_file}:([0-9]+)\)$"
+                      if [[ "$line" =~ $regex ]]; then
                           line_number="${BASH_REMATCH[1]}"
                           break
                       fi
                   done <<< "$stack"
 
-                  # Build GitHub link
                   file_path="$TEST_SRC/${class//./\/}.java"
                   link="$REPO_URL/$file_path"
                   [[ -n "$line_number" ]] && link="$link#L$line_number"
 
-                  # Print class header once
                   if [[ -z "${seen[$class]}" ]]; then
                       echo "" >> $GITHUB_STEP_SUMMARY
                       echo "#### $class" >> $GITHUB_STEP_SUMMARY
                       seen[$class]=1
                   fi
 
-                  # Format failure message
                   if [[ "$type" == "org.opentest4j.AssertionFailedError" ]]; then
                       echo "- [**$method** (line $line_number)]($link) → $message" >> $GITHUB_STEP_SUMMARY
                   else
