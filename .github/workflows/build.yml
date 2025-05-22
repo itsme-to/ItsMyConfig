@@ -46,7 +46,7 @@ jobs:
     - name: Build & Test
       run: ./gradlew shadowJar
 
-        - name: Debug Failed Test Extraction
+    - name: Debug Failed Test Extraction
       if: always()
       shell: bash
       run: |
