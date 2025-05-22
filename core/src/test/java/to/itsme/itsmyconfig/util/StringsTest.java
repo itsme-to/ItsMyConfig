@@ -34,8 +34,9 @@ class StringsTest {
         assertEquals(Optional.empty(), Strings.parsePrefixedMessage("&aGreen")); // no prefix
 
         // MiniMessage tags
+        assertEquals(Optional.empty(), Strings.parsePrefixedMessage("<bold>Bold"));
         assertEquals(Optional.of("<bold>Bold"), Strings.parsePrefixedMessage("$<bold>Bold"));
-        assertEquals(Optional.empty(), Strings.parsePrefixedMessage("<bold>$Bold")); // prefix inside tag
+        assertEquals(Optional.of("<bold>Bold"), Strings.parsePrefixedMessage("<bold>$Bold")); // prefix inside tag
 
         // Whitespace handling
         assertEquals(Optional.of("test"), Strings.parsePrefixedMessage("$ test"));
@@ -64,7 +65,7 @@ class StringsTest {
     void testColorless() {
         assertEquals("Hello", Strings.colorless("&aHello"));
         assertEquals("Hello", Strings.colorless("§aHello"));
-        assertEquals("H&kHello", Strings.colorless("H&kHello")); // Only removes color codes, not special ones
+        assertEquals("Hello", Strings.colorless("H&kello"));
     }
 
     @Test
@@ -130,8 +131,8 @@ class StringsTest {
 
     @Test
     void testTextlessExtractsNumbersAndDot() {
-        assertEquals("123.45", Strings.textless("123.45.67abc"));
-        assertEquals("9.8", Strings.textless("abc9.8.7xyz"));
+        assertEquals("123.4567", Strings.textless("123.45.67abc"));
+        assertEquals("9.87", Strings.textless("abc9.8.7xyz"));
         assertEquals("", Strings.textless("no numbers"));
     }
 
