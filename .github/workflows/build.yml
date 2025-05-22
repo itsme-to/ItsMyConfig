@@ -62,52 +62,51 @@ jobs:
         mapfile -t files < <(find core/build/test-results/test/ -type f -name "*.xml")
 
         for file in "${files[@]}"; do
-          while IFS='|' read -r class method type message stack; do
-            [[ -z "$message" ]] && message="(no message)"
-            [[ -z "$type" ]] && type="UnknownException"
-            [[ -z "$method" ]] && method="(unknown method)"
-            [[ -z "$class" ]] && class="(unknown class)"
+            while IFS='|' read -r class method type message stack; do
+                [[ -z "$message" ]] && message="(no message)"
+                [[ -z "$type" ]] && type="UnknownException"
+                [[ -z "$method" ]] && method="(unknown method)"
+                [[ -z "$class" ]] && class="(unknown class)"
 
-            class_file="${class##*.}.java"
-            line_number=""
+                class_file="${class##*.}.java"
+                line_number=""
 
-            # Extract line number from stack trace using class_file only
-            if [[ "$stack" =~ ${class_file//./\\.}:([0-9]+)\) ]]; then
-              line_number="${BASH_REMATCH[1]}"
-            fi
+                if [[ "$stack" =~ ${class_file//./\\.}:([0-9]+)\) ]]; then
+                    line_number="${BASH_REMATCH[1]}"
+                fi
 
-            file_path="$TEST_SRC/${class//./\/}.java"
-            link="$REPO_URL/$file_path"
-            [[ -n "$line_number" ]] && link="$link#L$line_number"
+                file_path="$TEST_SRC/${class//./\/}.java"
+                link="$REPO_URL/$file_path"
+                [[ -n "$line_number" ]] && link="$link#L$line_number"
 
-            if [[ -z "${seen[$class]}" ]]; then
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "#### [$class]($REPO_URL/$file_path)" >> $GITHUB_STEP_SUMMARY
-              seen[$class]=1
-            fi
+                if [[ -z "${seen[$class]}" ]]; then
+                    echo "" >> $GITHUB_STEP_SUMMARY
+                    echo "#### [$class]($REPO_URL/$file_path)" >> $GITHUB_STEP_SUMMARY
+                    seen[$class]=1
+                fi
 
-            if [[ "$type" == *"AssertionFailedError"* ]]; then
-              short_message=$(echo "$message" | sed -E 's/^[a-zA-Z0-9_.]+: *//')
-              echo "- [**$method** (line $line_number)]($link) → $short_message" >> $GITHUB_STEP_SUMMARY
-            else
-              echo "- [**$method** (line $line_number)]($link) → $type: $message" >> $GITHUB_STEP_SUMMARY
-            fi
+                if [[ "$type" == *"AssertionFailedError"* ]]; then
+                    short_message="${message#org.opentest4j.AssertionFailedError: }"
+                    echo "- [**$method** (line $line_number)]($link) → $short_message" >> $GITHUB_STEP_SUMMARY
+                else
+                    echo "- [**$method** (line $line_number)]($link) → $type: $message" >> $GITHUB_STEP_SUMMARY
+                fi
 
-            if [[ -n "$stack" ]]; then
-              echo "   <details><summary>🧵 Stack Trace</summary>" >> $GITHUB_STEP_SUMMARY
-              echo "   " >> $GITHUB_STEP_SUMMARY
-              echo '   ```' >> $GITHUB_STEP_SUMMARY
-              printf '%s\n' "$stack" | sed 's/^/    /' >> $GITHUB_STEP_SUMMARY
-              echo '   ```' >> $GITHUB_STEP_SUMMARY
-              echo "   </details>" >> $GITHUB_STEP_SUMMARY
-            fi
-          done < <(xmlstarlet sel -t \
-            -m "//testcase[failure]" \
-            -v "@classname" -o "|" \
-            -v "@name" -o "|" \
-            -v "failure/@type" -o "|" \
-            -v "failure/@message" -o "|" \
-            -v "normalize-space(failure)" -n "$file")
+                if [[ -n "$stack" ]]; then
+                    echo "   <details><summary>🧵 Stack Trace</summary>" >> $GITHUB_STEP_SUMMARY
+                    echo "   " >> $GITHUB_STEP_SUMMARY
+                    echo '   ```' >> $GITHUB_STEP_SUMMARY
+                    printf '%s\n' "$stack" | sed 's/^/    /' >> $GITHUB_STEP_SUMMARY
+                    echo '   ```' >> $GITHUB_STEP_SUMMARY
+                    echo "   </details>" >> $GITHUB_STEP_SUMMARY
+                fi
+            done < <(xmlstarlet sel -t \
+                -m "//testcase[failure]" \
+                -v "@classname" -o "|" \
+                -v "@name" -o "|" \
+                -v "failure/@type" -o "|" \
+                -v "failure/@message" -o "|" \
+                -v "failure" -n "$file")
         done
 
     - name: Extract version and commit hash
