@@ -67,21 +67,13 @@ jobs:
                   [[ -z "$method" ]] && method="(unknown method)"
                   [[ -z "$class" ]] && class="(unknown class)"
 
-                  # Extract line number from stack trace (match on file name)
+                  # Extract line number using precise class.method match
                   line_number=""
-                  file_name="${class##*.}.java"
-                  while IFS= read -r line; do
-                      if [[ "$line" =~ \((.*\.java):([0-9]+)\) ]]; then
-                          matched_file="${BASH_REMATCH[1]}"
-                          matched_line="${BASH_REMATCH[2]}"
-                          if [[ "$matched_file" == "$file_name" ]]; then
-                              line_number="$matched_line"
-                              break
-                          fi
-                      fi
-                  done <<< "$stack"
+                  if [[ "$stack" =~ ${class//./\\.}\.${method}\(${class##*.}\.java:([0-9]+)\) ]]; then
+                      line_number="${BASH_REMATCH[1]}"
+                  fi
 
-                  # Link to the exact method
+                  # Build GitHub link
                   file_path="$TEST_SRC/${class//./\/}.java"
                   link="$REPO_URL/$file_path"
                   [[ -n "$line_number" ]] && link="$link#L$line_number"
@@ -93,7 +85,7 @@ jobs:
                       seen[$class]=1
                   fi
 
-                  # Format the failure line
+                  # Format failure message
                   if [[ "$type" == "org.opentest4j.AssertionFailedError" ]]; then
                       echo "- [**$method** (line $line_number)]($link) → $message" >> $GITHUB_STEP_SUMMARY
                   else
