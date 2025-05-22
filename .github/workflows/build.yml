@@ -59,35 +59,30 @@ jobs:
         mapfile -t files < <(find core/build/test-results/test/ -type f -name "*.xml")
 
         for file in "${files[@]}"; do
-          class=""
-          method=""
-          while IFS= read -r line; do
-            if [[ "$line" =~ \<testcase\ classname=\"([^\"]+)\"\ name=\"([^\"]+)\" ]]; then
-              class="${BASH_REMATCH[1]}"
-              method="${BASH_REMATCH[2]}"
+          while IFS= read -r testcase; do
+            class=$(echo "$testcase" | xmllint --xpath 'string(//testcase/@classname)' - 2>/dev/null)
+            method=$(echo "$testcase" | xmllint --xpath 'string(//testcase/@name)' - 2>/dev/null)
+            failure=$(echo "$testcase" | xmllint --xpath 'string(//failure)' - 2>/dev/null)
+            type=$(echo "$testcase" | xmllint --xpath 'string(//failure/@type)' - 2>/dev/null)
+
+            [[ -z "$failure" ]] && continue
+            [[ -z "$type" ]] && type="UnknownException"
+            [[ -z "$method" ]] && method="(unknown method)"
+            [[ -z "$class" ]] && class="(unknown class)"
+
+            if [[ -z "${seen[$class]}" ]]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              file_path="$TEST_SRC/${class//./\/}.java"
+              echo "#### [$class]($REPO_URL/$file_path)" >> $GITHUB_STEP_SUMMARY
+              seen[$class]=1
             fi
 
-            if [[ "$line" =~ \<failure\ message=\"([^\"]*)\"(\ type=\"([^\"]+)\")? ]]; then
-              message="${BASH_REMATCH[1]}"
-              type="${BASH_REMATCH[3]}"
-              [[ -z "$message" ]] && message="(no message)"
-              [[ -z "$type" ]] && type="UnknownException"
-              [[ -z "$method" ]] && method="(unknown method)"
-
-              if [[ -n "$class" && -z "${seen[$class]}" ]]; then
-                echo "" >> $GITHUB_STEP_SUMMARY
-                file_path="$TEST_SRC/${class//./\/}.java"
-                echo "#### [$class]($REPO_URL/$file_path)" >> $GITHUB_STEP_SUMMARY
-                seen[$class]=1
-              fi
-
-              if [[ "$type" == "org.opentest4j.AssertionFailedError" ]]; then
-                echo "- **$method** → $message" >> $GITHUB_STEP_SUMMARY
-              else
-                echo "- **$method** → $type: $message" >> $GITHUB_STEP_SUMMARY
-              fi
+            if [[ "$type" == "org.opentest4j.AssertionFailedError" ]]; then
+              echo "- **$method** → $failure" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- **$method** → $type: $failure" >> $GITHUB_STEP_SUMMARY
             fi
-          done < "$file"
+          done < <(grep -Poz '<testcase.*?<failure.*?</failure>' "$file")
         done
 
     - name: Extract version and commit hash
