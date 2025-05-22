@@ -50,35 +50,69 @@ jobs:
       if: failure()
       run: |
         echo "## ❌ Failed Tests Summary" >> $GITHUB_STEP_SUMMARY
-        # Check if any test result XML files exist
+
+        REPO_URL="https://github.com/Itsme-to/ItsMyConfig/blob/main"
+        TEST_SRC="core/src/test/java"
+
         if ! find core/build/test-results/test/ -name "*.xml" | grep -q .; then
           echo "No test results found. Build likely failed before tests ran." >> $GITHUB_STEP_SUMMARY
           exit 0
         fi
 
-        # Process XML files if they exist
         find core/build/test-results/test/ -type f -name "*.xml" | while read file; do
-          module="core"
-          fails=$(grep -c "<failure" "$file")
-          if [ "$fails" -gt 0 ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**$module:**" >> $GITHUB_STEP_SUMMARY
-            grep -A 1 "<testcase" "$file" | grep -B 1 "<failure" | grep -E "<testcase|<failure" | while read line; do
-              if [[ "$line" == *"<testcase"* ]]; then
-                classname=$(echo "$line" | sed -n 's/.*classname="\([^"]*\)".*/\1/p')
-                name=$(echo "$line" | sed -n 's/.*name="\([^"]*\)".*/\1/p')
-                echo "- ${classname##*.}.${name}" >> $GITHUB_STEP_SUMMARY
-              elif [[ "$line" == *"<failure"* ]]; then
-                message=$(echo "$line" | sed -n 's/.*<failure[^>]*message="\([^"]*\)".*/\1/p')
-                if [ -z "$message" ]; then
-                  message="(no message)"
-                fi
-                echo "  → $message" >> $GITHUB_STEP_SUMMARY
-              fi
-            done
-          fi
-        done
+          awk -v REPO_URL="$REPO_URL" -v TEST_SRC="$TEST_SRC" '
+            BEGIN {
+              class = ""; method = ""; msg = ""; type = ""; line = "";
+            }
+            /<testcase / {
+              class = gensub(/.*classname="([^"]+)".*/, "\\1", "g", $0)
+              method = gensub(/.*name="([^"]+)".*/, "\\1", "g", $0)
+              line = gensub(/.*line="([^"]+)".*/, "\\1", "g", $0)
+            }
+            /<failure / {
+              msg = gensub(/.*message="([^"]*)".*/, "\\1", "g", $0)
+              type = gensub(/.*type="([^"]*)".*/, "\\1", "g", $0)
+              if (msg == "") msg = "(no message)"
+            }
+            /<\/testcase>/ {
+              if (type != "") {
+                key = class
 
+                # Convert class to path
+                filepath = TEST_SRC "/" key
+                gsub(/\./, "/", filepath)
+                filepath = filepath ".java"
+                fileurl = REPO_URL "/" filepath
+
+                if (!(key in seen)) {
+                  print "\n**[" key "](" fileurl ")" >> "'"$GITHUB_STEP_SUMMARY"'"
+                  seen[key] = 1
+                }
+
+                # Line-specific link if available
+                if (line != "" && line ~ /^[0-9]+$/) {
+                  methodlink = fileurl "#L" line
+                  methodtext = method " (line " line ")"
+                } else {
+                  methodlink = fileurl
+                  methodtext = method
+                }
+
+                if (type == "org.opentest4j.AssertionFailedError") {
+                  lineout = "- [" methodtext "](" methodlink ") → " msg
+                } else {
+                  lineout = "- [" methodtext "](" methodlink ") → " type ": " msg
+                }
+
+                print lineout >> "'"$GITHUB_STEP_SUMMARY"'"
+
+                # Reset
+                type = ""; msg = ""; line = "";
+              }
+            }
+          ' "$file"
+        done
+ 
     - name: Extract version and commit hash
       run: |
         echo "PLUGIN_VERSION=$(grep 'version =' build.gradle | awk -F'\"' '{print $2}')" >> $GITHUB_ENV
