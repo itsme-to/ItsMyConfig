@@ -59,16 +59,17 @@ jobs:
         mapfile -t files < <(find core/build/test-results/test/ -type f -name "*.xml")
 
         for file in "${files[@]}"; do
-          # Get all failing testcases (by their position) using xmllint and XPath
-          IFS=$'\n' read -d '' -r -a failing_test_indexes < <(
-            xmllint --xpath 'count(//testcase[failure])' "$file" 2>/dev/null | xargs -I{} seq 1 {}
-          )
+          count=$(xmllint --xpath 'count(//testcase[failure])' "$file" 2>/dev/null || echo 0)
 
-          for index in "${failing_test_indexes[@]}"; do
-            class=$(xmllint --xpath "string((//testcase[failure])[${index}]/@classname)" "$file")
-            method=$(xmllint --xpath "string((//testcase[failure])[${index}]/@name)" "$file")
-            failure=$(xmllint --xpath "string((//testcase[failure])[${index}]/failure)" "$file")
-            type=$(xmllint --xpath "string((//testcase[failure])[${index}]/failure/@type)" "$file")
+          if (( count == 0 )); then
+            continue
+          fi
+
+          for index in $(seq 1 "$count"); do
+            class=$(xmllint --xpath "string((//testcase[failure])[${index}]/@classname)" "$file" 2>/dev/null)
+            method=$(xmllint --xpath "string((//testcase[failure])[${index}]/@name)" "$file" 2>/dev/null)
+            failure=$(xmllint --xpath "string((//testcase[failure])[${index}]/failure)" "$file" 2>/dev/null)
+            type=$(xmllint --xpath "string((//testcase[failure])[${index}]/failure/@type)" "$file" 2>/dev/null)
 
             [[ -z "$failure" ]] && failure="(no message)"
             [[ -z "$type" ]] && type="UnknownException"
