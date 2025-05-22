@@ -46,37 +46,6 @@ jobs:
     - name: Build & Test
       run: ./gradlew shadowJar
 
-    - name: Debug Failed Test Extraction
-      if: always()
-      shell: bash
-      run: |
-        echo "🔍 Testing extraction from XML..."
-
-        file="core/build/test-results/test/TEST-to.itsme.itsmyconfig.util.StringsTest.xml"
-        echo "Processing file: $file"
-
-        count=$(xmllint --xpath 'count(//testcase[failure])' "$file" 2>/dev/null || echo 0)
-        echo "Found $count failing testcases"
-
-        if (( count == 0 )); then
-          echo "❌ No <failure> tags found in XML"
-          exit 0
-        fi
-
-        for index in $(seq 1 "$count"); do
-          class=$(xmllint --xpath "string((//testcase[failure])[${index}]/@classname)" "$file" 2>/dev/null)
-          method=$(xmllint --xpath "string((//testcase[failure])[${index}]/@name)" "$file" 2>/dev/null)
-          failure=$(xmllint --xpath "string((//testcase[failure])[${index}]/failure)" "$file" 2>/dev/null | sed 's/&lt;/</g; s/&gt;/>/g')
-          type=$(xmllint --xpath "string((//testcase[failure])[${index}]/failure/@type)" "$file" 2>/dev/null)
-
-          echo "---"
-          echo "Class   : $class"
-          echo "Method  : $method"
-          echo "Type    : $type"
-          echo "Message : $failure"
-          echo "---"
-        done
-
     - name: Summarize Failed Tests
       if: failure()
       shell: bash
@@ -90,20 +59,8 @@ jobs:
         mapfile -t files < <(find core/build/test-results/test/ -type f -name "*.xml")
 
         for file in "${files[@]}"; do
-          count=$(xmllint --xpath 'count(//testcase[failure])' "$file" 2>/dev/null || echo 0)
-
-          if (( count == 0 )); then
-            continue
-          fi
-
-          for index in $(seq 1 "$count"); do
-            class=$(xmllint --xpath "string((//testcase[failure])[${index}]/@classname)" "$file" 2>/dev/null)
-            method=$(xmllint --xpath "string((//testcase[failure])[${index}]/@name)" "$file" 2>/dev/null)
-            # Extract failure content safely
-            failure=$(xmllint --xpath "string((//testcase[failure])[${index}]/failure)" "$file" 2>/dev/null | sed 's/&lt;/</g; s/&gt;/>/g')
-            type=$(xmllint --xpath "string((//testcase[failure])[${index}]/failure/@type)" "$file" 2>/dev/null)
-
-            [[ -z "$failure" ]] && failure="(no message)"
+          while IFS='|' read -r class method type message; do
+            [[ -z "$message" ]] && message="(no message)"
             [[ -z "$type" ]] && type="UnknownException"
             [[ -z "$method" ]] && method="(unknown method)"
             [[ -z "$class" ]] && class="(unknown class)"
@@ -116,11 +73,16 @@ jobs:
             fi
 
             if [[ "$type" == "org.opentest4j.AssertionFailedError" ]]; then
-              echo "- **$method** → $failure" >> $GITHUB_STEP_SUMMARY
+              echo "- **$method** → $message" >> $GITHUB_STEP_SUMMARY
             else
-              echo "- **$method** → $type: $failure" >> $GITHUB_STEP_SUMMARY
+              echo "- **$method** → $type: $message" >> $GITHUB_STEP_SUMMARY
             fi
-          done
+          done < <(xmlstarlet sel -t \
+            -m "//testcase[failure]" \
+            -v "@classname" -o "|" \
+            -v "@name" -o "|" \
+            -v "failure/@type" -o "|" \
+            -v "normalize-space(failure)" -n "$file")
         done
 
     - name: Extract version and commit hash
