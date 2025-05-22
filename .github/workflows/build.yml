@@ -94,12 +94,12 @@ jobs:
             fi
 
             if [[ -n "$stack" ]]; then
-              echo "<details><summary>🧵 Stack Trace</summary>" >> $GITHUB_STEP_SUMMARY
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo '```' >> $GITHUB_STEP_SUMMARY
+              echo "   <details><summary>🧵 Stack Trace</summary>" >> $GITHUB_STEP_SUMMARY
+              echo "   " >> $GITHUB_STEP_SUMMARY
+              echo '   ```' >> $GITHUB_STEP_SUMMARY
               echo "$stack" >> $GITHUB_STEP_SUMMARY
-              echo '```' >> $GITHUB_STEP_SUMMARY
-              echo "</details>" >> $GITHUB_STEP_SUMMARY
+              echo '   ```' >> $GITHUB_STEP_SUMMARY
+              echo "   </details>" >> $GITHUB_STEP_SUMMARY
             fi
           done < <(xmlstarlet sel -t \
             -m "//testcase[failure]" \
