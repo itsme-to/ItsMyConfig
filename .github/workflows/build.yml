@@ -46,18 +46,35 @@ jobs:
     - name: Build & Test
       run: ./gradlew shadowJar
 
-    - name: Debug Test Results Output
+        - name: Debug Failed Test Extraction
       if: always()
       shell: bash
       run: |
-        echo "Looking for test result XML files..."
-        find core/build/test-results/test/ -type f -name "*.xml" || echo "❌ No XML files found"
+        echo "🔍 Testing extraction from XML..."
 
-        for file in $(find core/build/test-results/test/ -type f -name "*.xml"); do
-          echo ""
-          echo "📄 Found: $file"
-          echo "First 10 lines:"
-          head "$file"
+        file="core/build/test-results/test/TEST-to.itsme.itsmyconfig.util.StringsTest.xml"
+        echo "Processing file: $file"
+
+        count=$(xmllint --xpath 'count(//testcase[failure])' "$file" 2>/dev/null || echo 0)
+        echo "Found $count failing testcases"
+
+        if (( count == 0 )); then
+          echo "❌ No <failure> tags found in XML"
+          exit 0
+        fi
+
+        for index in $(seq 1 "$count"); do
+          class=$(xmllint --xpath "string((//testcase[failure])[${index}]/@classname)" "$file" 2>/dev/null)
+          method=$(xmllint --xpath "string((//testcase[failure])[${index}]/@name)" "$file" 2>/dev/null)
+          failure=$(xmllint --xpath "string((//testcase[failure])[${index}]/failure)" "$file" 2>/dev/null | sed 's/&lt;/</g; s/&gt;/>/g')
+          type=$(xmllint --xpath "string((//testcase[failure])[${index}]/failure/@type)" "$file" 2>/dev/null)
+
+          echo "---"
+          echo "Class   : $class"
+          echo "Method  : $method"
+          echo "Type    : $type"
+          echo "Message : $failure"
+          echo "---"
         done
 
     - name: Summarize Failed Tests
