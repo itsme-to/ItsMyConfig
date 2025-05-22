@@ -67,20 +67,17 @@ jobs:
                   [[ -z "$method" ]] && method="(unknown method)"
                   [[ -z "$class" ]] && class="(unknown class)"
 
-                  # Prepare variables for regex
+                  # Extract line number from stack trace
+                  line_number=""
                   class_file="${class##*.}.java"
-                  escaped_class="${class//./\\.}"
                   escaped_method="${method//./\\.}"
 
-                  line_number=""
                   while IFS= read -r line; do
-                      # Uncomment to debug matching
-                      echo "DEBUG line: $line"
-
-                      regex="^${escaped_class}\.${escaped_method}\(${class_file}:([0-9]+)\)$"
-                      if [[ "$line" =~ $regex ]]; then
-                          line_number="${BASH_REMATCH[1]}"
-                          break
+                      if [[ "$line" == *"${class_file}"* && "$line" == *".${method}("* ]]; then
+                          if [[ "$line" =~ ${class_file}:([0-9]+) ]]; then
+                              line_number="${BASH_REMATCH[1]}"
+                              break
+                          fi
                       fi
                   done <<< "$stack"
 
@@ -95,8 +92,10 @@ jobs:
                   fi
 
                   if [[ "$type" == *"AssertionFailedError"* ]]; then
+                      echo "1"
                       echo "- [**$method** (line $line_number)]($link) → $message" >> $GITHUB_STEP_SUMMARY
                   else
+                      echo "2"
                       echo "- [**$method** (line $line_number)]($link) → $type: $message" >> $GITHUB_STEP_SUMMARY
                   fi
               done < <(xmlstarlet sel -t \
