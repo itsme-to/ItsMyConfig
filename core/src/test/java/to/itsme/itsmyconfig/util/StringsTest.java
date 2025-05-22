@@ -39,8 +39,8 @@ class StringsTest {
         assertEquals(Optional.of("<bold>Bold"), Strings.parsePrefixedMessage("<bold>$Bold")); // prefix inside tag
 
         // Whitespace handling
-        assertEquals(Optional.of("test"), Strings.parsePrefixedMessage("$ test"));
-        assertEquals(Optional.empty(), Strings.parsePrefixedMessage(" $test")); // whitespace before $
+        assertEquals(Optional.of(" test"), Strings.parsePrefixedMessage("$ test"));
+        assertEquals(Optional.of(" test"), Strings.parsePrefixedMessage(" $test")); // whitespace before $
 
         // Incognito prefix
         assertEquals(Optional.of("Secret"), Strings.parsePrefixedMessage("{$}Secret"));
@@ -49,9 +49,9 @@ class StringsTest {
         // No prefix
         assertEquals(Optional.empty(), Strings.parsePrefixedMessage("No prefix here"));
 
-        // Prefix after tag or whitespace
-        assertEquals(Optional.empty(), Strings.parsePrefixedMessage(" <bold>$after"));
-        assertEquals(Optional.empty(), Strings.parsePrefixedMessage("  $after"));
+        // Prefix after tag and/or whitespace
+        assertEquals(Optional.of(" <bold>after"), Strings.parsePrefixedMessage(" <bold>$after"));
+        assertEquals(Optional.of(" after"), Strings.parsePrefixedMessage("  $after"));
     }
 
     @Test
