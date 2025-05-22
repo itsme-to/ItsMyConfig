@@ -46,6 +46,20 @@ jobs:
     - name: Build & Test
       run: ./gradlew shadowJar
 
+    - name: Debug Test Results Output
+      if: always()
+      shell: bash
+      run: |
+        echo "Looking for test result XML files..."
+        find core/build/test-results/test/ -type f -name "*.xml" || echo "❌ No XML files found"
+
+        for file in $(find core/build/test-results/test/ -type f -name "*.xml"); do
+          echo ""
+          echo "📄 Found: $file"
+          echo "First 10 lines:"
+          head "$file"
+        done
+
     - name: Summarize Failed Tests
       if: failure()
       shell: bash
