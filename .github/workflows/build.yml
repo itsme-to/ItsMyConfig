@@ -75,7 +75,7 @@ jobs:
                   line_number=""
                   while IFS= read -r line; do
                       # Uncomment to debug matching
-                      # echo "DEBUG line: $line"
+                      echo "DEBUG line: $line"
 
                       regex="^${escaped_class}\.${escaped_method}\(${class_file}:([0-9]+)\)$"
                       if [[ "$line" =~ $regex ]]; then
