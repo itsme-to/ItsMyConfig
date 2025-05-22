@@ -43,8 +43,8 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
 
-    - name: Build with Gradle 8.5
-      run: ./gradlew clean shadowJar
+    - name: Build & Test
+      run: ./gradlew clean shadowJar test
 
     - name: Extract version and commit hash
       run: |
