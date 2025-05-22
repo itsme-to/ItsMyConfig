@@ -46,6 +46,39 @@ jobs:
     - name: Build & Test
       run: ./gradlew shadowJar
 
+    - name: Summarize Failed Tests
+      if: failure()
+      run: |
+        echo "## ❌ Failed Tests Summary" >> $GITHUB_STEP_SUMMARY
+        # Check if any test result XML files exist
+        if ! find core/build/test-results/test/ -name "*.xml" | grep -q .; then
+          echo "No test results found. Build likely failed before tests ran." >> $GITHUB_STEP_SUMMARY
+          exit 0
+        fi
+
+        # Process XML files if they exist
+        find core/build/test-results/test/ -type f -name "*.xml" | while read file; do
+          module="core"
+          fails=$(grep -c "<failure" "$file")
+          if [ "$fails" -gt 0 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**$module:**" >> $GITHUB_STEP_SUMMARY
+            grep -A 1 "<testcase" "$file" | grep -B 1 "<failure" | grep -E "<testcase|<failure" | while read line; do
+              if [[ "$line" == *"<testcase"* ]]; then
+                classname=$(echo "$line" | sed -n 's/.*classname="\([^"]*\)".*/\1/p')
+                name=$(echo "$line" | sed -n 's/.*name="\([^"]*\)".*/\1/p')
+                echo "- ${classname##*.}.${name}" >> $GITHUB_STEP_SUMMARY
+              elif [[ "$line" == *"<failure"* ]]; then
+                message=$(echo "$line" | sed -n 's/.*<failure[^>]*message="\([^"]*\)".*/\1/p')
+                if [ -z "$message" ]; then
+                  message="(no message)"
+                fi
+                echo "  → $message" >> $GITHUB_STEP_SUMMARY
+              fi
+            done
+          fi
+        done
+
     - name: Extract version and commit hash
       run: |
         echo "PLUGIN_VERSION=$(grep 'version =' build.gradle | awk -F'\"' '{print $2}')" >> $GITHUB_ENV
