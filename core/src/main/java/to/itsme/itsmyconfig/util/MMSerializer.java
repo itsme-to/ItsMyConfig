@@ -107,7 +107,7 @@ final class MMSerializer {
          */
         private static final String MARK = "__<'\"\\MARK__";
         private static final char[] TEXT_ESCAPES = {TokenParser.ESCAPE, TokenParser.TAG_START};
-        private static final char[] TAG_TOKENS = {TokenParser.TAG_END, TokenParser.SEPARATOR};
+        private static final char[] TAG_TOKENS = new char[0];
         private static final char[] SINGLE_QUOTED_ESCAPES = {TokenParser.ESCAPE, '\''};
         private static final char[] DOUBLE_QUOTED_ESCAPES = {TokenParser.ESCAPE, '"'};
 
@@ -224,7 +224,7 @@ final class MMSerializer {
         public @NotNull Collector text(final @NotNull String text) {
             this.completeTag();
             // escape '\' and '<'
-            //appendEscaping(this.consumer, text, TEXT_ESCAPES, true);
+            appendEscaping(this.consumer, text, TEXT_ESCAPES, true);
             return this;
         }
 
