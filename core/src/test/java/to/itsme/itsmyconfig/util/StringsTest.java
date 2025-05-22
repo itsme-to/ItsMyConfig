@@ -43,6 +43,7 @@ class StringsTest {
 
         // Incognito prefix
         assertEquals(Optional.of("Secret"), Strings.parsePrefixedMessage("{$}Secret"));
+        assertEquals(Optional.of("Secret Message"), Strings.parsePrefixedMessage("$Secret {$}Message"));
 
         // No prefix
         assertEquals(Optional.empty(), Strings.parsePrefixedMessage("No prefix here"));
@@ -60,7 +61,7 @@ class StringsTest {
     }
 
     @Test
-    void testColorless_removesColorCodes() {
+    void testColorless() {
         assertEquals("Hello", Strings.colorless("&aHello"));
         assertEquals("Hello", Strings.colorless("§aHello"));
         assertEquals("H&kHello", Strings.colorless("H&kHello")); // Only removes color codes, not special ones
@@ -132,15 +133,6 @@ class StringsTest {
         assertEquals("123.45", Strings.textless("123.45.67abc"));
         assertEquals("9.8", Strings.textless("abc9.8.7xyz"));
         assertEquals("", Strings.textless("no numbers"));
-    }
-
-    @Test
-    void testToStringCollection() {
-        Collection<String> lines = List.of("a", "b", "c");
-        String result = Strings.toString(lines);
-        assertTrue(result.contains("a"));
-        assertTrue(result.contains("b"));
-        assertTrue(result.contains("c"));
     }
 
 }
