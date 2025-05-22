@@ -83,7 +83,7 @@ jobs:
                     fi
                 fi
             done < "$file"
-        done < <(find core/build/test-results/test/ -type f -name "*.
+        done < <(find core/build/test-results/test/ -type f -name "*.xml")
     - name: Extract version and commit hash
       run: |
         echo "PLUGIN_VERSION=$(grep 'version =' build.gradle | awk -F'\"' '{print $2}')" >> $GITHUB_ENV
