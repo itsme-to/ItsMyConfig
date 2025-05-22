@@ -56,7 +56,7 @@ jobs:
           TEST_SRC="core/src/test/java"
           declare -A seen=
 
-          sudo apt-get update && sudo apt-get install -y xmlstarlet
+          sudo sudo apt-get install -y xmlstarlet
 
           mapfile -t files < <(find core/build/test-results/test/ -type f -name "*.xml")
 
