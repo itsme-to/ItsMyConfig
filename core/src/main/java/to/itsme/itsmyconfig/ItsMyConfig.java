@@ -149,6 +149,7 @@ public final class ItsMyConfig extends JavaPlugin {
         this.saveDefaultConfig();
         this.reloadConfig();
         this.config = this.getConfig();
+        this.getConfig().options().copyDefaults(true);
         this.reloadConfigParams();
 
         // 8 - 9:  Maps to keep track of registered placeholders and progress bars
