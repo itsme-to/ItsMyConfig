@@ -57,7 +57,7 @@ jobs:
           TEST_SRC="core/src/test/java"
           declare -A seen=
 
-          sudo apt-get install -y xmlstarlet
+          sudo apt-get update && sudo apt-get install -y xmlstarlet
 
           mapfile -t files < <(find core/build/test-results/test/ -type f -name "*.xml")
 
@@ -68,13 +68,17 @@ jobs:
                   [[ -z "$method" ]] && method="(unknown method)"
                   [[ -z "$class" ]] && class="(unknown class)"
 
-                  # Extract line number from stack trace
-                  line_number=""
                   class_file="${class##*.}.java"
-                  escaped_method="${method//./\\.}"
+                  line_number=""
+
+                  echo "DEBUG class: $class" >&2
+                  echo "DEBUG method: $method" >&2
+                  echo "DEBUG class_file: $class_file" >&2
+                  echo "DEBUG stack: $stack" >&2
 
                   while IFS= read -r line; do
-                      if [[ "$line" =~ ${method}\(${class_file}:([0-9]+)\) ]]; then
+                      echo "DEBUG checking: $line" >&2
+                      if [[ "$line" =~ \(${class_file}:([0-9]+)\) ]] && [[ "$line" == *"$method"* ]]; then
                           line_number="${BASH_REMATCH[1]}"
                           echo "DEBUG matched line number: $line_number" >&2
                           break
@@ -87,14 +91,14 @@ jobs:
 
                   if [[ -z "${seen[$class]}" ]]; then
                       echo "" >> $GITHUB_STEP_SUMMARY
-                      echo "#### $class" >> $GITHUB_STEP_SUMMARY
+                      echo "#### [$class]($REPO_URL/$file_path)" >> $GITHUB_STEP_SUMMARY
                       seen[$class]=1
                   fi
 
                   if [[ "$type" == *"AssertionFailedError"* ]]; then
-                      echo "  - [**$method** (line $line_number)]($link) → $message" >> $GITHUB_STEP_SUMMARY
+                      echo "- [**$method** (line $line_number)]($link) → $message" >> $GITHUB_STEP_SUMMARY
                   else
-                      echo "  - [**$method** (line $line_number)]($link) → $type: $message" >> $GITHUB_STEP_SUMMARY
+                      echo "- [**$method** (line $line_number)]($link) → $type: $message" >> $GITHUB_STEP_SUMMARY
                   fi
               done < <(xmlstarlet sel -t \
                   -m "//testcase[failure]" \
