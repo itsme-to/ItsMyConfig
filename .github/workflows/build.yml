@@ -56,7 +56,7 @@ jobs:
           TEST_SRC="core/src/test/java"
           declare -A seen=
 
-          sudo sudo apt-get install -y xmlstarlet
+          sudo apt-get update && sudo apt-get install -y xmlstarlet
 
           mapfile -t files < <(find core/build/test-results/test/ -type f -name "*.xml")
 
@@ -67,11 +67,14 @@ jobs:
                   [[ -z "$method" ]] && method="(unknown method)"
                   [[ -z "$class" ]] && class="(unknown class)"
 
-                  # Extract line number using precise class.method match
+                  # Extract line number from stack trace (line-by-line match)
                   line_number=""
-                  if [[ "$stack" =~ ${class//./\\.}\.${method}\(${class##*.}\.java:([0-9]+)\) ]]; then
-                      line_number="${BASH_REMATCH[1]}"
-                  fi
+                  while IFS= read -r line; do
+                      if [[ "$line" =~ ${class//./\\.}\.${method}\(${class##*.}\.java:([0-9]+)\) ]]; then
+                          line_number="${BASH_REMATCH[1]}"
+                          break
+                      fi
+                  done <<< "$stack"
 
                   # Build GitHub link
                   file_path="$TEST_SRC/${class//./\/}.java"
