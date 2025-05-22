@@ -87,9 +87,19 @@ jobs:
             fi
 
             if [[ "$type" == *"AssertionFailedError"* ]]; then
-              echo "- [**$method** (line $line_number)]($link) → $message" >> $GITHUB_STEP_SUMMARY
+              short_message=$(echo "$message" | sed -E 's/^[a-zA-Z0-9_.]+: *//')
+              echo "- [**$method** (line $line_number)]($link) → $short_message" >> $GITHUB_STEP_SUMMARY
             else
               echo "- [**$method** (line $line_number)]($link) → $type: $message" >> $GITHUB_STEP_SUMMARY
+            fi
+
+            if [[ -n "$stack" ]]; then
+              echo "<details><summary>🧵 Stack Trace</summary>" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              echo "$stack" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              echo "</details>" >> $GITHUB_STEP_SUMMARY
             fi
           done < <(xmlstarlet sel -t \
             -m "//testcase[failure]" \
