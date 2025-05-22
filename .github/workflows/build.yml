@@ -47,7 +47,6 @@ jobs:
       run: ./gradlew shadowJar
 
     - name: Summarize Failed Tests
-      if: failure()
       shell: bash
       run: |
         echo "## ❌ Failed Tests Summary" >> $GITHUB_STEP_SUMMARY
@@ -56,10 +55,13 @@ jobs:
         TEST_SRC="core/src/test/java"
         declare -A seen=()
 
-        # Read all test XML files into an array to avoid subshell problems with associative arrays
         mapfile -t files < <(find core/build/test-results/test/ -type f -name "*.xml")
 
         for file in "${files[@]}"; do
+          # Reset class/method for each file loop
+          class=""
+          method=""
+
           while IFS= read -r line; do
             if [[ "$line" =~ \<testcase\ classname=\"([^\"]+)\"\ name=\"([^\"]+)\" ]]; then
               class="${BASH_REMATCH[1]}"
@@ -71,7 +73,9 @@ jobs:
               type="${BASH_REMATCH[3]}"
               [[ -z "$message" ]] && message="(no message)"
               [[ -z "$type" ]] && type="UnknownException"
+              [[ -z "$method" ]] && method="(unknown method)"
 
+              # Only print class header once per class
               if [[ -n "$class" && -z "${seen[$class]}" ]]; then
                 echo "" >> $GITHUB_STEP_SUMMARY
                 file_path="$TEST_SRC/${class//./\/}.java"
