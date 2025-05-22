@@ -72,6 +72,14 @@ tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += ["-parameters"]
 }
 
+tasks.named('shadowJar') {
+    dependsOn tasks.named('test')
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+
 processResources {
     def props = [version: version]
     inputs.properties props
