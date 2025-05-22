@@ -47,6 +47,7 @@ jobs:
       run: ./gradlew shadowJar
 
     - name: Summarize Failed Tests
+      if: failure()
       shell: bash
       run: |
         echo "## ❌ Failed Tests Summary" >> $GITHUB_STEP_SUMMARY
