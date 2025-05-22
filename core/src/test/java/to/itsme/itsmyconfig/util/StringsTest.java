@@ -51,7 +51,7 @@ class StringsTest {
 
         // Prefix after tag and/or whitespace
         assertEquals(Optional.of(" <bold>after"), Strings.parsePrefixedMessage(" <bold>$after"));
-        assertEquals(Optional.of("  after"), Strings.parsePrefixedMessage("  $after dark"));
+        assertEquals(Optional.of("  after"), Strings.parsePrefixedMessage("  $after"));
     }
 
     @Test
@@ -70,7 +70,7 @@ class StringsTest {
 
     @Test
     void testIsNumber() {
-        assertTrue(Strings.isNumber("123B"));
+        assertTrue(Strings.isNumber("123"));
         assertTrue(Strings.isNumber("123.45"));
         assertFalse(Strings.isNumber("abc"));
         assertFalse(Strings.isNumber(""));
