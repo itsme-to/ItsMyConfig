@@ -85,7 +85,7 @@ jobs:
                   -v "@classname" -o "|" \
                   -v "@name" -o "|" \
                   -v "failure/@type" -o "|" \
-                  -v "normalize-space(failure)" -n "$file")
+                  -v "failure/@message" -n "$file")
           done
 
     - name: Extract version and commit hash
