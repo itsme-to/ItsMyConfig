@@ -82,7 +82,8 @@ jobs:
           for index in $(seq 1 "$count"); do
             class=$(xmllint --xpath "string((//testcase[failure])[${index}]/@classname)" "$file" 2>/dev/null)
             method=$(xmllint --xpath "string((//testcase[failure])[${index}]/@name)" "$file" 2>/dev/null)
-            failure=$(xmllint --xpath "string((//testcase[failure])[${index}]/failure)" "$file" 2>/dev/null)
+            # Extract failure content safely
+            failure=$(xmllint --xpath "string((//testcase[failure])[${index}]/failure)" "$file" 2>/dev/null | sed 's/&lt;/</g; s/&gt;/>/g')
             type=$(xmllint --xpath "string((//testcase[failure])[${index}]/failure/@type)" "$file" 2>/dev/null)
 
             [[ -z "$failure" ]] && failure="(no message)"
