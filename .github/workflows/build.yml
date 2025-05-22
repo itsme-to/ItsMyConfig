@@ -74,11 +74,9 @@ jobs:
                   escaped_method="${method//./\\.}"
 
                   while IFS= read -r line; do
-                      if [[ "$line" == *"${class_file}"* && "$line" == *".${method}("* ]]; then
-                          if [[ "$line" =~ ${class_file}:([0-9]+) ]]; then
-                              line_number="${BASH_REMATCH[1]}"
-                              break
-                          fi
+                      if [[ "$line" =~ \.${method}\(${class_file}:([0-9]+)\) ]]; then
+                          line_number="${BASH_REMATCH[1]}"
+                          break
                       fi
                   done <<< "$stack"
 
@@ -93,11 +91,9 @@ jobs:
                   fi
 
                   if [[ "$type" == *"AssertionFailedError"* ]]; then
-                      echo "1"
-                      echo "- [**$method** (line $line_number)]($link) → $message" >> $GITHUB_STEP_SUMMARY
+                      echo "    - [**$method** (line $line_number)]($link) → $message" >> $GITHUB_STEP_SUMMARY
                   else
-                      echo "2"
-                      echo "- [**$method** (line $line_number)]($link) → $type: $message" >> $GITHUB_STEP_SUMMARY
+                      echo "    - [**$method** (line $line_number)]($link) → $type: $message" >> $GITHUB_STEP_SUMMARY
                   fi
               done < <(xmlstarlet sel -t \
                   -m "//testcase[failure]" \
