@@ -56,7 +56,7 @@ jobs:
         TEST_SRC="core/src/test/java"
         declare -A seen=()
 
-        # Use mapfile to load file list into an array to avoid subshells on while read
+        # Read all test XML files into an array to avoid subshell problems with associative arrays
         mapfile -t files < <(find core/build/test-results/test/ -type f -name "*.xml")
 
         for file in "${files[@]}"; do
@@ -72,7 +72,7 @@ jobs:
               [[ -z "$message" ]] && message="(no message)"
               [[ -z "$type" ]] && type="UnknownException"
 
-              if [[ -z "${seen[$class]}" ]]; then
+              if [[ -n "$class" && -z "${seen[$class]}" ]]; then
                 echo "" >> $GITHUB_STEP_SUMMARY
                 file_path="$TEST_SRC/${class//./\/}.java"
                 echo "#### [$class]($REPO_URL/$file_path)" >> $GITHUB_STEP_SUMMARY
