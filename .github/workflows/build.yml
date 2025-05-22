@@ -94,7 +94,7 @@ jobs:
                       seen[$class]=1
                   fi
 
-                  if [[ "$type" == "org.opentest4j.AssertionFailedError" ]]; then
+                  if [[ "$type" == *"AssertionFailedError"* ]]; then
                       echo "- [**$method** (line $line_number)]($link) → $message" >> $GITHUB_STEP_SUMMARY
                   else
                       echo "- [**$method** (line $line_number)]($link) → $type: $message" >> $GITHUB_STEP_SUMMARY
