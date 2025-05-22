@@ -46,47 +46,59 @@ jobs:
     - name: Build & Test
       run: ./gradlew shadowJar
 
-    - name: Summarize Failed Tests
-      if: failure()
-      shell: bash
-      run: |
-          echo "## ❌ Failed Tests Summary" >> $GITHUB_STEP_SUMMARY
+- name: Summarize Failed Tests
+  if: failure()
+  shell: bash
+  run: |
+    echo "## ❌ Failed Tests Summary" >> $GITHUB_STEP_SUMMARY
 
-          REPO_URL="https://github.com/Itsme-to/ItsMyConfig/blob/main"
-          TEST_SRC="core/src/test/java"
-          declare -A seen=
+    REPO_URL="https://github.com/Itsme-to/ItsMyConfig/blob/main"
+    TEST_SRC="core/src/test/java"
+    declare -A seen=
 
-          # Install xmlstarlet
-          sudo apt-get update && sudo apt-get install -y xmlstarlet
+    sudo apt-get update && sudo apt-get install -y xmlstarlet
 
-          mapfile -t files < <(find core/build/test-results/test/ -type f -name "*.xml")
+    mapfile -t files < <(find core/build/test-results/test/ -type f -name "*.xml")
 
-          for file in "${files[@]}"; do
-              while IFS='|' read -r class method type message; do
-                  [[ -z "$message" ]] && message="(no message)"
-                  [[ -z "$type" ]] && type="UnknownException"
-                  [[ -z "$method" ]] && method="(unknown method)"
-                  [[ -z "$class" ]] && class="(unknown class)"
+    for file in "${files[@]}"; do
+      while IFS='|' read -r class method type message stack; do
+        [[ -z "$message" ]] && message="(no message)"
+        [[ -z "$type" ]] && type="UnknownException"
+        [[ -z "$method" ]] && method="(unknown method)"
+        [[ -z "$class" ]] && class="(unknown class)"
 
-                  if [[ -z "${seen[$class]}" ]]; then
-                      echo "" >> $GITHUB_STEP_SUMMARY
-                      file_path="$TEST_SRC/${class//./\/}.java"
-                      echo "#### [$class]($REPO_URL/$file_path)" >> $GITHUB_STEP_SUMMARY
-                      seen[$class]=1
-                  fi
+        # Extract line number from stack trace
+        line_number=""
+        if [[ "$stack" =~ $class.*\(([A-Za-z0-9_]+\.java):([0-9]+)\) ]]; then
+          line_number="${BASH_REMATCH[2]}"
+        fi
 
-                  if [[ "$type" == "org.opentest4j.AssertionFailedError" ]]; then
-                      echo "- **$method** → $message" >> $GITHUB_STEP_SUMMARY
-                  else
-                      echo "- **$method** → $type: $message" >> $GITHUB_STEP_SUMMARY
-                  fi
-              done < <(xmlstarlet sel -t \
-                  -m "//testcase[failure]" \
-                  -v "@classname" -o "|" \
-                  -v "@name" -o "|" \
-                  -v "failure/@type" -o "|" \
-                  -v "failure/@message" -n "$file")
-          done
+        # Link to the exact method
+        file_path="$TEST_SRC/${class//./\/}.java"
+        link="$REPO_URL/$file_path"
+        [[ -n "$line_number" ]] && link="$link#L$line_number"
+
+        # Print class header once
+        if [[ -z "${seen[$class]}" ]]; then
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### $class" >> $GITHUB_STEP_SUMMARY
+          seen[$class]=1
+        fi
+
+        # Format the failure line
+        if [[ "$type" == "org.opentest4j.AssertionFailedError" ]]; then
+          echo "- [**$method** (line $line_number)]($link) → $message" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- [**$method** (line $line_number)]($link) → $type: $message" >> $GITHUB_STEP_SUMMARY
+        fi
+      done < <(xmlstarlet sel -t \
+        -m "//testcase[failure]" \
+        -v "@classname" -o "|" \
+        -v "@name" -o "|" \
+        -v "failure/@type" -o "|" \
+        -v "failure/@message" -o "|" \
+        -v "normalize-space(failure)" -n "$file")
+    done
 
     - name: Extract version and commit hash
       run: |
