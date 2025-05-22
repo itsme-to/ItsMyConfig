@@ -59,13 +59,18 @@ jobs:
         mapfile -t files < <(find core/build/test-results/test/ -type f -name "*.xml")
 
         for file in "${files[@]}"; do
-          while IFS= read -r testcase; do
-            class=$(echo "$testcase" | xmllint --xpath 'string(//testcase/@classname)' - 2>/dev/null)
-            method=$(echo "$testcase" | xmllint --xpath 'string(//testcase/@name)' - 2>/dev/null)
-            failure=$(echo "$testcase" | xmllint --xpath 'string(//failure)' - 2>/dev/null)
-            type=$(echo "$testcase" | xmllint --xpath 'string(//failure/@type)' - 2>/dev/null)
+          # Get all failing testcases (by their position) using xmllint and XPath
+          IFS=$'\n' read -d '' -r -a failing_test_indexes < <(
+            xmllint --xpath 'count(//testcase[failure])' "$file" 2>/dev/null | xargs -I{} seq 1 {}
+          )
 
-            [[ -z "$failure" ]] && continue
+          for index in "${failing_test_indexes[@]}"; do
+            class=$(xmllint --xpath "string((//testcase[failure])[${index}]/@classname)" "$file")
+            method=$(xmllint --xpath "string((//testcase[failure])[${index}]/@name)" "$file")
+            failure=$(xmllint --xpath "string((//testcase[failure])[${index}]/failure)" "$file")
+            type=$(xmllint --xpath "string((//testcase[failure])[${index}]/failure/@type)" "$file")
+
+            [[ -z "$failure" ]] && failure="(no message)"
             [[ -z "$type" ]] && type="UnknownException"
             [[ -z "$method" ]] && method="(unknown method)"
             [[ -z "$class" ]] && class="(unknown class)"
@@ -82,7 +87,7 @@ jobs:
             else
               echo "- **$method** → $type: $failure" >> $GITHUB_STEP_SUMMARY
             fi
-          done < <(grep -Poz '<testcase.*?<failure.*?</failure>' "$file")
+          done
         done
 
     - name: Extract version and commit hash
