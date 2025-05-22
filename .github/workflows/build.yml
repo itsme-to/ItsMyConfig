@@ -76,6 +76,7 @@ jobs:
                   while IFS= read -r line; do
                       if [[ "$line" =~ ${method}\(${class_file}:([0-9]+)\) ]]; then
                           line_number="${BASH_REMATCH[1]}"
+                          echo "DEBUG matched line number: $line_number" >&2
                           break
                       fi
                   done <<< "$stack"
