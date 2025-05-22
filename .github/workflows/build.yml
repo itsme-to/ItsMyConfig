@@ -53,37 +53,44 @@ jobs:
 
         REPO_URL="https://github.com/Itsme-to/ItsMyConfig/blob/main"
         TEST_SRC="core/src/test/java"
-
         declare -A seen
 
+        # Loop all test result XMLs
         find core/build/test-results/test/ -type f -name "*.xml" | while read file; do
+          # Read file line by line
           while IFS= read -r line; do
-            if [[ "$line" == *"<testcase "* ]]; then
-              class=$(echo "$line" | sed -n 's/.*classname="\([^"]*\)".*/\1/p')
-              method=$(echo "$line" | sed -n 's/.*name="\([^"]*\)".*/\1/p')
-            elif [[ "$line" == *"<failure "* ]]; then
-              type=$(echo "$line" | sed -n 's/.*type="\([^"]*\)".*/\1/p')
-              msg=$(echo "$line" | sed -n 's/.*message="\([^"]*\)".*/\1/p')
-              msg=${msg:-"(no message)"}
+            # Extract class and method from testcase line
+            if [[ "$line" =~ \<testcase\ classname=\"([^\"]+)\"\ name=\"([^\"]+)\" ]]; then
+              class="${BASH_REMATCH[1]}"
+              method="${BASH_REMATCH[2]}"
+            fi
 
-              filepath="${TEST_SRC}/${class//.//}.java"
-              url="$REPO_URL/$filepath"
+            # Extract failure info
+            if [[ "$line" =~ \<failure\ message=\"([^\"]*)\"(\ type=\"([^\"]+)\")? ]]; then
+              message="${BASH_REMATCH[1]}"
+              type="${BASH_REMATCH[3]}"
+              [[ -z "$message" ]] && message="(no message)"
+              [[ -z "$type" ]] && type="UnknownException"
 
+              # Print class header once
               if [[ -z "${seen[$class]}" ]]; then
                 echo "" >> $GITHUB_STEP_SUMMARY
-                echo "#### [$class]($url)" >> $GITHUB_STEP_SUMMARY
+                # Link to source file, replacing dots with slashes
+                file_path="$TEST_SRC/${class//./\/}.java"
+                echo "#### [$class]($REPO_URL/$file_path)" >> $GITHUB_STEP_SUMMARY
                 seen[$class]=1
               fi
 
+              # If AssertionFailedError, suppress exception name
               if [[ "$type" == "org.opentest4j.AssertionFailedError" ]]; then
-                echo "- **$method** → $msg" >> $GITHUB_STEP_SUMMARY
+                echo "- **$method** → $message" >> $GITHUB_STEP_SUMMARY
               else
-                echo "- **$method** → $type: $msg" >> $GITHUB_STEP_SUMMARY
+                echo "- **$method** → $type: $message" >> $GITHUB_STEP_SUMMARY
               fi
             fi
           done < "$file"
         done
- 
+
     - name: Extract version and commit hash
       run: |
         echo "PLUGIN_VERSION=$(grep 'version =' build.gradle | awk -F'\"' '{print $2}')" >> $GITHUB_ENV
