@@ -1,5 +1,10 @@
 package to.itsme.itsmyconfig.util;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -134,6 +139,51 @@ class StringsTest {
         assertEquals("123.4567", Strings.textless("123.45.67abc"));
         assertEquals("9.87", Strings.textless("abc9.8.7xyz"));
         assertEquals("", Strings.textless("no numbers"));
+    }
+
+    @Test
+    void testMiniMessageSerialization() {
+        Component component = Component.text("Welcome ")
+            .append(
+                Component.text("Adventurer")
+                    .color(NamedTextColor.GOLD)
+                    .decorate(TextDecoration.BOLD)
+                    .clickEvent(ClickEvent.suggestCommand("/quest start"))
+                    .hoverEvent(HoverEvent.showText(Component.text("Start your epic quest!")))
+                    .insertion("Adventurer")
+            )
+            .append(Component.text("! "))
+            .append(
+                Component.text(" [Hint]")
+                    .color(NamedTextColor.AQUA)
+                    .decorate(TextDecoration.ITALIC)
+                    .hoverEvent(HoverEvent.showText(Component.text("Try exploring the cave to the east.")))
+            )
+            .append(Component.text(" "))
+            .append(
+                Component.text("[Key]")
+                    .color(NamedTextColor.GREEN)
+                    .clickEvent(ClickEvent.runCommand("/use key"))
+                    .hoverEvent(HoverEvent.showText(Component.text("Use your mysterious key")))
+            )
+            .append(Component.text(" (Mana: "))
+            .append(
+                Component.score("player123", "mana")
+                    .color(NamedTextColor.AQUA)
+            )
+            .append(Component.text(") "))
+            .append(
+                Component.text("[Inventory]")
+                    .color(NamedTextColor.GRAY)
+                    .decorate(TextDecoration.UNDERLINED)
+                    .clickEvent(ClickEvent.openUrl("https://example.com/inventory"))
+                    .hoverEvent(HoverEvent.showText(Component.text("View your inventory online")))
+            );
+
+        String mm = MMSerializer.serialize(component);
+
+        System.out.println(mm);
+        assertNotNull(mm);
     }
 
 }
