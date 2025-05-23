@@ -145,7 +145,7 @@ class StringsTest {
     void testMiniMessageSerialization() {
         Component component = Component.text("Welcome ")
             .append(
-                Component.text("Adventurer")
+                Component.text("Adventurer <custom-tag>")
                     .color(NamedTextColor.GOLD)
                     .decorate(TextDecoration.BOLD)
                     .clickEvent(ClickEvent.suggestCommand("/quest start"))
@@ -184,6 +184,7 @@ class StringsTest {
 
         System.out.println(mm);
         assertNotNull(mm);
+        assertFalse(mm.contains("\\<custom-tag>"));
     }
 
 }
