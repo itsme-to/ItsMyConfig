@@ -191,31 +191,26 @@ class StringsTest {
 
     @Test
     public void testGsonToMiniMessageConversion() {
-        String json = """
-            {
-              "text": "Test ",
-              "extra": [
-                {
-                  "text": "Hello ",
-                  "color": "gold",
-                  "bold": true
-                },
-                {
-                  "text": "world!",
-                  "color": "aqua",
-                  "italic": true
-                }
-              ]
-            }
-            """;
+        final Component original = Component.text("Test ")
+            .append(
+                Component.text("Hello ")
+                    .color(NamedTextColor.GOLD)
+                    .decorate(TextDecoration.BOLD)
+            )
+            .append(
+                Component.text("world!")
+                    .color(NamedTextColor.AQUA)
+                    .decorate(TextDecoration.ITALIC)
+            );
 
         GsonComponentSerializer gson = GsonComponentSerializer.gson();
-        Component component = gson.deserialize(json);
 
+        String json = gson.serialize(original);
+        Component component = gson.deserialize(json);
         MiniMessage mini = MiniMessage.miniMessage();
         String miniMessage = mini.serialize(component);
 
-        String expected = "Test <bold><gold>Hello </gold></bold><italic><aqua>world!</aqua></italic>";
+        String expected = "Test <bold><gold>Hello </gold></bold><italic><aqua>world!";
         assertEquals(expected, miniMessage);
     }
 
