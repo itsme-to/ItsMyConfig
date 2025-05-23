@@ -90,7 +90,7 @@ jobs:
                     short_message="${message#org.opentest4j.AssertionFailedError: }"
                     echo "- [**$method** (line $line_number)]($link) → $short_message" >> $GITHUB_STEP_SUMMARY
                 else
-                    echo "- [**$method** (line $line_number)]($link) → $type: $message" >> $GITHUB_STEP_SUMMARY
+                    echo "- [**$method** (line $line_number)]($link) → $message" >> $GITHUB_STEP_SUMMARY
                 fi
 
                 if [[ -n "$stack" ]]; then
