@@ -216,7 +216,6 @@ public final class ItsMyConfig extends JavaPlugin {
         this.debug = this.config.getBoolean("debug");
         this.symbolPrefix = this.config.getString("symbol-prefix");
         Strings.setSymbolPrefix(this.symbolPrefix);
-        IMCSerializer.UPDATE_SERIALIZERS();
         MathPlaceholder.UPDATE_FORMATTINGS();
     }
 
