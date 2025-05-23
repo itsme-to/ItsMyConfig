@@ -19,6 +19,7 @@ import to.itsme.itsmyconfig.placeholder.type.*;
 import to.itsme.itsmyconfig.placeholder.type.ProgressbarPlaceholder;
 import to.itsme.itsmyconfig.requirement.RequirementManager;
 import to.itsme.itsmyconfig.util.IMCSerializer;
+import to.itsme.itsmyconfig.util.SerializerType;
 import to.itsme.itsmyconfig.util.LibraryLoader;
 import to.itsme.itsmyconfig.util.Strings;
 import to.itsme.itsmyconfig.util.Versions;
@@ -152,6 +153,11 @@ public final class ItsMyConfig extends JavaPlugin {
         this.getConfig().options().copyDefaults(true);
         this.reloadConfigParams();
 
+        this.getLogger().info("Using packet serializer: " + IMCSerializer.currentSerializerType().name());
+        if (IMCSerializer.currentSerializerType() != SerializerType.MM_COPY) {
+            this.getLogger().warning("Your server is running with an outdated version of the Adventure library. This may be caused by an old server jar or a plugin that includes Adventure without properly relocating it. This can lead to compatibility issues with serialization.");
+        }
+    
         // 8 - 9:  Maps to keep track of registered placeholders and progress bars
         final Map<String, List<String>> placeholderPaths = new HashMap<>();
 
