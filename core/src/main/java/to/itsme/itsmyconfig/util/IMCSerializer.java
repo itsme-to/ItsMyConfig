@@ -12,6 +12,9 @@ public class IMCSerializer {
 
     private static final boolean HAS_SUBSTITUTE;
 
+    // Tracks which serializer type is currently active
+    private static SerializerType currentSerializerType;
+
     static {
         boolean hasMethod;
         try {
@@ -23,7 +26,7 @@ public class IMCSerializer {
         HAS_SUBSTITUTE = hasMethod;
         UPDATE_SERIALIZERS();
     }
-    
+
     /**
      * A serializer that converts a JSON String to MiniMessage format.
      */
@@ -34,10 +37,21 @@ public class IMCSerializer {
      */
     public static Function<Component, String> COMPONENT_SERIALIZER;
 
+    /**
+     * Updates the serializer implementations and tracks the current serializer type.
+     */
     public static void UPDATE_SERIALIZERS() {
-        final String serializer = HAS_SUBSTITUTE ? "MM_COPY" : "JSON_SERIALIZER";
-        JSON_SERIALIZER = createJsonSerializer(serializer);
-        COMPONENT_SERIALIZER = createComponentSerializer(serializer);
+        currentSerializerType = HAS_SUBSTITUTE ? SerializerType.MM_COPY : SerializerType.JSON_SERIALIZER;
+        JSON_SERIALIZER = createJsonSerializer(currentSerializerType);
+        COMPONENT_SERIALIZER = createComponentSerializer(currentSerializerType);
+    }
+
+    /**
+     * Gets the serializer type currently in use.
+     * @return the current SerializerType
+     */
+    public static SerializerType currentSerializerType() {
+        return currentSerializerType;
     }
 
     public static String toMiniMessage(final String json) {
@@ -48,26 +62,24 @@ public class IMCSerializer {
         return COMPONENT_SERIALIZER.apply(component);
     }
 
-    private static Function<String, String> createJsonSerializer(final String serializer) {
-        return switch (String.valueOf(serializer).toUpperCase()) {
-            case "MM_COPY" -> text -> {
+    private static Function<String, String> createJsonSerializer(final SerializerType serializerType) {
+        return switch (serializerType) {
+            case MM_COPY -> text -> {
                 if (text == null || text.isEmpty()) {
                     return "";
                 }
-
                 return toMiniMessage(
                         Utilities.GSON_SERIALIZER.deserialize(text)
                 );
             };
-            default -> text -> AbstractComponent.parse(text).toMiniMessage();
+            case JSON_SERIALIZER -> text -> AbstractComponent.parse(text).toMiniMessage();
         };
     }
 
-    private static Function<Component, String> createComponentSerializer(final String serializer) {
-        return switch (String.valueOf(serializer).toUpperCase()) {
-            case "MM_COPY" -> component -> MMSerializer.serialize(component, null, false);
-            default -> component -> AbstractComponent.parse(component).toMiniMessage();
+    private static Function<Component, String> createComponentSerializer(final SerializerType serializerType) {
+        return switch (serializerType) {
+            case MM_COPY -> component -> MMSerializer.serialize(component, null, false);
+            case JSON_SERIALIZER -> component -> AbstractComponent.parse(component).toMiniMessage();
         };
     }
-
 }
