@@ -40,7 +40,7 @@ public final class ItsMyConfig extends JavaPlugin {
     private final PlaceholderManager placeholderManager = new PlaceholderManager();
     private final RequirementManager requirementManager = new RequirementManager();
     private FileConfiguration config;
-    private String symbolPrefix, minimessageSerializer;
+    private String symbolPrefix;
     private boolean debug;
 
     ProcessorManager processorManager;
@@ -209,7 +209,6 @@ public final class ItsMyConfig extends JavaPlugin {
     private void reloadConfigParams() {
         this.debug = this.config.getBoolean("debug");
         this.symbolPrefix = this.config.getString("symbol-prefix");
-        this.minimessageSerializer = this.config.getString("minimessage-serializer");
         Strings.setSymbolPrefix(this.symbolPrefix);
         IMCSerializer.UPDATE_SERIALIZERS();
         MathPlaceholder.UPDATE_FORMATTINGS();
@@ -404,15 +403,6 @@ public final class ItsMyConfig extends JavaPlugin {
      */
     public String getSymbolPrefix() {
         return this.symbolPrefix;
-    }
-
-    /**
-     * Retrieves the minimessage serializer.
-     *
-     * @return The minimessage serializer used for serializing messages.
-     */
-    public String getMinimessageSerializer() {
-        return minimessageSerializer;
     }
 
     /**
