@@ -5,6 +5,8 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.minimessage.MiniMessage;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -185,6 +187,36 @@ class StringsTest {
         System.out.println(mm);
         assertNotNull(mm);
         assertFalse(mm.contains("\\<custom-tag>"));
+    }
+
+    @Test
+    public void testGsonToMiniMessageConversion() {
+        String json = """
+            {
+              "text": "Test ",
+              "extra": [
+                {
+                  "text": "Hello ",
+                  "color": "gold",
+                  "bold": true
+                },
+                {
+                  "text": "world!",
+                  "color": "aqua",
+                  "italic": true
+                }
+              ]
+            }
+            """;
+
+        GsonComponentSerializer gson = GsonComponentSerializer.gson();
+        Component component = gson.deserialize(json);
+
+        MiniMessage mini = MiniMessage.miniMessage();
+        String miniMessage = mini.serialize(component);
+
+        String expected = "Test <bold><gold>Hello </gold></bold><italic><aqua>world!</aqua></italic>";
+        assertEquals(expected, miniMessage);
     }
 
 }
