@@ -1,6 +1,7 @@
 package to.itsme.itsmyconfig.util;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.internal.serializer.Emitable;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.component.AbstractComponent;
 
@@ -9,6 +10,20 @@ import java.util.function.Function;
 @SuppressWarnings("all")
 public class IMCSerializer {
 
+    private static final boolean HAS_SUBSTITUTE;
+
+    static {
+        boolean hasMethod;
+        try {
+            Emitable.class.getDeclaredMethod("substitute");
+            hasMethod = true;
+        } catch (NoSuchMethodException e) {
+            hasMethod = false;
+        }
+        HAS_SUBSTITUTE = hasMethod;
+        UPDATE_SERIALIZERS();
+    }
+    
     /**
      * A serializer that converts a JSON String to MiniMessage format.
      */
@@ -19,13 +34,10 @@ public class IMCSerializer {
      */
     public static Function<Component, String> COMPONENT_SERIALIZER;
 
-    static {
-        UPDATE_SERIALIZERS();
-    }
-
     public static void UPDATE_SERIALIZERS() {
-        JSON_SERIALIZER = createJsonSerializer(ItsMyConfig.getInstance().getMinimessageSerializer());
-        COMPONENT_SERIALIZER = createComponentSerializer(ItsMyConfig.getInstance().getMinimessageSerializer());
+        final String serializer = HAS_SUBSTITUTE ? "MM_COPY" : "JSON_SERIALIZER";
+        JSON_SERIALIZER = createJsonSerializer(serializer);
+        COMPONENT_SERIALIZER = createComponentSerializer(serializer);
     }
 
     public static String toMiniMessage(final String json) {
