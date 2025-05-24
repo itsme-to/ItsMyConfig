@@ -42,6 +42,9 @@ public class HoverEvent {
     }
 
     public String toMiniMessage() {
+        if (this.value == null) {
+            return "";
+        }
         StringBuilder builder = new StringBuilder();
         builder.append("<hover:").append(this.action).append(":\"");
         if (this.value instanceof String) {
@@ -127,35 +130,34 @@ public class HoverEvent {
             final HoverEvent event = new HoverEvent();
             final JsonObject jsonObject = json.getAsJsonObject();
             event.action = jsonObject.get("action").getAsString();
+            final JsonElement element;
             if (jsonObject.has("value")) {
-                final JsonElement element = jsonObject.get("value");
-                switch (event.action) {
-                    case "show_achievement":
-                        event.value = element.getAsString();
-                        break;
-                    case "show_item":
-                        event.value = context.deserialize(element, HoverEvent.ShowItem.class);
-                        break;
-                    case "show_entity":
-                        event.value = context.deserialize(element, HoverEvent.ShowEntity.class);
-                        break;
-                    default:
-                        if (element.isJsonPrimitive()) {
-                            event.value = new TextfulComponent(element.getAsString());
-                        } else if (element.isJsonArray()) {
-                            event.value = AbstractComponent.parse(element.getAsJsonArray());
-                        } else if (element.isJsonObject()) {
-                            event.value = context.deserialize(element, TextfulComponent.class);
-                        }
-                        break;
-                }
+                element = jsonObject.get("value")
             } else if (jsonObject.has("contents")) {
-                final JsonElement element = jsonObject.get("contents");
-                if (element.isJsonPrimitive()) {
-                    event.value = new TextfulComponent(element.getAsString());
-                } else {
-                    event.value = context.deserialize(element, TextfulComponent.class);
-                }
+                element = jsonObject.get("contents");
+            } else {
+                return event;
+            }
+
+            switch (event.action) {
+                case "show_achievement":
+                    event.value = element.getAsString();
+                    break;
+                case "show_item":
+                    event.value = context.deserialize(element, HoverEvent.ShowItem.class);
+                    break;
+                case "show_entity":
+                    event.value = context.deserialize(element, HoverEvent.ShowEntity.class);
+                    break;
+                default:
+                    if (element.isJsonPrimitive()) {
+                        event.value = new TextfulComponent(element.getAsString());
+                    } else if (element.isJsonArray()) {
+                        event.value = AbstractComponent.parse(element.getAsJsonArray());
+                    } else if (element.isJsonObject()) {
+                        event.value = context.deserialize(element, TextfulComponent.class);
+                    }
+                    break;
             }
             return event;
         }
