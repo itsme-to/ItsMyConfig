@@ -12,7 +12,6 @@ public class IMCSerializer {
 
     private static final boolean HAS_SUBSTITUTE;
 
-    // Tracks which serializer type is currently active
     private static SerializerType currentSerializerType;
 
     static {
@@ -41,7 +40,7 @@ public class IMCSerializer {
      * Updates the serializer implementations and tracks the current serializer type.
      */
     public static void UPDATE_SERIALIZERS() {
-        currentSerializerType = HAS_SUBSTITUTE ? SerializerType.MM_COPY : SerializerType.JSON_SERIALIZER;
+        currentSerializerType = /*HAS_SUBSTITUTE ? SerializerType.MM_COPY : */SerializerType.JSON_SERIALIZER;
         JSON_SERIALIZER = createJsonSerializer(currentSerializerType);
         COMPONENT_SERIALIZER = createComponentSerializer(currentSerializerType);
     }
