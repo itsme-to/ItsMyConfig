@@ -132,7 +132,7 @@ public class HoverEvent {
             event.action = jsonObject.get("action").getAsString();
             final JsonElement element;
             if (jsonObject.has("value")) {
-                element = jsonObject.get("value")
+                element = jsonObject.get("value");
             } else if (jsonObject.has("contents")) {
                 element = jsonObject.get("contents");
             } else {
