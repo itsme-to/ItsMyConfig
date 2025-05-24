@@ -154,9 +154,10 @@ public final class ItsMyConfig extends JavaPlugin {
         this.reloadConfigParams();
 
         this.getLogger().info("Using packet serializer: " + IMCSerializer.currentSerializerType().name());
+        /* Disable warning temporarily till MM_COPY is stable
         if (IMCSerializer.currentSerializerType() != SerializerType.MM_COPY) {
             this.getLogger().warning("Your server is running with an outdated version of the Adventure library. This may be caused by an old server jar or a plugin that includes Adventure without properly relocating it. This can lead to compatibility issues with serialization.");
-        }
+        }*/
     
         // 8 - 9:  Maps to keep track of registered placeholders and progress bars
         final Map<String, List<String>> placeholderPaths = new HashMap<>();
