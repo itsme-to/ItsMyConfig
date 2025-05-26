@@ -47,6 +47,9 @@ jobs:
     - name: Build & Test
       run: ./gradlew shadowJar --info
 
+    - name: Benchmark
+      run: ./gradlew jmh
+
     - name: Summarize Failed Tests
       if: failure()
       shell: bash
