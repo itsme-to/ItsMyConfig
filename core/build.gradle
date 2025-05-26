@@ -45,6 +45,11 @@ dependencies {
     // api ->
     implementation project(":api")
 
+    //adventure ->
+    compileOnly "${kyori(KyoriModule.API)}"
+    compileOnly "${kyoriPlatform(KyoriModule.BUKKIT)}"
+    implementation "${kyori(KyoriModule.MINI_MESSAGE)}"
+
     // lamp ->
     implementation "io.github.revxrsal:lamp.common:${lampVersion}"
     implementation "io.github.revxrsal:lamp.bukkit:${lampVersion}"
@@ -55,8 +60,6 @@ dependencies {
     implementation "com.github.technicallycoded:FoliaLib:0.4.3"
     implementation "com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT"
 
-    compileOnly("${kyori(KyoriModule.API)}")
-    compileOnly "${kyoriPlatform(KyoriModule.BUKKIT)}"
     compileOnly "io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT"
     compileOnly "com.github.retrooper:packetevents-spigot:2.6.0"
     compileOnly "com.comphenix.protocol:ProtocolLib:5.3.0"
@@ -105,6 +108,7 @@ sourceSets {
 
 def shadePath = "to.itsme.itsmyconfig.shade."
 shadowJar {
+    relocate("net.kyori.adventure.text.minimessage", "${shadePath}mm")
     relocate("com.tcoded.folialib", "${shadePath}folialib")
     relocate("redempt.crunch", "${shadePath}crunch")
     relocate("revxrsal.commands", "${shadePath}lamp")
@@ -112,7 +116,6 @@ shadowJar {
     relocate("com.alessiodp.libby", "${shadePath}libby")
     archiveFileName = "itsmyconfig-${project.version}.jar"
 }
-
 
 jmh {
     fork = 0
