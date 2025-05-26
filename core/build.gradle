@@ -46,7 +46,6 @@ dependencies {
     implementation project(":api")
 
     //adventure ->
-    compileOnly "${kyori(KyoriModule.API)}"
     compileOnly "${kyoriPlatform(KyoriModule.BUKKIT)}"
     implementation "${kyori(KyoriModule.MINI_MESSAGE)}"
 
@@ -108,6 +107,9 @@ sourceSets {
 
 def shadePath = "to.itsme.itsmyconfig.shade."
 shadowJar {
+    dependencies {
+        exclude("${kyori(KyoriModule.API)}")
+    }
     relocate("net.kyori.adventure.text.minimessage", "${shadePath}mm")
     relocate("com.tcoded.folialib", "${shadePath}folialib")
     relocate("redempt.crunch", "${shadePath}crunch")
