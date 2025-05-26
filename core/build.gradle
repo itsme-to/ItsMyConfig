@@ -108,7 +108,7 @@ sourceSets {
 def shadePath = "to.itsme.itsmyconfig.shade."
 shadowJar {
     dependencies {
-        exclude("${kyori(KyoriModule.API)}")
+        exclude(dependency(":${kyori(KyoriModule.API)}"))
     }
     relocate("net.kyori.adventure.text.minimessage", "${shadePath}mm")
     relocate("com.tcoded.folialib", "${shadePath}folialib")
