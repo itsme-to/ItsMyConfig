@@ -112,3 +112,9 @@ shadowJar {
     relocate("com.alessiodp.libby", "${shadePath}libby")
     archiveFileName = "itsmyconfig-${project.version}.jar"
 }
+
+
+jmh {
+    fork = 2
+    warmupIterations = 2
+}
