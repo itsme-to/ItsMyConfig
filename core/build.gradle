@@ -115,6 +115,6 @@ shadowJar {
 
 
 jmh {
-    fork = 2
+    fork = 0
     warmupIterations = 2
 }
