@@ -47,7 +47,7 @@ dependencies {
 
     //adventure ->
     compileOnly "${kyoriPlatform(KyoriModule.BUKKIT)}"
-    implementation "${kyori(KyoriModule.MINI_MESSAGE)}"
+    compileOnly "${kyori(KyoriModule.MINI_MESSAGE)}"
 
     // lamp ->
     implementation "io.github.revxrsal:lamp.common:${lampVersion}"
@@ -107,9 +107,9 @@ sourceSets {
 
 def shadePath = "to.itsme.itsmyconfig.shade."
 shadowJar {
-    exclude("net/kyori/**")
-    include("net/kyori/adventure/text/minimessage/**")
-    relocate("net.kyori.adventure.text.minimessage", "${shadePath}mm")
+    //exclude("net/kyori/**")
+    //include("net/kyori/adventure/text/minimessage/**")
+    //relocate("net.kyori.adventure.text.minimessage", "${shadePath}mm")
     relocate("com.tcoded.folialib", "${shadePath}folialib")
     relocate("redempt.crunch", "${shadePath}crunch")
     relocate("revxrsal.commands", "${shadePath}lamp")
