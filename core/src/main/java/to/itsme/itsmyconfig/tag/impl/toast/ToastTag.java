@@ -17,7 +17,7 @@ public class ToastTag extends ArgumentsTag {
 
     @Override
     public int minArguments() {
-        return 3;
+        return 1;
     }
 
     @Override
@@ -28,11 +28,10 @@ public class ToastTag extends ArgumentsTag {
     @Override
     public String process(final Player player, final String[] arguments) {
         String titleRaw = arguments[0];
-        String descriptionRaw = arguments[1];
-        String iconRaw = arguments[2];
+        String iconRaw = arguments.length > 1 ? arguments[1] : "book";
+        String frame = arguments.length > 2 ? arguments[2] : "task";
 
         Component title = Utilities.translate(titleRaw, player);
-        Component description = Utilities.translate(descriptionRaw, player);
 
         Material icon;
         try {
@@ -41,7 +40,7 @@ public class ToastTag extends ArgumentsTag {
             icon = Material.BOOK; // fallback icon
         }
 
-        toastSender.sendToast(player, title, description, icon);
+        toastSender.sendToast(player, title, icon, frame);
 
         return "";
     }
