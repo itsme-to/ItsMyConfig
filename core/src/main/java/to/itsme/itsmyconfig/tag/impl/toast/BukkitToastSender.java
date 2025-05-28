@@ -32,7 +32,8 @@ public class BukkitToastSender implements ToastSender {
                 "  },\n" +
                 "  \"display\": {\n" +
                 "    \"icon\": {\n" +
-                "      \"item\": \"" + icon.getKey() + "\"\n" +
+                "      \"item\": \"" + icon.getKey() + "\",\n" +
+                "      \"id\": \"" + icon.getKey() + "\"\n" +
                 "    },\n" +
                 "    \"title\": " + titleJson + ",\n" +
                 "    \"description\": " + descJson + ",\n" +
