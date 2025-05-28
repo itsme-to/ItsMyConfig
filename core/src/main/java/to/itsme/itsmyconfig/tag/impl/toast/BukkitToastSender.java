@@ -10,8 +10,6 @@ import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.entity.Player;
 import to.itsme.itsmyconfig.ItsMyConfig;
 
-import java.io.StringReader;
-
 public class BukkitToastSender implements ToastSender {
 
     @Override
@@ -45,7 +43,7 @@ public class BukkitToastSender implements ToastSender {
                 "  }\n" +
                 "}";
 
-        Advancement advancement = Bukkit.getUnsafe().loadAdvancement(key, new StringReader(advancementJson));
+        Advancement advancement = Bukkit.getUnsafe().loadAdvancement(key, advancementJson);
         if (advancement == null) return;
 
         AdvancementProgress progress = player.getAdvancementProgress(advancement);
