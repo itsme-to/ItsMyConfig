@@ -8,6 +8,7 @@ import to.itsme.itsmyconfig.tag.api.Tag;
 import to.itsme.itsmyconfig.tag.impl.*;
 import to.itsme.itsmyconfig.tag.impl.title.SubtitleTag;
 import to.itsme.itsmyconfig.tag.impl.title.TitleTag;
+import to.itsme.itsmyconfig.tag.impl.toast.ToastTag;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,7 +30,8 @@ public final class TagManager {
         List.of(
                 new RepeatTag(), new DelayTag(),
                 new BossbarTag(), new ActiobarTag(),
-                new TitleTag(), new SubtitleTag(), new SoundTag()
+                new TitleTag(), new SubtitleTag(),
+                new ToastTag(), new SoundTag()
         ).forEach(tag -> {
             tags.put(tag.name(), tag);
             defaultCapacity.set(Math.max(tag.maxArguments(), defaultCapacity.get()));
