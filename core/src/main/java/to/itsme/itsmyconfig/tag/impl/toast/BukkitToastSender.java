@@ -21,7 +21,6 @@ public class BukkitToastSender implements ToastSender {
     private static final long EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
 
     static {
-        // Schedule cleanup every minute
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -34,20 +33,30 @@ public class BukkitToastSender implements ToastSender {
                     return false;
                 });
 
-                // Reload data if needed
                 if (!advancementCleanupQueue.isEmpty()) {
                     Bukkit.reloadData();
                 }
             }
-        }.runTaskTimer(ItsMyConfig.getInstance(), 20 * 60, 20 * 60); // 60s interval
+        }.runTaskTimer(ItsMyConfig.getInstance(), 20 * 60, 20 * 60); // every 60s
     }
 
-    @Override
-    public void sendToast(Player player, Component title, Component description, Material icon) {
+    /**
+     * Sends a custom toast message to the player.
+     *
+     * @param player     The player to receive the toast.
+     * @param title      The title component of the toast.
+     * @param icon       The material to show as the icon.
+     * @param frameType  The frame type: "task", "goal", or "challenge".
+     */
+    public void sendToast(Player player, Component title, Material icon, String frameType) {
         String titleJson = GsonComponentSerializer.gson().serialize(title);
-        String descJson = GsonComponentSerializer.gson().serialize(description);
+        String descJson = GsonComponentSerializer.gson().serialize(Component.empty());
 
-        // Generate unique key per send to avoid cache conflicts
+        String sanitizedFrame = switch (frameType.toLowerCase()) {
+            case "challenge", "goal" -> frameType.toLowerCase();
+            default -> "task";
+        };
+
         NamespacedKey key = new NamespacedKey("itsmyconfig", "toast_" + UUID.randomUUID());
 
         String advancementJson = "{\n" +
@@ -63,7 +72,7 @@ public class BukkitToastSender implements ToastSender {
                 "    },\n" +
                 "    \"title\": " + titleJson + ",\n" +
                 "    \"description\": " + descJson + ",\n" +
-                "    \"frame\": \"goal\",\n" +
+                "    \"frame\": \"" + sanitizedFrame + "\",\n" +
                 "    \"announce_to_chat\": false,\n" +
                 "    \"show_toast\": true,\n" +
                 "    \"hidden\": true\n" +
@@ -76,14 +85,13 @@ public class BukkitToastSender implements ToastSender {
         AdvancementProgress progress = player.getAdvancementProgress(advancement);
         progress.awardCriteria("impossible");
 
-        // Schedule revoke + cleanup
         Bukkit.getScheduler().runTaskLater(
                 ItsMyConfig.getInstance(),
                 () -> {
                     player.getAdvancementProgress(advancement).revokeCriteria("impossible");
                     advancementCleanupQueue.put(key, System.currentTimeMillis());
                 },
-                20L // 1 second delay
+                20L // 1 second later
         );
     }
 }
