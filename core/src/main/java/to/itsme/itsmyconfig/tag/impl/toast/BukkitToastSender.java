@@ -25,7 +25,7 @@ public class BukkitToastSender implements ToastSender {
             @Override
             public void run() {
                 long now = System.currentTimeMillis();
-                advancementCleanupQueue.entrySet().removeIf(entry -> {
+                boolean removedAny = advancementCleanupQueue.entrySet().removeIf(entry -> {
                     if (now - entry.getValue() > EXPIRY_MS) {
                         Bukkit.getUnsafe().removeAdvancement(entry.getKey());
                         return true;
@@ -33,7 +33,7 @@ public class BukkitToastSender implements ToastSender {
                     return false;
                 });
 
-                if (!advancementCleanupQueue.isEmpty()) {
+                if (removedAny) {
                     Bukkit.reloadData();
                 }
             }
