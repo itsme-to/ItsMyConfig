@@ -19,7 +19,7 @@ public class BukkitToastSender implements ToastSender {
 
     private static final Map<NamespacedKey, Long> advancementCleanupQueue = new ConcurrentHashMap<>();
     private static final long EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
-
+    
     static {
         new BukkitRunnable() {
             @Override
@@ -58,26 +58,34 @@ public class BukkitToastSender implements ToastSender {
         };
 
         NamespacedKey key = new NamespacedKey("itsmyconfig", "toast_" + UUID.randomUUID());
-
-        String advancementJson = "{\n" +
-                "  \"criteria\": {\n" +
-                "    \"impossible\": {\n" +
-                "      \"trigger\": \"minecraft:impossible\"\n" +
-                "    }\n" +
-                "  },\n" +
-                "  \"display\": {\n" +
-                "    \"icon\": {\n" +
-                "      \"item\": \"" + icon.getKey() + "\",\n" +
-                "      \"id\": \"" + icon.getKey() + "\"\n" +
-                "    },\n" +
-                "    \"title\": " + titleJson + ",\n" +
-                "    \"description\": " + descJson + ",\n" +
-                "    \"frame\": \"" + sanitizedFrame + "\",\n" +
-                "    \"announce_to_chat\": false,\n" +
-                "    \"show_toast\": true,\n" +
-                "    \"hidden\": true\n" +
-                "  }\n" +
-                "}";
+        String advancementJson = String.format(
+            """
+            {
+              "criteria": {
+                "impossible": {
+                  "trigger": "minecraft:impossible"
+                }
+              },
+              "display": {
+                "icon": {
+                  "item": "%s",
+                  "id": "%s"
+                },
+                "title": %s,
+                "description": %s,
+                "frame": "%s",
+                "announce_to_chat": false,
+                "show_toast": true,
+                "hidden": true
+              }
+            }
+            """,
+            icon.getKey(),       // item
+            icon.getKey(),       // id
+            titleJson,           // serialized Component
+            descJson,            // empty component
+            sanitizedFrame       // "task", "goal", "challenge"
+        );
 
         Advancement advancement = Bukkit.getUnsafe().loadAdvancement(key, advancementJson);
         if (advancement == null) return;
