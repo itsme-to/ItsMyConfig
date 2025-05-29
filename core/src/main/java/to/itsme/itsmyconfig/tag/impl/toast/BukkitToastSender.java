@@ -23,13 +23,12 @@ public class BukkitToastSender implements ToastSender {
         new BukkitRunnable() {
             @Override
             public void run() {
-                int count = 0;
+                int size = advancementKeys.size();
                 advancementKeys.removeIf(key -> {
-                    count++;
                     Bukkit.getUnsafe().removeAdvancement(key);
                     return true;
                 });
-                if (count > 0) {
+                if (size > 0) {
                     Bukkit.reloadData();
                 }
             }
