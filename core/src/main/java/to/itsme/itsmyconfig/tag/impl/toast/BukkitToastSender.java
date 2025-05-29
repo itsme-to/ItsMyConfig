@@ -11,33 +11,29 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import to.itsme.itsmyconfig.ItsMyConfig;
 
-import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BukkitToastSender implements ToastSender {
 
-    private static final Map<NamespacedKey, Long> advancementCleanupQueue = new ConcurrentHashMap<>();
-    private static final long EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
-    
-    static {
+    private final Set<NamespacedKey> advancementKeys = ConcurrentHashMap.newKeySet();
+
+    public BukkitToastSender() {
         new BukkitRunnable() {
             @Override
             public void run() {
-                long now = System.currentTimeMillis();
-                boolean removedAny = advancementCleanupQueue.entrySet().removeIf(entry -> {
-                    if (now - entry.getValue() > EXPIRY_MS) {
-                        Bukkit.getUnsafe().removeAdvancement(entry.getKey());
-                        return true;
-                    }
-                    return false;
+                int count = 0;
+                advancementKeys.removeIf(key -> {
+                    count++;
+                    Bukkit.getUnsafe().removeAdvancement(key);
+                    return true;
                 });
-
-                if (removedAny) {
+                if (count > 0) {
                     Bukkit.reloadData();
                 }
             }
-        }.runTaskTimer(ItsMyConfig.getInstance(), 20 * 60, 20 * 60); // every 60s
+        }.runTaskTimer(ItsMyConfig.getInstance(), 20 * 60 * 20, 20 * 60 * 20); // every 20 minutes
     }
 
     /**
@@ -80,11 +76,11 @@ public class BukkitToastSender implements ToastSender {
               }
             }
             """,
-            icon.getKey(),       // item
-            icon.getKey(),       // id
-            titleJson,           // serialized Component
-            descJson,            // empty component
-            sanitizedFrame       // "task", "goal", "challenge"
+            icon.getKey(),
+            icon.getKey(),
+            titleJson,
+            descJson,
+            sanitizedFrame
         );
 
         Advancement advancement = Bukkit.getUnsafe().loadAdvancement(key, advancementJson);
@@ -97,7 +93,7 @@ public class BukkitToastSender implements ToastSender {
                 ItsMyConfig.getInstance(),
                 () -> {
                     player.getAdvancementProgress(advancement).revokeCriteria("impossible");
-                    advancementCleanupQueue.put(key, System.currentTimeMillis());
+                    advancementKeys.add(key);
                 },
                 20L // 1 second later
         );
