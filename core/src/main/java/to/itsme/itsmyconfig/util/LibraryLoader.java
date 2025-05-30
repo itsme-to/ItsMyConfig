@@ -29,7 +29,7 @@ public enum LibraryLoader {
             "net.kyori",
             "adventure-platform-bukkit",
             BuildParameters.ADVENTURE_PLATFORM_VERSION,
-            () -> !Audience.class.isAssignableFrom(CommandSender.class)
+            () -> !Audience.class.isAssignableFrom(CommandSender.class) && !Reflections.findClass("net.kyori.adventure.audience.ForwardingAudience")
     ),
     // ========================================================= //
     // Adventure Components & MiniMessage //
