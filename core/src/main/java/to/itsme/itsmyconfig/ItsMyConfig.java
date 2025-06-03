@@ -150,7 +150,6 @@ public final class ItsMyConfig extends JavaPlugin {
         this.saveDefaultConfig();
         this.reloadConfig();
         this.config = this.getConfig();
-        this.getConfig().options().copyDefaults(true);
         this.reloadConfigParams();
 
         this.getLogger().info("Using packet serializer: " + IMCSerializer.currentSerializerType().name());
@@ -168,11 +167,9 @@ public final class ItsMyConfig extends JavaPlugin {
         if (folder.mkdirs()) {
             this.saveResource("placeholders/default.yml", false);
             this.saveResource("placeholders/example.yml", false);
-
-            if (this.config.isConfigurationSection("custom-placeholder") || this.config.isConfigurationSection("custom-progress")) {
-                this.migrateConfig(folder);
-            }
         }
+        
+        this.migrateConfig(folder);
         this.loadFolder(folder, placeholderPaths);
 
         // 13 - 14: Print all info about duplicated placeholders and bars
@@ -268,41 +265,61 @@ public final class ItsMyConfig extends JavaPlugin {
 
     @SuppressWarnings("ConstantConditions")
     private void migrateConfig(final File directory) {
-        File migratedConfig = new File(directory, "migrated-config.yml");
-        if (migratedConfig.exists()) {
-            migratedConfig = new File(directory, UUID.randomUUID() + ".yml");
+        if (!this.config.isConfigurationSection("listeners")) {
+            ConfigurationSection listeners = this.config.createSection("listeners");
+            ConfigurationSection packetEvents = listeners.createSection("PacketEvents");
+            packetEvents.set("priority", 0);
+
+            ConfigurationSection protocolLib = listeners.createSection("ProtocolLib");
+            protocolLib.set("priority", 1);
+            protocolLib.set("cache-processors", false);
+            this.saveConfig();
         }
 
-        try {
-            final boolean created = migratedConfig.createNewFile();
-            if (!created) {
-                return;
-            }
-
-            final YamlConfiguration migratedConf = YamlConfiguration.loadConfiguration(migratedConfig);
-            final ConfigurationSection newSection = migratedConf.createSection("custom-placeholder");
-            if (this.config.isConfigurationSection("custom-placeholder")) {
-                for (final String name : Objects.requireNonNull(this.config.getConfigurationSection("custom-placeholder")).getKeys(false)) {
-                    newSection.set(name, this.config.get("custom-placeholder." + name));
-                }
-            }
-
-            if (this.config.isConfigurationSection("custom-progress")) {
-                for (final String name : Objects.requireNonNull(this.config.getConfigurationSection("custom-progress")).getKeys(false)) {
-                    final ConfigurationSection section = this.config.getConfigurationSection("custom-progress." + name);
-                    section.set("value", section.getString("symbol"));
-                    section.set("type", "progress_bar");
-                    section.set("symbol", null);
-                    newSection.set(name, section);
-                }
-            }
-
-            migratedConf.save(migratedConfig);
-            this.config.set("custom-progress", null);
-            this.config.set("custom-placeholder", null);
+        if (!this.config.contains("config-version")) {
+            this.config.set("config-version", 1);
             this.saveConfig();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        }
+
+        final boolean needsMigration = 
+            this.config.isConfigurationSection("custom-placeholder")
+            || this.config.isConfigurationSection("custom-progress");
+        if (needsMigration) {
+            File migratedConfig = new File(directory, "migrated-config.yml");
+            if (migratedConfig.exists()) {
+                migratedConfig = new File(directory, UUID.randomUUID() + ".yml");
+            }
+            try {
+                final boolean created = migratedConfig.createNewFile();
+                if (!created) {
+                    return;
+                }
+
+                final YamlConfiguration migratedConf = YamlConfiguration.loadConfiguration(migratedConfig);
+                final ConfigurationSection newSection = migratedConf.createSection("custom-placeholder");
+                if (this.config.isConfigurationSection("custom-placeholder")) {
+                    for (final String name : Objects.requireNonNull(this.config.getConfigurationSection("custom-placeholder")).getKeys(false)) {
+                        newSection.set(name, this.config.get("custom-placeholder." + name));
+                    }
+                }
+
+                if (this.config.isConfigurationSection("custom-progress")) {
+                    for (final String name : Objects.requireNonNull(this.config.getConfigurationSection("custom-progress")).getKeys(false)) {
+                        final ConfigurationSection section = this.config.getConfigurationSection("custom-progress." + name);
+                        section.set("value", section.getString("symbol"));
+                        section.set("type", "progress_bar");
+                        section.set("symbol", null);
+                        newSection.set(name, section);
+                    }
+                }
+
+                migratedConf.save(migratedConfig);
+                this.config.set("custom-progress", null);
+                this.config.set("custom-placeholder", null);
+                this.saveConfig();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
