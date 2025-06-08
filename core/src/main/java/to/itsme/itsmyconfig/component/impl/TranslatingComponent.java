@@ -10,6 +10,7 @@ import to.itsme.itsmyconfig.component.AbstractComponent;
 import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ArrayList;
 
 public class TranslatingComponent extends AbstractComponent {
 
@@ -22,7 +23,7 @@ public class TranslatingComponent extends AbstractComponent {
     public TranslatingComponent() {}
 
     /**
-     * {@link TranslatableComponent} convetrer to a {@link TranslatingComponent}
+     * {@link TranslatableComponent} converter to a {@link TranslatingComponent}
      */
     public TranslatingComponent(final TranslatableComponent component) {
         this.key = component.key();
@@ -32,7 +33,11 @@ public class TranslatingComponent extends AbstractComponent {
             this.color = color.asHexString();
         }
 
-        final List<Component> args = ComponentLike.asComponents(component.arguments());
+        List<ComponentLike> argumentLikes = component.arguments();
+        List<Component> args = new ArrayList<>(argumentLikes.size());
+        for (int i = 0, size = argumentLikes.size(); i < size; i++) {
+            args.add(argumentLikes.get(i).asComponent());
+        }
         if (!args.isEmpty()) {
             for (final Component arg : args) {
                 extra.add(AbstractComponent.parse(arg));
