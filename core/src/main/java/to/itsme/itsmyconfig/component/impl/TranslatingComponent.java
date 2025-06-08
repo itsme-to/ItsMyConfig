@@ -3,6 +3,7 @@ package to.itsme.itsmyconfig.component.impl;
 import com.google.gson.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
+import net.kyori.adventure.text.TranslationArgument;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.TextColor;
 import to.itsme.itsmyconfig.component.AbstractComponent;
@@ -33,7 +34,7 @@ public class TranslatingComponent extends AbstractComponent {
             this.color = color.asHexString();
         }
 
-        List<ComponentLike> argumentLikes = component.arguments();
+        List<TranslationArgument> argumentLikes = component.arguments();
         List<Component> args = new ArrayList<>(argumentLikes.size());
         for (int i = 0, size = argumentLikes.size(); i < size; i++) {
             args.add(argumentLikes.get(i).asComponent());
