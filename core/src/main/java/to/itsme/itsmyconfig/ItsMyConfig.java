@@ -115,7 +115,6 @@ public final class ItsMyConfig extends JavaPlugin {
     public void onDisable() {
         AudienceResolver.close();
         this.processorManager.close();
-        this.placeholderManager.unregisterAll();
     }
 
     /**
