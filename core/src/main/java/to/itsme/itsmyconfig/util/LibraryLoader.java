@@ -34,7 +34,14 @@ public enum LibraryLoader {
             new Relocation("net.kyori.adventure", BuildParameters.SHADE_PATH + "adventure")
     ),
     // ========================================================= //
-    // Adventure Components & MiniMessage //
+    // Adventure Serializers //
+    ADVENTURE_GSON_SERIALIZER(
+            "net.kyori",
+            "adventure-text-serializer-gson",
+            BuildParameters.ADVENTURE_VERSION,
+            () -> true,
+            new Relocation("net.kyori.adventure", BuildParameters.SHADE_PATH + "adventure")
+    ),
     ADVENTURE_BUNGEE_SERIALIZER(
             "net.kyori",
             "adventure-text-serializer-bungeecord",
