@@ -94,17 +94,6 @@ processResources {
     }
 }
 
-sourceSets {
-    main {
-        blossom {
-            javaSources {
-                property("adventureVersion", kyoriVersion)
-                property("adventurePlatformVersion", kyoriPlatformVersion)
-            }
-        }
-    }
-}
-
 def shadePath = "to.itsme.itsmyconfig.shade."
 shadowJar {
     //exclude("net/kyori/**")
@@ -117,6 +106,18 @@ shadowJar {
     relocate("net.kyori.adventure", "${shadePath}adventure")
     relocate("com.alessiodp.libby", "${shadePath}libby")
     archiveFileName = "itsmyconfig-${project.version}.jar"
+}
+
+sourceSets {
+    main {
+        blossom {
+            javaSources {
+                property("shadePath", shadePath)
+                property("adventureVersion", kyoriVersion)
+                property("adventurePlatformVersion", kyoriPlatformVersion)
+            }
+        }
+    }
 }
 
 jmh {
