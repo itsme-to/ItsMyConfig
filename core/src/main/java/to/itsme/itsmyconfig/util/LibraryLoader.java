@@ -20,7 +20,8 @@ public enum LibraryLoader {
             "net.kyori",
             "adventure-text-minimessage",
             BuildParameters.ADVENTURE_VERSION,
-            () -> !Reflections.findClass("net.kyori.adventure.text.Component")
+            () -> true,
+            new Relocation("net.kyori.adventure", BuildParameters.SHADE_PATH + "adventure")
     ),
     // ========================================================= //
     // Adventure Bukkit Platfrom //
@@ -29,7 +30,8 @@ public enum LibraryLoader {
             "net.kyori",
             "adventure-platform-bukkit",
             BuildParameters.ADVENTURE_PLATFORM_VERSION,
-            () -> !Audience.class.isAssignableFrom(CommandSender.class) && !Reflections.findClass("net.kyori.adventure.audience.ForwardingAudience")
+            () -> true,
+            new Relocation("net.kyori.adventure", BuildParameters.SHADE_PATH + "adventure")
     ),
     // ========================================================= //
     // Adventure Components & MiniMessage //
@@ -37,7 +39,8 @@ public enum LibraryLoader {
             "net.kyori",
             "adventure-text-serializer-bungeecord",
             BuildParameters.ADVENTURE_PLATFORM_VERSION,
-            () -> !Reflections.findClass("net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer")
+            () -> true,
+            new Relocation("net.kyori.adventure", BuildParameters.SHADE_PATH + "adventure")
     )
     // ========================================================= //
     ;
