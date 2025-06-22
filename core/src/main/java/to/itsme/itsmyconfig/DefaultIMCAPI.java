@@ -22,6 +22,7 @@ public class DefaultIMCAPI implements ItsMyConfigAPI {
         return this.plugin.processorManager.getListener();
     }
 
+    /* Adventure has been relocated *again* inside ItsMyConfig
     @Override
     public @NotNull Component translate(String text, TagResolver... args) {
         return Utilities.translate(text, args);
@@ -35,6 +36,6 @@ public class DefaultIMCAPI implements ItsMyConfigAPI {
     @Override
     public @NotNull Component translate(String text, Player player, TagResolver... args) {
         return Utilities.translate(text, player, args);
-    }
+    }*/
 
 }
