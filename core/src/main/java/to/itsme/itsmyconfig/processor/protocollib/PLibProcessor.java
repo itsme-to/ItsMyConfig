@@ -8,9 +8,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import to.itsme.itsmyconfig.processor.PacketProcessor;
 import to.itsme.itsmyconfig.processor.PacketContent;
-import to.itsme.itsmyconfig.util.IMCSerializer;
-import to.itsme.itsmyconfig.util.Utilities;
-import to.itsme.itsmyconfig.util.Versions;
+import to.itsme.itsmyconfig.util.*;
 
 public enum PLibProcessor implements PacketProcessor<PacketContainer> {
 
@@ -18,7 +16,9 @@ public enum PLibProcessor implements PacketProcessor<PacketContainer> {
 
         @Override
         public void edit(PacketContainer container, Component component) {
-            container.getModifier().withType(Component.class).write(0, component);
+            container.getModifier().withType(AdventureUtil.getComponentClass()).write(
+                0, AdventureUtil.fromComponent(component)
+            );
         }
 
         @Override
@@ -27,17 +27,19 @@ public enum PLibProcessor implements PacketProcessor<PacketContainer> {
                 return null;
             }
 
-            final StructureModifier<Component> modifier = container.getModifier().withType(Component.class);
+            final StructureModifier<?> modifier = container.getModifier().withType(AdventureUtil.getComponentClass());
             if (modifier.size() != 1) {
                 return null;
             }
 
-            final Component component = modifier.readSafely(0);
+            final Object component = modifier.readSafely(0);
             if (component == null) {
                 return null;
             }
 
-            return this.of(container, IMCSerializer.toMiniMessage(component));
+            return this.of(container, IMCSerializer.toMiniMessage(
+                AdventureUtil.toComponent(component)
+            ));
         }
     },
 
