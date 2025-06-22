@@ -114,6 +114,7 @@ shadowJar {
     relocate("redempt.crunch", "${shadePath}crunch")
     relocate("revxrsal.commands", "${shadePath}lamp")
     relocate("org.bstats", "${shadePath}bstats")
+    relocate("net.kyori.adventure", "${shadePath}adventure")
     relocate("com.alessiodp.libby", "${shadePath}libby")
     archiveFileName = "itsmyconfig-${project.version}.jar"
 }
