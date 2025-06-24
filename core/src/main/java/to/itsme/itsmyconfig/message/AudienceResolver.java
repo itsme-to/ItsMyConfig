@@ -10,15 +10,7 @@ import to.itsme.itsmyconfig.util.LibraryLoader;
 
 public class AudienceResolver {
 
-    private static final Resolver AUDIENCE_RESOLVER;
-
-    static {
-        if (LibraryLoader.ADVENTURE_PLATFORM.shouldLoad()) {
-            AUDIENCE_RESOLVER = new BukkitResolver();
-        } else {
-            AUDIENCE_RESOLVER = new PaperResolver();
-        }
-    }
+    private static final Resolver AUDIENCE_RESOLVER = new BukkitResolver();
 
     /**
      * Dummy method to load resolvers onEnable, and just logs it.
