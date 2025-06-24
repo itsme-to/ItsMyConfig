@@ -17,7 +17,7 @@ public enum PLibProcessor implements PacketProcessor<PacketContainer> {
         @Override
         public void edit(PacketContainer container, Component component) {
             container.getModifier().withType(AdventureUtil.getComponentClass()).write(
-                0, AdventureUtil.fromComponent(component)
+                0, AdventureUtil.getComponentClass().cast(AdventureUtil.fromComponent(component))
             );
         }
 
