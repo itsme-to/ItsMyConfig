@@ -46,8 +46,11 @@ dependencies {
     implementation project(":api")
 
     //adventure ->
-    compileOnly "${kyoriPlatform(KyoriModule.BUKKIT)}"
-    compileOnly "${kyori(KyoriModule.MINI_MESSAGE)}"
+    implementation "${kyori(KyoriModule.MINI_MESSAGE)}"
+    implementation "${kyori(KyoriModule.GSON_SERIALIZER)}"
+    
+    implementation "${kyoriPlatform(KyoriModule.BUKKIT)}"
+    implementation "${kyoriPlatform(KyoriModule.BUNGEE_SERIALIZER)}"
 
     // lamp ->
     implementation "io.github.revxrsal:lamp.common:${lampVersion}"
