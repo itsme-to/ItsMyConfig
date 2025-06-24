@@ -47,7 +47,7 @@ public enum LibraryLoader {
             "net.kyori",
             "adventure-text-serializer-gson",
             BuildParameters.ADVENTURE_VERSION,
-            () -> !Reflections.findClass("net{}kyori{}adventure{}text.serializer.gson.GsonSerializer".replace("{}", ".")),
+            () -> !Reflections.findClass("net{}kyori{}adventure{}text.serializer.gson.GsonSerializer".replace("{}", "."))
     )
     ;
 
