@@ -14,7 +14,7 @@ import java.util.logging.Level;
 
 public enum LibraryLoader {
 
-    // ========================================================= //
+    /* ========================================================= //
     // Adventure Components & MiniMessage //
     ADVENTURE(
             "net.kyori",
@@ -49,7 +49,7 @@ public enum LibraryLoader {
             () -> true,
             new Relocation("net.kyori.adventure", BuildParameters.SHADE_PATH + "adventure")
     )
-    // ========================================================= //
+    // ========================================================= */
     ;
 
     private static final LibraryManager MANAGER = new BukkitLibraryManager(ItsMyConfig.getInstance());
