@@ -18,8 +18,8 @@ public final class AdventureUtil {
         Method deserialize = null;
 
         try {
-            componentClass = Class.forName("net.kyori.adventure.text.Component");
-            Class<?> gsonComponentSerializerClass = Class.forName("net.kyori.adventure.text.serializer.gson.GsonComponentSerializer");
+            componentClass = Class.forName("net{}kyori{}adventure{}text{}Component".replace("{}", "."));
+            Class<?> gsonComponentSerializerClass = Class.forName("net{}kyori{}adventure{}text{}serializer{}gson{}GsonComponentSerializer".replace("{}", "."));
             Method gsonMethod = gsonComponentSerializerClass.getMethod("gson");
             gsonSerializer = gsonMethod.invoke(null);
             serialize = gsonComponentSerializerClass.getMethod("serialize", componentClass);
