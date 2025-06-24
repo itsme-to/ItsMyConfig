@@ -35,13 +35,6 @@ public enum LibraryLoader {
     ),
     // ========================================================= //
     // Adventure Serializers //
-    ADVENTURE_GSON_SERIALIZER(
-            "net.kyori",
-            "adventure-text-serializer-gson",
-            BuildParameters.ADVENTURE_VERSION,
-            () -> true,
-            new Relocation("net.kyori.adventure", BuildParameters.SHADE_PATH + "adventure")
-    ),
     ADVENTURE_BUNGEE_SERIALIZER(
             "net.kyori",
             "adventure-text-serializer-bungeecord",
@@ -50,6 +43,12 @@ public enum LibraryLoader {
             new Relocation("net.kyori.adventure", BuildParameters.SHADE_PATH + "adventure")
     )
     // ========================================================= */
+    ADVENTURE_GSON_SERIALIZER(
+            "net.kyori",
+            "adventure-text-serializer-gson",
+            BuildParameters.ADVENTURE_VERSION,
+            () -> !Reflections.findClass("net{}kyori{}adventure{}text.serializer.gson.GsonSerializer".replace("{}", ".")),
+    )
     ;
 
     private static final LibraryManager MANAGER = new BukkitLibraryManager(ItsMyConfig.getInstance());
