@@ -19,7 +19,7 @@ allprojects {
                 API              : "api",
                 BUKKIT           : "platform-bukkit",
                 BUNGEE           : "platform-bungeecord",
-                SPONGE           : "platform-spongeapi"
+                SPONGE           : "platform-spongeapi",
                 MINI_MESSAGE     : "text-minimessage",
                 GSON_SERIALIZER  : "text-serializer-gson",
                 BUNGEE_SERIALIZER: "text-serializer-bungeecord"
