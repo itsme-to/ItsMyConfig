@@ -23,7 +23,7 @@ public final class AdventureUtil {
             Method gsonMethod = gsonComponentSerializerClass.getMethod("gson");
             gsonSerializer = gsonMethod.invoke(null);
             serialize = gsonComponentSerializerClass.getMethod("serialize", componentClass);
-            deserialize = gsonComponentSerializerClass.getMethod("deserialize", String.class);
+            deserialize = gsonSerializer.getClass().getMethod("deserialize", String.class);
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
