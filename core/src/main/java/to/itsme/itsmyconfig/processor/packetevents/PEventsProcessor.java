@@ -1,5 +1,6 @@
 package to.itsme.itsmyconfig.processor.packetevents;
 
+import com.github.retrooper.packetevents.protocol.chat.message.ChatMessage;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerChatMessage;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDisconnect;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSystemChatMessage;
@@ -19,8 +20,7 @@ public class PEventsProcessor {
 
         {
             try {
-                Class<?> chatMessageClass = Class.forName("com.github.retrooper.packetevents.wrapper.play.server.ChatMessage");
-                setChatContent = chatMessageClass.getMethod("setChatContent", AdventureUtil.getComponentClass());
+                setChatContent = ChatMessage.class.getMethod("setChatContent", AdventureUtil.getComponentClass());
             } catch (Throwable t) {
                 throw new RuntimeException("Failed to resolve setChatContent method", t);
             }
