@@ -16,10 +16,11 @@ import java.lang.reflect.Method;
 public class PEventsProcessor {
 
     public static final PacketProcessor<WrapperPlayServerChatMessage> CHAT_MESSAGE = new PacketProcessor<>() {
-        private final Method setChatContent;
+        private final Method getChatContent, setChatContent;
 
         {
             try {
+                getChatContent = ChatMessage.class.getMethod("getChatContent");
                 setChatContent = ChatMessage.class.getMethod("setChatContent", AdventureUtil.getComponentClass());
             } catch (Throwable t) {
                 throw new RuntimeException("Failed to resolve setChatContent method", t);
@@ -44,7 +45,12 @@ public class PEventsProcessor {
 
         @Override
         public @NotNull PacketContent<WrapperPlayServerChatMessage> unpack(WrapperPlayServerChatMessage wrappedPacket) {
-            Object chatContent = wrappedPacket.getMessage().getChatContent();
+            Object chatContent;
+            try {
+                chatContent = getChatContent.invoke(wrappedPacket.getMessage());
+            } catch (Throwable t) {
+                throw new RuntimeException("Failed to invoke getChatContent", t);
+            }
             Component internal = AdventureUtil.toComponent(chatContent);
             return new PacketContent<>(wrappedPacket, this, IMCSerializer.toMiniMessage(internal));
         }
