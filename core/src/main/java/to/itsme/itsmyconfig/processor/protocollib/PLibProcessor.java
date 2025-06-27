@@ -2,6 +2,7 @@ package to.itsme.itsmyconfig.processor.protocollib;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
+import com.comphenix.protocol.wrappers.AdventureComponentConverter;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -16,9 +17,10 @@ public enum PLibProcessor implements PacketProcessor<PacketContainer> {
 
         @Override
         public void edit(PacketContainer container, Component component) {
-            container.getModifier().withType(AdventureUtil.getComponentClass()).write(
-                0, AdventureUtil.getComponentClass().cast(AdventureUtil.fromComponent(component))
-            );
+            final StructureModifier<Object> modifier = container.getModifier().withType(AdventureComponentConverter.getComponentClass());
+            modifier.write(0, AdventureComponentConverter.fromJsonAsObject(
+                Utilities.GSON_SERIALIZER.serialize(component)
+            ));
         }
 
         @Override
@@ -27,7 +29,7 @@ public enum PLibProcessor implements PacketProcessor<PacketContainer> {
                 return null;
             }
 
-            final StructureModifier<?> modifier = container.getModifier().withType(AdventureUtil.getComponentClass());
+            final StructureModifier<Object> modifier = container.getModifier().withType(AdventureComponentConverter.getComponentClass());
             if (modifier.size() != 1) {
                 return null;
             }
