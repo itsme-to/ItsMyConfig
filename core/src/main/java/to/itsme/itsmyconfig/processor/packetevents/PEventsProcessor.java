@@ -57,10 +57,11 @@ public class PEventsProcessor {
     };
 
     public static final PacketProcessor<WrapperPlayServerSystemChatMessage> SYSTEM_CHAT_MESSAGE = new PacketProcessor<>() {
-        private final Method setMessage;
+        private final Method getMessage, setMessage;
 
         {
             try {
+                getMessage = WrapperPlayServerSystemChatMessage.class.getMethod("getMessage");
                 setMessage = WrapperPlayServerSystemChatMessage.class.getMethod("setMessage", AdventureUtil.getComponentClass());
             } catch (Throwable t) {
                 throw new RuntimeException("Failed to resolve setMessage method", t);
@@ -84,17 +85,23 @@ public class PEventsProcessor {
 
         @Override
         public @NotNull PacketContent<WrapperPlayServerSystemChatMessage> unpack(WrapperPlayServerSystemChatMessage wrappedPacket) {
-            Object externalComponent = wrappedPacket.getMessage();
+            Object externalComponent;
+            try {
+                externalComponent = getMessage.invoke(wrappedPacket)
+            } catch (Throwable t) {
+                throw new RuntimeException("Failed to invoke WrapperPlayServerSystemChatMessage#getMessage", t);
+            }
             Component internal = AdventureUtil.toComponent(externalComponent);
             return new PacketContent<>(wrappedPacket, this, IMCSerializer.toMiniMessage(internal));
         }
     };
 
     public static final PacketProcessor<WrapperPlayServerDisconnect> DISCONNECT = new PacketProcessor<>() {
-        private final Method setReason;
+        private final Method getReason, setReason;
 
         {
             try {
+                getReason = WrapperPlayServerDisconnect.class.getMethod("getReason");
                 setReason = WrapperPlayServerDisconnect.class.getMethod("setReason", AdventureUtil.getComponentClass());
             } catch (Throwable t) {
                 throw new RuntimeException("Failed to resolve setReason method", t);
@@ -118,7 +125,12 @@ public class PEventsProcessor {
 
         @Override
         public @NotNull PacketContent<WrapperPlayServerDisconnect> unpack(WrapperPlayServerDisconnect wrappedPacket) {
-            Object externalComponent = wrappedPacket.getReason();
+            Object externalComponent;
+            try {
+                externalComponent = getReason.invoke(wrappedPacket)
+            } catch (Throwable t) {
+                throw new RuntimeException("Failed to invoke WrapperPlayServerDisconnect#getReason", t);
+            }
             Component internal = AdventureUtil.toComponent(externalComponent);
             return new PacketContent<>(wrappedPacket, this, IMCSerializer.toMiniMessage(internal));
         }
