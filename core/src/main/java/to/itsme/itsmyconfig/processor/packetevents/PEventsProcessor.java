@@ -87,7 +87,7 @@ public class PEventsProcessor {
         public @NotNull PacketContent<WrapperPlayServerSystemChatMessage> unpack(WrapperPlayServerSystemChatMessage wrappedPacket) {
             Object externalComponent;
             try {
-                externalComponent = getMessage.invoke(wrappedPacket)
+                externalComponent = getMessage.invoke(wrappedPacket);
             } catch (Throwable t) {
                 throw new RuntimeException("Failed to invoke WrapperPlayServerSystemChatMessage#getMessage", t);
             }
@@ -127,7 +127,7 @@ public class PEventsProcessor {
         public @NotNull PacketContent<WrapperPlayServerDisconnect> unpack(WrapperPlayServerDisconnect wrappedPacket) {
             Object externalComponent;
             try {
-                externalComponent = getReason.invoke(wrappedPacket)
+                externalComponent = getReason.invoke(wrappedPacket);
             } catch (Throwable t) {
                 throw new RuntimeException("Failed to invoke WrapperPlayServerDisconnect#getReason", t);
             }
