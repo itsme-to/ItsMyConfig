@@ -116,7 +116,7 @@ public final class ItsMyConfigCommand {
             }
         }
 
-        if (actor.isPlayer()) {
+        if (!actor.isConsole()) {
             Message.MESSAGE_SENT.send(actor);
         }
     }
@@ -136,7 +136,7 @@ public final class ItsMyConfigCommand {
             }
         }
 
-        if (actor.isPlayer()) {
+        if (!actor.isConsole()) {
             Message.MESSAGE_SENT.send(actor);
         }
     }
