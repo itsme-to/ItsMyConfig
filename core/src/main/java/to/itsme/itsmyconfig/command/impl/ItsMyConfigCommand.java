@@ -1,5 +1,7 @@
 package to.itsme.itsmyconfig.command.impl;
 
+import dev.velix.imperat.BukkitSource:
+import dev.velix.imperat.annotations.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -10,9 +12,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
-import revxrsal.commands.annotation.*;
-import revxrsal.commands.bukkit.actor.BukkitCommandActor;
-import revxrsal.commands.bukkit.annotation.CommandPermission;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.command.annotation.ModifiablePlaceholder;
 import to.itsme.itsmyconfig.command.util.PlayerSelector;
@@ -34,11 +33,9 @@ public final class ItsMyConfigCommand {
         this.plugin = plugin;
     }
 
-    //@DefaultFor("~")
-    @Command("itsmyconfig")
-    public void usage(
-            final BukkitCommandActor actor
-    ) {
+    @Usage
+    @SubCommand("help")
+    public void usage(final BukkitSource actor) {
         final String message = """
                   <gold><plugin></gold> | Config has never been easier
                 
@@ -96,19 +93,19 @@ public final class ItsMyConfigCommand {
         ));
     }
 
-    @Subcommand("reload")
-    @CommandPermission("itsmyconfig.reload")
+    @SubCommand("reload")
+    @Permission("itsmyconfig.reload")
     @Description("Reloads the plugin config")
-    public void reload(final BukkitCommandActor actor) {
+    public void reload(final BukkitSource actor) {
         plugin.loadConfig();
         Message.RELOAD.send(actor);
     }
 
-    @Subcommand("message")
-    @CommandPermission("itsmyconfig.message")
+    @SubCommand("message")
+    @Permission("itsmyconfig.message")
     @Description("Sends messages to players")
     public void message(
-            final BukkitCommandActor actor,
+            final BukkitSource actor,
             final @Named("target") PlayerSelector players,
             final @Named("message") String message
     ) {
@@ -124,11 +121,11 @@ public final class ItsMyConfigCommand {
         }
     }
 
-    @Subcommand("parse")
-    @CommandPermission("itsmyconfig.parse")
+    @SubCommand("parse")
+    @Permission("itsmyconfig.parse")
     @Description("Parses messages to players")
     public void parse(
-            final BukkitCommandActor actor,
+            final BukkitSource actor,
             final @Named("target") PlayerSelector players,
             final @Named("message") String message
     ) {
@@ -144,11 +141,11 @@ public final class ItsMyConfigCommand {
         }
     }
 
-    @Subcommand("config")
-    @CommandPermission("itsmyconfig.config")
+    @SubCommand("config")
+    @Permission("itsmyconfig.config")
     @Description("Sets config values for placeholder")
     public void config(
-            final BukkitCommandActor actor,
+            final BukkitSource actor,
             @ModifiablePlaceholder final Placeholder placeholder,
             @Named("value") final String value
     ) {
@@ -174,9 +171,9 @@ public final class ItsMyConfigCommand {
     }
 
     @Command("message")
-    @CommandPermission("itsmyconfig.message")
+    @Permission("itsmyconfig.message")
     public void msgCommand(
-            final BukkitCommandActor actor,
+            final BukkitSource actor,
             final @Named("target") PlayerSelector players,
             final @Named("message") String message
     ) {
@@ -184,9 +181,9 @@ public final class ItsMyConfigCommand {
     }
 
     @Command("config")
-    @CommandPermission("itsmyconfig.config")
+    @Permission("itsmyconfig.config")
     public void configCommand(
-            final BukkitCommandActor actor,
+            final BukkitSource actor,
             @ModifiablePlaceholder final Placeholder placeholder,
             @Named("value") final String value
     ) {
