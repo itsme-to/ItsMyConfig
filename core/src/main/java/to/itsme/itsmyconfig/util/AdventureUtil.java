@@ -24,6 +24,7 @@ public final class AdventureUtil {
             gsonSerializer = gsonMethod.invoke(null);
             serialize = gsonComponentSerializerClass.getMethod("serialize", componentClass);
             deserialize = gsonSerializer.getClass().getMethod("deserialize", String.class);
+            deserialize.setAccessible(true);
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
