@@ -40,7 +40,7 @@ repositories {
 }
 
 def lampVersion = "4.0.0-rc.9"
-
+def imperatVersion = "1.9.6"
 dependencies {
     // api ->
     implementation project(":api")
@@ -51,6 +51,10 @@ dependencies {
     
     implementation "${kyoriPlatform(KyoriModule.BUKKIT)}"
     implementation "${kyoriPlatform(KyoriModule.BUNGEE_SERIALIZER)}"
+
+    // imperat ->
+    implementation "dev.velix:imperat-core:${imperatVersion}"
+    implementation "dev.velix:imperat-bukkit:${imperatVersion}"
 
     // lamp ->
     implementation "io.github.revxrsal:lamp.common:${lampVersion}"
@@ -105,6 +109,7 @@ shadowJar {
     relocate("com.tcoded.folialib", "${shadePath}folialib")
     relocate("redempt.crunch", "${shadePath}crunch")
     relocate("revxrsal.commands", "${shadePath}lamp")
+    relocate("dev.velix.imperat", "${shadePath}imperat")
     relocate("org.bstats", "${shadePath}bstats")
     relocate("net.kyori.adventure", "${shadePath}adventure")
     relocate("com.alessiodp.libby", "${shadePath}libby")
