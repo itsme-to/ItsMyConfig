@@ -56,10 +56,6 @@ dependencies {
     implementation "dev.velix:imperat-core:${imperatVersion}"
     implementation "dev.velix:imperat-bukkit:${imperatVersion}"
 
-    // lamp ->
-    implementation "io.github.revxrsal:lamp.common:${lampVersion}"
-    implementation "io.github.revxrsal:lamp.bukkit:${lampVersion}"
-
     // other ->
     implementation "org.bstats:bstats-bukkit:3.0.2"
     implementation "com.github.Redempt:Crunch:2.0.3"
@@ -108,7 +104,6 @@ shadowJar {
     //relocate("net.kyori.adventure.text.minimessage", "${shadePath}mm")
     relocate("com.tcoded.folialib", "${shadePath}folialib")
     relocate("redempt.crunch", "${shadePath}crunch")
-    relocate("revxrsal.commands", "${shadePath}lamp")
     relocate("dev.velix.imperat", "${shadePath}imperat")
     relocate("org.bstats", "${shadePath}bstats")
     relocate("net.kyori.adventure", "${shadePath}adventure")

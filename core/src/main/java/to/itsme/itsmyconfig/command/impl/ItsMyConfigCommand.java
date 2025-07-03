@@ -1,6 +1,6 @@
 package to.itsme.itsmyconfig.command.impl;
 
-import dev.velix.imperat.BukkitSource:
+import dev.velix.imperat.BukkitSource;
 import dev.velix.imperat.annotations.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -13,7 +13,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import to.itsme.itsmyconfig.ItsMyConfig;
-import to.itsme.itsmyconfig.command.annotation.ModifiablePlaceholder;
 import to.itsme.itsmyconfig.command.util.PlayerSelector;
 import to.itsme.itsmyconfig.message.AudienceResolver;
 import to.itsme.itsmyconfig.placeholder.Placeholder;
@@ -146,7 +145,7 @@ public final class ItsMyConfigCommand {
     @Description("Sets config values for placeholder")
     public void config(
             final BukkitSource actor,
-            @ModifiablePlaceholder final Placeholder placeholder,
+            @SuggestionProvider("ModifiablePlaceholder") final Placeholder placeholder,
             @Named("value") final String value
     ) {
         final ConfigurationSection section = placeholder.getConfigurationSection();
@@ -184,7 +183,7 @@ public final class ItsMyConfigCommand {
     @Permission("itsmyconfig.config")
     public void configCommand(
             final BukkitSource actor,
-            @ModifiablePlaceholder final Placeholder placeholder,
+            @SuggestionProvider("ModifiablePlaceholder") final Placeholder placeholder,
             @Named("value") final String value
     ) {
         this.config(actor, placeholder, value);

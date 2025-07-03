@@ -1,13 +1,13 @@
 package to.itsme.itsmyconfig.command.handler;
 
-import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.bukkit.actor.BukkitCommandActor;
-import revxrsal.commands.exception.SelfHandledException;
-import revxrsal.commands.exception.context.ErrorContext;
+import dev.velix.imperat.ImperatConfig;
+import dev.velix.imperat.context.Context;
+import dev.velix.imperat.context.Source;
+import dev.velix.imperat.exception.SelfHandledException;
 import to.itsme.itsmyconfig.message.AudienceResolver;
 import to.itsme.itsmyconfig.util.Utilities;
 
-public class PlaceholderException extends RuntimeException implements SelfHandledException<BukkitCommandActor> {
+public class PlaceholderException extends SelfHandledException {
 
     private final String name;
 
@@ -16,8 +16,15 @@ public class PlaceholderException extends RuntimeException implements SelfHandle
     }
 
     @Override
-    public void handle(@NotNull ErrorContext<BukkitCommandActor> context) {
-        AudienceResolver.resolve(context.actor()).sendMessage(Utilities.MM.deserialize("<red>Placeholder <yellow>" + name + "</yellow> was not found.</red>"));
+    public <S extends Source> void handle(
+            ImperatConfig<S> imperat,
+            Context<S> context
+    ) {
+        AudienceResolver.resolve(context.source()).sendMessage(
+                Utilities.MM.deserialize(
+                        "<red>Placeholder <yellow>" + name + "</yellow> was not found.</red>"
+                )
+        );
     }
 
 }

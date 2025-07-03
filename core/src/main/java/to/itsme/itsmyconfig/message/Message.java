@@ -1,10 +1,10 @@
 package to.itsme.itsmyconfig.message;
 
+import dev.velix.imperat.BukkitSource;
+import dev.velix.imperat.context.Source;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.entity.Player;
-import revxrsal.commands.bukkit.actor.BukkitCommandActor;
-import revxrsal.commands.command.CommandActor;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.util.Strings;
 import to.itsme.itsmyconfig.util.Utilities;
@@ -29,15 +29,15 @@ public enum Message {
         AudienceResolver.resolve(player).sendMessage(component);
     }
 
-    public void send(final CommandActor actor, final TagResolver... replacers) {
-        send((BukkitCommandActor) actor, replacers);
+    public void send(final Source actor, final TagResolver... replacers) {
+        send((BukkitSource) actor, replacers);
     }
 
-    public void send(final BukkitCommandActor actor, final TagResolver... replacers) {
-        if (actor.isPlayer()) {
-            send(actor.requirePlayer(), replacers);
-        } else {
+    public void send(final BukkitSource actor, final TagResolver... replacers) {
+        if (actor.isConsole()) {
             AudienceResolver.resolve(actor).sendMessage(Utilities.MM.deserialize(toString(), replacers));
+        } else {
+            send(actor.asPlayer(), replacers);
         }
     }
 

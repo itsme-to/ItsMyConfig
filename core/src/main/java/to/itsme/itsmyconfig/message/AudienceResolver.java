@@ -1,12 +1,12 @@
 package to.itsme.itsmyconfig.message;
 
+import dev.velix.imperat.BukkitSource;
+import dev.velix.imperat.context.Source;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.command.CommandSender;
-import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import to.itsme.itsmyconfig.ItsMyConfig;
-import to.itsme.itsmyconfig.util.LibraryLoader;
 
 public class AudienceResolver {
 
@@ -24,7 +24,11 @@ public class AudienceResolver {
         return AUDIENCE_RESOLVER.resolve(sender);
     }
 
-    public static Audience resolve(final BukkitCommandActor actor) {
+    public static Audience resolve(final Source actor) {
+        return AUDIENCE_RESOLVER.resolve((BukkitSource) actor);
+    }
+
+    public static Audience resolve(final BukkitSource actor) {
         return AUDIENCE_RESOLVER.resolve(actor);
     }
 
@@ -32,7 +36,7 @@ public class AudienceResolver {
         AUDIENCE_RESOLVER.resolve(sender).sendMessage(component);
     }
 
-    public static void send(final BukkitCommandActor actor, final ComponentLike component) {
+    public static void send(final BukkitSource actor, final ComponentLike component) {
         AUDIENCE_RESOLVER.resolve(actor).sendMessage(component);
     }
 
@@ -44,8 +48,8 @@ public class AudienceResolver {
 
         Audience resolve(final CommandSender sender);
 
-        default Audience resolve(final BukkitCommandActor actor) {
-            return resolve(actor.sender());
+        default Audience resolve(final BukkitSource actor) {
+            return resolve(actor.origin());
         }
 
         default void close() {}
