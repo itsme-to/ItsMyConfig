@@ -24,20 +24,20 @@ public class AudienceResolver {
         return AUDIENCE_RESOLVER.resolve(sender);
     }
 
-    public static Audience resolve(final Source actor) {
-        return AUDIENCE_RESOLVER.resolve((BukkitSource) actor);
+    public static Audience resolve(final Source source) {
+        return AUDIENCE_RESOLVER.resolve((BukkitSource) source);
     }
 
-    public static Audience resolve(final BukkitSource actor) {
-        return AUDIENCE_RESOLVER.resolve(actor);
+    public static Audience resolve(final BukkitSource source) {
+        return AUDIENCE_RESOLVER.resolve(source);
     }
 
     public static void send(final CommandSender sender, final ComponentLike component) {
         AUDIENCE_RESOLVER.resolve(sender).sendMessage(component);
     }
 
-    public static void send(final BukkitSource actor, final ComponentLike component) {
-        AUDIENCE_RESOLVER.resolve(actor).sendMessage(component);
+    public static void send(final BukkitSource source, final ComponentLike component) {
+        AUDIENCE_RESOLVER.resolve(source).sendMessage(component);
     }
 
     public static void close() {
@@ -48,8 +48,8 @@ public class AudienceResolver {
 
         Audience resolve(final CommandSender sender);
 
-        default Audience resolve(final BukkitSource actor) {
-            return resolve(actor.origin());
+        default Audience resolve(final BukkitSource source) {
+            return resolve(source.origin());
         }
 
         default void close() {}

@@ -39,7 +39,6 @@ repositories {
     }
 }
 
-def lampVersion = "4.0.0-rc.9"
 def imperatVersion = "1.9.6"
 dependencies {
     // api ->

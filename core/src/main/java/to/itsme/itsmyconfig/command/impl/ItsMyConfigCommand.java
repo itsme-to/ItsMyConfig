@@ -34,7 +34,7 @@ public final class ItsMyConfigCommand {
 
     @Usage
     @SubCommand("help")
-    public void usage(final BukkitSource actor) {
+    public void usage(final BukkitSource source) {
         final String message = """
                   <gold><plugin></gold> | Config has never been easier
                 
@@ -49,7 +49,7 @@ public final class ItsMyConfigCommand {
                 
                 """.formatted(plugin.getDescription().getVersion());
 
-        AudienceResolver.send(actor, Utilities.MM.deserialize(message, pluginInfo(), authorInfo()));
+        AudienceResolver.send(source, Utilities.MM.deserialize(message, pluginInfo(), authorInfo()));
     }
 
     private TagResolver pluginInfo() {
@@ -95,16 +95,16 @@ public final class ItsMyConfigCommand {
     @SubCommand("reload")
     @Permission("itsmyconfig.reload")
     @Description("Reloads the plugin config")
-    public void reload(final BukkitSource actor) {
+    public void reload(final BukkitSource source) {
         plugin.loadConfig();
-        Message.RELOAD.send(actor);
+        Message.RELOAD.send(source);
     }
 
     @SubCommand("message")
     @Permission("itsmyconfig.message")
     @Description("Sends messages to players")
     public void message(
-            final BukkitSource actor,
+            final BukkitSource source,
             final @Named("target") PlayerSelector players,
             final @Named("message") String message
     ) {
@@ -115,8 +115,8 @@ public final class ItsMyConfigCommand {
             }
         }
 
-        if (!actor.isConsole()) {
-            Message.MESSAGE_SENT.send(actor);
+        if (!source.isConsole()) {
+            Message.MESSAGE_SENT.send(source);
         }
     }
 
@@ -124,7 +124,7 @@ public final class ItsMyConfigCommand {
     @Permission("itsmyconfig.parse")
     @Description("Parses messages to players")
     public void parse(
-            final BukkitSource actor,
+            final BukkitSource source,
             final @Named("target") PlayerSelector players,
             final @Named("message") String message
     ) {
@@ -135,8 +135,8 @@ public final class ItsMyConfigCommand {
             }
         }
 
-        if (!actor.isConsole()) {
-            Message.MESSAGE_SENT.send(actor);
+        if (!source.isConsole()) {
+            Message.MESSAGE_SENT.send(source);
         }
     }
 
@@ -144,14 +144,14 @@ public final class ItsMyConfigCommand {
     @Permission("itsmyconfig.config")
     @Description("Sets config values for placeholder")
     public void config(
-            final BukkitSource actor,
+            final BukkitSource source,
             @SuggestionProvider("ModifiablePlaceholder") final Placeholder placeholder,
             @Named("value") final String value
     ) {
         final ConfigurationSection section = placeholder.getConfigurationSection();
         final PlaceholderType type = PlaceholderType.find(section.getString("type"));
         if (type == PlaceholderType.ANIMATION || type == PlaceholderType.RANDOM) {
-            AudienceResolver.send(actor, Utilities.MM.deserialize("<red>Placeholder <yellow>" + placeholder + "</yellow>'s type is not supported via commands.</red>"));
+            AudienceResolver.send(source, Utilities.MM.deserialize("<red>Placeholder <yellow>" + placeholder + "</yellow>'s type is not supported via commands.</red>"));
             return;
         }
 
@@ -165,28 +165,28 @@ public final class ItsMyConfigCommand {
             }
         }
 
-        AudienceResolver.send(actor, Utilities.MM.deserialize("<green>Placeholder <yellow>" + section.getName() + "</yellow>'s value was updated successfully!</green>"));
-        this.reload(actor);
+        AudienceResolver.send(source, Utilities.MM.deserialize("<green>Placeholder <yellow>" + section.getName() + "</yellow>'s value was updated successfully!</green>"));
+        this.reload(source);
     }
 
     @Command("message")
     @Permission("itsmyconfig.message")
     public void msgCommand(
-            final BukkitSource actor,
+            final BukkitSource source,
             final @Named("target") PlayerSelector players,
             final @Named("message") String message
     ) {
-        this.message(actor, players, message);
+        this.message(source, players, message);
     }
 
     @Command("config")
     @Permission("itsmyconfig.config")
     public void configCommand(
-            final BukkitSource actor,
+            final BukkitSource source,
             @SuggestionProvider("ModifiablePlaceholder") final Placeholder placeholder,
             @Named("value") final String value
     ) {
-        this.config(actor, placeholder, value);
+        this.config(source, placeholder, value);
     }
 
 }

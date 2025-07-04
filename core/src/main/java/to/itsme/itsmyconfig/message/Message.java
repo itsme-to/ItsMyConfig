@@ -29,15 +29,15 @@ public enum Message {
         AudienceResolver.resolve(player).sendMessage(component);
     }
 
-    public void send(final Source actor, final TagResolver... replacers) {
-        send((BukkitSource) actor, replacers);
+    public void send(final Source source, final TagResolver... replacers) {
+        send((BukkitSource) source, replacers);
     }
 
-    public void send(final BukkitSource actor, final TagResolver... replacers) {
-        if (actor.isConsole()) {
-            AudienceResolver.resolve(actor).sendMessage(Utilities.MM.deserialize(toString(), replacers));
+    public void send(final BukkitSource source, final TagResolver... replacers) {
+        if (source.isConsole()) {
+            AudienceResolver.resolve(source).sendMessage(Utilities.MM.deserialize(toString(), replacers));
         } else {
-            send(actor.asPlayer(), replacers);
+            send(source.asPlayer(), replacers);
         }
     }
 
