@@ -58,11 +58,11 @@ public final class Utilities {
                 ).build();
         EMPTY_MM = MiniMessage.builder().tags(TagResolver.empty()).build();
         try {
-            final Class<?> textComponentImpClazz = Class.forName("net.kyori.adventure.text.TextComponentImpl");
+            final Class<?> textComponentImpClazz = Component.empty().getClass(); // Should be net.kyori.adventure.text.TextComponentImpl class
             final Field contentField = textComponentImpClazz.getDeclaredField("content");
             contentField.setAccessible(true);
             TEXT_COMPONENT_CONTENT = contentField;
-        } catch (ClassNotFoundException | NoSuchFieldException e) {
+        } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
     }
