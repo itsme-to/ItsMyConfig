@@ -98,14 +98,11 @@ processResources {
 
 def shadePath = "to.itsme.itsmyconfig.shade."
 shadowJar {
-    //exclude("net/kyori/**")
-    //include("net/kyori/adventure/text/minimessage/**")
-    //relocate("net.kyori.adventure.text.minimessage", "${shadePath}mm")
     relocate("com.tcoded.folialib", "${shadePath}folialib")
     relocate("redempt.crunch", "${shadePath}crunch")
     relocate("dev.velix.imperat", "${shadePath}imperat")
     relocate("org.bstats", "${shadePath}bstats")
-    relocate("net.kyori.adventure", "${shadePath}adventure")
+    relocate("net.kyori", "${shadePath}kyori")
     relocate("com.alessiodp.libby", "${shadePath}libby")
     archiveFileName = "itsmyconfig-${project.version}.jar"
 }

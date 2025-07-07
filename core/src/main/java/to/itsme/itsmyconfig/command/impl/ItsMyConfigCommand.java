@@ -140,6 +140,20 @@ public final class ItsMyConfigCommand {
         }
     }
 
+    @SubCommand("debug")
+    @Permission("itsmyconfig.debug")
+    @Description("Toggles debug mode for messages (not permanent)")
+    public void debug(final BukkitSource source) {
+        final boolean debug = plugin.toggleDebug();
+        final String message = debug ? "<green>Debug mode enabled!</green>" : "<red>Debug mode disabled!</red>";
+        AudienceResolver.send(source, Utilities.MM.deserialize(message));
+        if (debug) {
+            plugin.getLogger().info("Debug mode is now enabled.");
+        } else {
+            plugin.getLogger().info("Debug mode is now disabled.");
+        }
+    }
+
     @SubCommand("config")
     @Permission("itsmyconfig.config")
     @Description("Sets config values for placeholder")

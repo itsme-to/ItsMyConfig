@@ -437,6 +437,26 @@ public final class ItsMyConfig extends JavaPlugin {
     }
 
     /**
+     * Sets the debug mode for the plugin.
+     *
+     * @param debug The boolean value to set debug mode.
+     */
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
+    /**
+     * Toggles the debug mode for the plugin.
+     * If debug is currently enabled, it will be disabled, and vice versa.
+     *
+     * @return The new state of debug mode after toggling.
+     */
+    public boolean toggleDebug() {
+        this.setDebug(!this.isDebug());
+        return this.debug;
+    }
+
+    /**
      * Retrieves the PlaceholderManager instance.
      *
      * @return The PlaceholderManager instance.

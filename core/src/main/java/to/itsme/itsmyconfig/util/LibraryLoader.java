@@ -4,8 +4,6 @@ import com.alessiodp.libby.BukkitLibraryManager;
 import com.alessiodp.libby.Library;
 import com.alessiodp.libby.LibraryManager;
 import com.alessiodp.libby.relocation.Relocation;
-import net.kyori.adventure.audience.Audience;
-import org.bukkit.command.CommandSender;
 import to.itsme.itsmyconfig.ItsMyConfig;
 import to.itsme.itsmyconfig.util.reflect.Reflections;
 
@@ -21,7 +19,7 @@ public enum LibraryLoader {
             "adventure-text-minimessage",
             BuildParameters.ADVENTURE_VERSION,
             () -> true,
-            new Relocation("net.kyori.adventure", BuildParameters.SHADE_PATH + "adventure")
+            new Relocation("net.kyori", BuildParameters.SHADE_PATH + "kyori")
     ),
     // ========================================================= //
     // Adventure Bukkit Platfrom //
@@ -31,7 +29,7 @@ public enum LibraryLoader {
             "adventure-platform-bukkit",
             BuildParameters.ADVENTURE_PLATFORM_VERSION,
             () -> true,
-            new Relocation("net.kyori.adventure", BuildParameters.SHADE_PATH + "adventure")
+            new Relocation("net.kyori", BuildParameters.SHADE_PATH + "kyori")
     ),
     // ========================================================= //
     // Adventure Serializers //
@@ -40,7 +38,7 @@ public enum LibraryLoader {
             "adventure-text-serializer-bungeecord",
             BuildParameters.ADVENTURE_PLATFORM_VERSION,
             () -> true,
-            new Relocation("net.kyori.adventure", BuildParameters.SHADE_PATH + "adventure")
+            new Relocation("net.kyori", BuildParameters.SHADE_PATH + "kyori")
     )
     // ========================================================= */
     ADVENTURE_GSON_SERIALIZER(
@@ -99,10 +97,10 @@ public enum LibraryLoader {
     public static void loadLibraries() {
         for (final LibraryLoader value : values()) {
             if (value.shouldLoad) {
-                ItsMyConfig.getInstance().getLogger().warning("Loading library " + value.library.getArtifactId() + "...");
+                ItsMyConfig.getInstance().getLogger().info("Loading library " + value.library.getArtifactId() + "...");
                 MANAGER.loadLibrary(value.library);
             } else {
-                ItsMyConfig.getInstance().getLogger().warning("Library " + value.library.getArtifactId() + " is not needed.");
+                ItsMyConfig.getInstance().getLogger().info("Library " + value.library.getArtifactId() + " is not needed.");
             }
         }
     }
