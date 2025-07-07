@@ -42,12 +42,11 @@ public enum LibraryLoader {
     )
     // ========================================================= */
     ADVENTURE_GSON_SERIALIZER(
-            "net.kyori",
+            "net{}kyori",
             "adventure-text-serializer-gson",
             BuildParameters.ADVENTURE_VERSION,
-            () -> !Reflections.findClass("net{}kyori{}adventure{}text.serializer.gson.GsonSerializer".replace("{}", "."))
-    )
-    ;
+            () -> !Reflections.findClass("net{}kyori{}adventure{}text.serializer.gson.GsonSerializer")
+    );
 
     private static final LibraryManager MANAGER = new BukkitLibraryManager(ItsMyConfig.getInstance());
 

@@ -129,21 +129,9 @@ public final class Reflections {
      */
     public static boolean findClass(final String... paths) {
         for (final String path : paths) {
-            if (getClass(path) != null) return true;
+            if (getClass(path.replace("{}", ".")) != null) return true;
         }
         return false;
-    }
-
-    /**
-     * @return false if the {@link Class} was NOT found
-     */
-    public static boolean findClass(final Supplier<Class<?>> classSupplier) {
-        try {
-            final Class<?> clazz = classSupplier.get();
-            return clazz != null && clazz != Object.class;
-        } catch (final Exception e) {
-            return false;
-        }
     }
 
     /**
