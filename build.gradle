@@ -4,7 +4,7 @@ allprojects {
     description = "ItsMyConfig"
 
     ext {
-        kyoriVersion = "4.22.0"
+        kyoriVersion = "4.23.0"
         kyoriPlatformVersion = "4.4.0"
 
         kyori = { String module ->
