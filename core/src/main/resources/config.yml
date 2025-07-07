@@ -22,9 +22,9 @@ symbol-prefix: $
 
 listeners:
   PacketEvents:
-    priority: 0
+    priority: 1 # Lower number = higher priority. This will run before ProtocolLib.
   ProtocolLib:
-    priority: 1
+    priority: 2
     cache-processors: false # Not recommended (buggy), but will improve performance with ProtocolLib if it works right for you.
 
 messages:

@@ -267,10 +267,10 @@ public final class ItsMyConfig extends JavaPlugin {
         if (!this.config.isConfigurationSection("listeners")) {
             ConfigurationSection listeners = this.config.createSection("listeners");
             ConfigurationSection packetEvents = listeners.createSection("PacketEvents");
-            packetEvents.set("priority", 0);
+            packetEvents.set("priority", 1);
 
             ConfigurationSection protocolLib = listeners.createSection("ProtocolLib");
-            protocolLib.set("priority", 1);
+            protocolLib.set("priority", 2);
             protocolLib.set("cache-processors", false);
             this.saveConfig();
         }
