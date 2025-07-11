@@ -10,19 +10,9 @@ import java.util.function.Function;
 @SuppressWarnings("all")
 public class IMCSerializer {
 
-    private static final boolean HAS_SUBSTITUTE;
-
     private static SerializerType currentSerializerType;
 
     static {
-        boolean hasMethod;
-        try {
-            Emitable.class.getDeclaredMethod("substitute");
-            hasMethod = true;
-        } catch (NoSuchMethodException e) {
-            hasMethod = false;
-        }
-        HAS_SUBSTITUTE = hasMethod;
         UPDATE_SERIALIZERS();
     }
 
@@ -40,7 +30,7 @@ public class IMCSerializer {
      * Updates the serializer implementations and tracks the current serializer type.
      */
     public static void UPDATE_SERIALIZERS() {
-        currentSerializerType = /*HAS_SUBSTITUTE ? SerializerType.MM_COPY : */SerializerType.JSON_SERIALIZER;
+        currentSerializerType = SerializerType.MM_COPY; /*HAS_SUBSTITUTE ? SerializerType.MM_COPY : SerializerType.JSON_SERIALIZER;*/ 
         JSON_SERIALIZER = createJsonSerializer(currentSerializerType);
         COMPONENT_SERIALIZER = createComponentSerializer(currentSerializerType);
     }
