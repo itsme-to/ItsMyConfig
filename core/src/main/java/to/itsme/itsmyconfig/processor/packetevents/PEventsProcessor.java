@@ -1,5 +1,6 @@
 package to.itsme.itsmyconfig.processor.packetevents;
 
+import com.github.retrooper.packetevents.protocol.chat.message.ChatMessage;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerChatMessage;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDisconnect;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSystemChatMessage;
@@ -9,13 +10,22 @@ import to.itsme.itsmyconfig.processor.PacketContent;
 import to.itsme.itsmyconfig.processor.PacketProcessor;
 import to.itsme.itsmyconfig.util.AdventureUtil;
 import to.itsme.itsmyconfig.util.IMCSerializer;
-import to.itsme.itsmyconfig.util.Utilities;
 
 import java.lang.reflect.Method;
 
 public class PEventsProcessor {
 
     public static final PacketProcessor<WrapperPlayServerChatMessage> CHAT_MESSAGE = new PacketProcessor<>() {
+        private final Method getChatContent, setChatContent;
+
+        {
+            try {
+                getChatContent = ChatMessage.class.getMethod("getChatContent");
+                setChatContent = ChatMessage.class.getMethod("setChatContent", AdventureUtil.getComponentClass());
+            } catch (Throwable t) {
+                throw new RuntimeException("Failed to resolve setChatContent method", t);
+            }
+        }
 
         @Override
         public String name() {
@@ -24,21 +34,39 @@ public class PEventsProcessor {
 
         @Override
         public void edit(WrapperPlayServerChatMessage wrappedPacket, Component component) {
-            wrappedPacket.getMessage().setChatContentJson(
-                    wrappedPacket.getClientVersion(), Utilities.GSON_SERIALIZER.serialize(component)
-            );
+            Object chatContent = AdventureUtil.fromComponent(component);
+            Object chatMessage = wrappedPacket.getMessage();
+            try {
+                setChatContent.invoke(chatMessage, chatContent);
+            } catch (Throwable t) {
+                throw new RuntimeException("Failed to invoke setChatContent", t);
+            }
         }
 
         @Override
         public @NotNull PacketContent<WrapperPlayServerChatMessage> unpack(WrapperPlayServerChatMessage wrappedPacket) {
-            return new PacketContent<>(
-                    wrappedPacket, this, IMCSerializer.toMiniMessage(
-                    wrappedPacket.getMessage().getChatContentJson(wrappedPacket.getClientVersion()))
-            );
+            Object chatContent;
+            try {
+                chatContent = getChatContent.invoke(wrappedPacket.getMessage());
+            } catch (Throwable t) {
+                throw new RuntimeException("Failed to invoke getChatContent", t);
+            }
+            Component internal = AdventureUtil.toComponent(chatContent);
+            return new PacketContent<>(wrappedPacket, this, IMCSerializer.toMiniMessage(internal));
         }
     };
 
     public static final PacketProcessor<WrapperPlayServerSystemChatMessage> SYSTEM_CHAT_MESSAGE = new PacketProcessor<>() {
+        private final Method getMessage, setMessage;
+
+        {
+            try {
+                getMessage = WrapperPlayServerSystemChatMessage.class.getMethod("getMessage");
+                setMessage = WrapperPlayServerSystemChatMessage.class.getMethod("setMessage", AdventureUtil.getComponentClass());
+            } catch (Throwable t) {
+                throw new RuntimeException("Failed to resolve setMessage method", t);
+            }
+        }
 
         @Override
         public String name() {
@@ -46,18 +74,25 @@ public class PEventsProcessor {
         }
 
         @Override
-        @SuppressWarnings("deprecation")
         public void edit(WrapperPlayServerSystemChatMessage wrappedPacket, Component component) {
-            wrappedPacket.setMessageJson(
-                IMCSerializer.toMiniMessage(component)
-            );
+            Object externalComponent = AdventureUtil.fromComponent(component);
+            try {
+                setMessage.invoke(wrappedPacket, externalComponent);
+            } catch (Throwable t) {
+                throw new RuntimeException("Failed to invoke setMessage", t);
+            }
         }
 
         @Override
-        @SuppressWarnings("deprecation")
         public @NotNull PacketContent<WrapperPlayServerSystemChatMessage> unpack(WrapperPlayServerSystemChatMessage wrappedPacket) {
-            final String json = wrappedPacket.getMessageJson();
-            return new PacketContent<>(wrappedPacket, this, IMCSerializer.toMiniMessage(json));
+            Object externalComponent;
+            try {
+                externalComponent = getMessage.invoke(wrappedPacket);
+            } catch (Throwable t) {
+                throw new RuntimeException("Failed to invoke WrapperPlayServerSystemChatMessage#getMessage", t);
+            }
+            Component internal = AdventureUtil.toComponent(externalComponent);
+            return new PacketContent<>(wrappedPacket, this, IMCSerializer.toMiniMessage(internal));
         }
     };
 
@@ -100,5 +135,4 @@ public class PEventsProcessor {
             return new PacketContent<>(wrappedPacket, this, IMCSerializer.toMiniMessage(internal));
         }
     };
-
 }

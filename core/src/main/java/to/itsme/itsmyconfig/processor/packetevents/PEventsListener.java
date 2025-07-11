@@ -60,7 +60,7 @@ public class PEventsListener implements PacketListener, com.github.retrooper.pac
         Utilities.debug(() -> "################# CHAT PACKET #################\nProcessing packet " + server.name());
 
         // Convert to wrapped packet only once
-        final Object wrappedPacket = switch (server) {
+        Object wrappedPacket = switch (server) {
             case CHAT_MESSAGE -> new WrapperPlayServerChatMessage(event);
             case SYSTEM_CHAT_MESSAGE -> new WrapperPlayServerSystemChatMessage(event);
             case DISCONNECT -> new WrapperPlayServerDisconnect(event);
@@ -88,7 +88,7 @@ public class PEventsListener implements PacketListener, com.github.retrooper.pac
         }
 
         final Optional<String> parsed = Strings.parsePrefixedMessage(message);
-        if (parsed.isEmpty()) {
+        if (!parsed.isPresent()) {
             Utilities.debug(() -> "Message doesn't start w/ the symbol-prefix: " + message + "\n" + Strings.DEBUG_HYPHEN);
             return;
         }
