@@ -106,7 +106,7 @@ public final class ItsMyConfigCommand {
     public void message(
             final BukkitSource source,
             final @Named("target") PlayerSelector players,
-            final @Named("message") String message
+            final @Named("message") @Greedy String message
     ) {
         for (final Player player : players) {
             final String[] strings = message.split("\\\\r?\\\\n|\\\\r");
@@ -126,7 +126,7 @@ public final class ItsMyConfigCommand {
     public void parse(
             final BukkitSource source,
             final @Named("target") PlayerSelector players,
-            final @Named("message") String message
+            final @Named("message") @Greedy String message
     ) {
         for (final Player player : players) {
             final Component component = Utilities.translate(message, player);
@@ -160,7 +160,7 @@ public final class ItsMyConfigCommand {
     public void config(
             final BukkitSource source,
             @SuggestionProvider("ModifiablePlaceholder") final Placeholder placeholder,
-            @Named("value") final String value
+            @Named("value") @Greedy final String value
     ) {
         final ConfigurationSection section = placeholder.getConfigurationSection();
         final PlaceholderType type = PlaceholderType.find(section.getString("type"));
@@ -188,7 +188,7 @@ public final class ItsMyConfigCommand {
     public void msgCommand(
             final BukkitSource source,
             final @Named("target") PlayerSelector players,
-            final @Named("message") String message
+            final @Named("message") @Greedy String message
     ) {
         this.message(source, players, message);
     }
@@ -198,7 +198,7 @@ public final class ItsMyConfigCommand {
     public void configCommand(
             final BukkitSource source,
             @SuggestionProvider("ModifiablePlaceholder") final Placeholder placeholder,
-            @Named("value") final String value
+            @Named("value") @Greedy final String value
     ) {
         this.config(source, placeholder, value);
     }
