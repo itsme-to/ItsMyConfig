@@ -10,6 +10,7 @@ import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import to.itsme.itsmyconfig.ItsMyConfig;
+import to.itsme.itsmyconfig.util.Scheduler;
 
 import java.util.Set;
 import java.util.UUID;
@@ -88,8 +89,7 @@ public class BukkitToastSender implements ToastSender {
         AdvancementProgress progress = player.getAdvancementProgress(advancement);
         progress.awardCriteria("impossible");
 
-        Bukkit.getScheduler().runTaskLater(
-                ItsMyConfig.getInstance(),
+        Scheduler.runLater(
                 () -> {
                     player.getAdvancementProgress(advancement).revokeCriteria("impossible");
                     advancementKeys.add(key);
@@ -97,4 +97,5 @@ public class BukkitToastSender implements ToastSender {
                 20L // 1 second later
         );
     }
+
 }

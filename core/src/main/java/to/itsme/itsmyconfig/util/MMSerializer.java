@@ -42,7 +42,7 @@ import org.jetbrains.annotations.Nullable;
 import static java.util.Objects.requireNonNull;
 
 @SuppressWarnings("all")
-final class MMSerializer {
+public final class MMSerializer {
     private MMSerializer() {
     }
 
@@ -51,7 +51,7 @@ final class MMSerializer {
     // - abbreviated vs long tag names (tag-specific option)
     //
 
-    static @NotNull String serialize(final @NotNull Component component, @Nullable SerializableResolver resolver, final boolean strict) {
+    public static @NotNull String serialize(final @NotNull Component component, @Nullable SerializableResolver resolver, final boolean strict) {
         final StringBuilder sb = new StringBuilder();
         if (resolver == null) {
             resolver = (SerializableResolver) Utilities.MM.tags();

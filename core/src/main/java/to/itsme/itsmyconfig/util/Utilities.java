@@ -3,6 +3,7 @@ package to.itsme.itsmyconfig.util;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
@@ -27,6 +28,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * The Utilities class provides various utility methods for performing common tasks.
@@ -111,7 +113,7 @@ public final class Utilities {
         );
 
         applyChatColors(translated);
-        return translated;
+        return cleanUp(translated);
     }
 
     /**
@@ -138,7 +140,7 @@ public final class Utilities {
         );
 
         applyChatColors(translated);
-        return translated;
+        return cleanUp(translated);
     }
 
     /**
@@ -163,7 +165,7 @@ public final class Utilities {
         );
 
         applyChatColors(translated);
-        return translated;
+        return cleanUp(translated);
     }
 
     /**
@@ -245,6 +247,28 @@ public final class Utilities {
             final String parsedPlaceholder = PlaceholderAPI.setPlaceholders(player, '%' + papiPlaceholder + '%');
             return Tag.preProcessParsed(parsedPlaceholder.replace("§", "&"));
         });
+    }
+
+    /**
+     * Cleans up a Component by removing all decorations that are explicitly set to false.
+     * This is applied recursively to all children.
+     *
+     * @param component The Component to clean up.
+     * @return The cleaned-up Component.
+     */
+    public static Component cleanUp(final Component component) {
+        // Clean decorations at this level
+        final Map<TextDecoration, TextDecoration.State> decorations = component.decorations();
+        final Map<TextDecoration, TextDecoration.State> cleanedDecorations = decorations.entrySet().stream()
+                .filter(entry -> entry.getValue() != TextDecoration.State.FALSE)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        // Recursively clean children
+        final List<Component> cleanedChildren = component.children().stream()
+                .map(Utilities::cleanUp)
+                .collect(Collectors.toList());
+
+        return component.decorations(cleanedDecorations).children(cleanedChildren);
     }
 
     /**
