@@ -30,7 +30,7 @@ public class IMCSerializer {
      * Updates the serializer implementations and tracks the current serializer type.
      */
     public static void UPDATE_SERIALIZERS() {
-        currentSerializerType = SerializerType.MM_COPY; /*HAS_SUBSTITUTE ? SerializerType.MM_COPY : SerializerType.JSON_SERIALIZER;*/ 
+        currentSerializerType = SerializerType.JSON_SERIALIZER; /*HAS_SUBSTITUTE ? SerializerType.MM_COPY : SerializerType.JSON_SERIALIZER;*/
         JSON_SERIALIZER = createJsonSerializer(currentSerializerType);
         COMPONENT_SERIALIZER = createComponentSerializer(currentSerializerType);
     }

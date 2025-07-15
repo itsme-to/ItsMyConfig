@@ -1,6 +1,7 @@
 package to.itsme.itsmyconfig.util;
 
 import me.clip.placeholderapi.PlaceholderAPI;
+import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -38,7 +39,7 @@ public final class Utilities {
     private static final ItsMyConfig plugin = ItsMyConfig.getInstance();
 
     public static final MiniMessage MM, EMPTY_MM;
-    public static final GsonComponentSerializer GSON_SERIALIZER = GsonComponentSerializer.gson();
+    public static final GsonComponentSerializer GSON_SERIALIZER = BukkitComponentSerializer.gson();
     public static final BungeeComponentSerializer BUNGEE_SERIALIZER = BungeeComponentSerializer.get();
 
     private static final TagResolver FONT_RESOLVER;

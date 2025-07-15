@@ -64,7 +64,7 @@ public final class PLibListener extends PacketAdapter implements PacketListener 
         Utilities.debug(() -> "Found message: " + message);
 
         final Optional<String> parsed = Strings.parsePrefixedMessage(message);
-        if (!parsed.isPresent()) {
+        if (parsed.isEmpty()) {
             Utilities.debug(() -> "Message doesn't start w/ the symbol-prefix: " + message + "\n" + Strings.DEBUG_HYPHEN);
             return;
         }
