@@ -9,6 +9,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import to.itsme.itsmyconfig.component.AbstractComponent;
 import to.itsme.itsmyconfig.component.event.ClickEvent;
 import to.itsme.itsmyconfig.component.event.HoverEvent;
+import to.itsme.itsmyconfig.util.JsonUtil;
 
 import java.lang.reflect.Type;
 
@@ -318,8 +319,12 @@ public final class TextfulComponent extends AbstractComponent {
                 component.strikethrough = jsonObject.has("strikethrough") && jsonObject.get("strikethrough").getAsBoolean();
                 component.obfuscated = jsonObject.has("obfuscated") && jsonObject.get("obfuscated").getAsBoolean();
                 component.insertion = jsonObject.has("insertion") ? jsonObject.get("insertion").getAsString() : null;
-                component.clickEvent = jsonObject.has("clickEvent") ? context.deserialize(jsonObject.get("clickEvent"), ClickEvent.class) : null;
-                component.hoverEvent = jsonObject.has("hoverEvent") ? context.deserialize(jsonObject.get("hoverEvent"), HoverEvent.class) : null;
+
+                final JsonElement clickEventElement = JsonUtil.findElement(jsonObject, "clickEvent", "click_event");
+                component.clickEvent = clickEventElement != null ? context.deserialize(clickEventElement, ClickEvent.class) : null;
+
+                final JsonElement hoverEventElement = JsonUtil.findElement(jsonObject, "hoverEvent", "hover_event");
+                component.hoverEvent = hoverEventElement != null ? context.deserialize(hoverEventElement, HoverEvent.class) : null;
 
                 if (jsonObject.has("extra")) {
                     final JsonArray extraArray = jsonObject.getAsJsonArray("extra");

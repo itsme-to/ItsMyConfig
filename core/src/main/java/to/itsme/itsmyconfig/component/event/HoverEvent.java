@@ -4,6 +4,8 @@ import com.google.gson.*;
 import net.kyori.adventure.text.Component;
 import to.itsme.itsmyconfig.component.AbstractComponent;
 import to.itsme.itsmyconfig.component.impl.TextfulComponent;
+import to.itsme.itsmyconfig.util.JsonUtil;
+import to.itsme.itsmyconfig.util.Versions;
 
 import java.lang.reflect.Type;
 import java.util.UUID;
@@ -100,65 +102,107 @@ public class HoverEvent {
     }
 
     public static final class Adapter implements JsonSerializer<HoverEvent>, JsonDeserializer<HoverEvent> {
+        private final boolean modern = Versions.isOrOver(1, 21, 5);
 
-        public JsonElement serialize(
-                final HoverEvent event,
-                final Type type,
-                final JsonSerializationContext context
-        ) {
-            final JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("action", event.action);
+        @Override
+        public JsonElement serialize(HoverEvent event, Type type, JsonSerializationContext context) {
+            JsonObject json = new JsonObject();
+            json.addProperty("action", event.action);
 
-            final Object value = event.value;
-            if (value != null) {
-                if (value instanceof String) {
-                    jsonObject.addProperty("value", (String) event.value);
-                } else if (value instanceof TextfulComponent) {
-                    jsonObject.add("value", ((TextfulComponent) value).toJsonElement());
-                } else if (value instanceof HoverEvent.ShowItem || value instanceof HoverEvent.ShowEntity) {
-                    jsonObject.add("value", context.serialize(value));
-                }
-            }
-            return jsonObject;
-        }
-
-        public HoverEvent deserialize(
-                final JsonElement json,
-                final Type type,
-                final JsonDeserializationContext context
-        ) throws JsonParseException {
-            final HoverEvent event = new HoverEvent();
-            final JsonObject jsonObject = json.getAsJsonObject();
-            event.action = jsonObject.get("action").getAsString();
-            final JsonElement element;
-            if (jsonObject.has("value")) {
-                element = jsonObject.get("value");
-            } else if (jsonObject.has("contents")) {
-                element = jsonObject.get("contents");
-            } else {
-                return event;
-            }
+            if (event.value == null) return json;
 
             switch (event.action) {
-                case "show_achievement":
-                    event.value = element.getAsString();
-                    break;
-                case "show_item":
-                    event.value = context.deserialize(element, HoverEvent.ShowItem.class);
-                    break;
-                case "show_entity":
-                    event.value = context.deserialize(element, HoverEvent.ShowEntity.class);
-                    break;
-                default:
-                    if (element.isJsonPrimitive()) {
-                        event.value = new TextfulComponent(element.getAsString());
-                    } else if (element.isJsonArray()) {
-                        event.value = AbstractComponent.parse(element.getAsJsonArray());
-                    } else if (element.isJsonObject()) {
-                        event.value = context.deserialize(element, TextfulComponent.class);
+                case "show_text" -> {
+                    if (event.value instanceof TextfulComponent tc) {
+                        json.add("value", tc.toJsonElement());
                     }
-                    break;
+                }
+                case "show_item" -> {
+                    if (event.value instanceof ShowItem item) {
+                        if (modern) {
+                            json.addProperty("id", item.id);
+                            json.addProperty("count", item.count);
+                            if (item.tag != null && !item.tag.isEmpty()) {
+                                json.addProperty("tag", item.tag);
+                            }
+                        } else {
+                            json.add("value", context.serialize(item));
+                        }
+                    }
+                }
+                case "show_entity" -> {
+                    if (event.value instanceof ShowEntity entity) {
+                        if (modern) {
+                            json.addProperty("id", entity.type); // renamed from type
+                            json.addProperty("uuid", entity.id.toString()); // renamed from id
+                            if (entity.name != null)
+                                json.add("name", context.serialize(entity.name));
+                        } else {
+                            json.add("value", context.serialize(entity));
+                        }
+                    }
+                }
+                case "show_achievement" -> {
+                    if (event.value instanceof String str) {
+                        json.addProperty("value", str);
+                    }
+                }
             }
+            return json;
+        }
+
+        @Override
+        public HoverEvent deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
+            HoverEvent event = new HoverEvent();
+            JsonObject obj = json.getAsJsonObject();
+            event.action = obj.get("action").getAsString();
+
+            JsonElement element = JsonUtil.findElement(obj, "value", "contents", "text");
+
+            switch (event.action) {
+                case "show_text" -> {
+                    JsonElement textElement = JsonUtil.findElement(obj, "text", "value", "contents");
+                    if (textElement != null) {
+                        if (textElement.isJsonPrimitive()) {
+                            event.value = new TextfulComponent(textElement.getAsString());
+                        } else if (textElement.isJsonArray()) {
+                            event.value = AbstractComponent.parse(textElement.getAsJsonArray());
+                        } else {
+                            event.value = context.deserialize(textElement, TextfulComponent.class);
+                        }
+                    }
+                }
+                case "show_item" -> {
+                    if (modern) {
+                        ShowItem item = new ShowItem();
+                        item.id = obj.get("id").getAsString();
+                        item.count = obj.has("count") ? obj.get("count").getAsInt() : 1;
+                        if (obj.has("tag")) item.tag = obj.get("tag").getAsString();
+                        event.value = item;
+                    } else {
+                        event.value = context.deserialize(element, ShowItem.class);
+                    }
+                }
+                case "show_entity" -> {
+                    if (modern) {
+                        ShowEntity entity = new ShowEntity();
+                        entity.type = obj.get("id").getAsString(); // renamed from type
+                        entity.id = UUID.fromString(obj.get("uuid").getAsString()); // renamed from id
+                        if (obj.has("name")) {
+                            entity.name = context.deserialize(obj.get("name"), TextfulComponent.class);
+                        }
+                        event.value = entity;
+                    } else {
+                        event.value = context.deserialize(element, ShowEntity.class);
+                    }
+                }
+                case "show_achievement" -> {
+                    if (element != null && element.isJsonPrimitive()) {
+                        event.value = element.getAsString();
+                    }
+                }
+            }
+
             return event;
         }
     }
