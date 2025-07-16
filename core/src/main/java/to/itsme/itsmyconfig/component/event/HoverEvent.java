@@ -1,7 +1,7 @@
 package to.itsme.itsmyconfig.component.event;
 
 import com.google.gson.*;
-import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
 import to.itsme.itsmyconfig.component.AbstractComponent;
 import to.itsme.itsmyconfig.component.impl.TextfulComponent;
 
@@ -27,7 +27,7 @@ public class HoverEvent {
         this.action = event.action().toString();
         switch (this.action) {
             case "show_text":
-                this.value = new TextfulComponent((TextComponent) event.value());
+                this.value = AbstractComponent.parse((Component) event.value());
                 break;
             case "show_achievement":
                 this.value = new TextfulComponent(event.value().toString());
