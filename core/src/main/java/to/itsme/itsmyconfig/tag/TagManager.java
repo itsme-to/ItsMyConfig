@@ -17,12 +17,9 @@ import java.util.regex.Pattern;
 
 public final class TagManager {
 
-    private static final Pattern ARG_TAG_PATTERN = Pattern.compile("<(\\w+)((?::\"([^\"]*)\"|:'([^']*)'|:`([^`]*)`|:([^<]*))*)>");
-    private static final Pattern ARG_PATTERN = Pattern.compile(
-        ":\"([^\"]*)\"|:'([^']*)'|:`([^`]*)`|:([^:\"]*)"
-    );
+    private static final Pattern ARG_TAG_PATTERN = Pattern.compile("<(\\w+)((?::(?:\"([^\"]*)\"|'([^']*)'|`([^`]*)`|([^:\\s>]+)))*?)>");
 
-    private static int INITIAL_CAPACITY;
+    private static final int INITIAL_CAPACITY;
     private static final Map<String, Tag> tags = new LinkedHashMap<>();
 
     static {
@@ -56,65 +53,81 @@ public final class TagManager {
     ) {
         Matcher matcher = ARG_TAG_PATTERN.matcher(text);
         while (matcher.find()) {
-            final String match = matcher.group(0);
+            final int start = matcher.start();
+            final int end = matcher.end();
 
-            final int index = text.indexOf(match);
-            if (index > 0) {
-                if (text.charAt(index - 1) == '\\') {
-                    continue;
-                }
+            // Skip escaped tags
+            if (start > 0 && text.charAt(start - 1) == '\\') {
+                continue;
             }
 
             final String tagName = matcher.group(1);
             final Tag tag = tags.get(tagName);
             if (!(tag instanceof ArgumentsTag argumentsTag)) {
-                continue;
+                continue; // unknown tag — skip safely, do NOT replace
             }
 
             final String arguments = matcher.group(2);
-            final ArrayList<String> args = getArguments(arguments);
-
-            if (args.size() == 1 && args.get(0).equals("cancel")) {
+            final String[] args = extractArguments(arguments);
+            if (args.length == 1 && "cancel".equals(args[0])) {
                 if (tag instanceof Cancellable cancellable) {
                     cancellable.cancelFor(player);
-                    return text.substring(0, index) + text.substring(matcher.end());
+                    text = text.substring(0, start) + text.substring(end);
+                    matcher = ARG_TAG_PATTERN.matcher(text);
+                    continue;
                 }
             }
 
             final String replaced;
-            if (args.size() < argumentsTag.minArguments()) {
-                replaced = "[Not enough argument for Tag: " + tagName + "]";
-            } else if (args.size() > argumentsTag.maxArguments()) {
-                replaced = "[Too much arguments for Tag: " + tagName + "]";
+            if (args.length < argumentsTag.minArguments()) {
+                replaced = "[Not enough arguments for Tag: " + tagName + "]";
+            } else if (args.length > argumentsTag.maxArguments()) {
+                replaced = "[Too many arguments for Tag: " + tagName + "]";
             } else {
-                replaced = argumentsTag.process(player, args.toArray(new String[0]));
+                replaced = argumentsTag.process(player, args);
             }
 
-            text = text.substring(0, index) + replaced + text.substring(matcher.end());
+            text = text.substring(0, start) + replaced + text.substring(end);
             matcher = ARG_TAG_PATTERN.matcher(text);
         }
 
         return text;
     }
 
-    private static ArrayList<String> getArguments(final String arguments) {
-        final Matcher argMatcher = ARG_PATTERN.matcher(arguments);
-        final ArrayList<String> args = new ArrayList<>(INITIAL_CAPACITY);
-        while (argMatcher.find()) {
-            for (int i = 1; i <= 4; i++) { // 4 is the number of groups
-                final String match = argMatcher.group(i);
-                if (match != null) {
-                    args.add(match);
-                    break; // Only one group will be non-null per match
+    public static String[] extractArguments(final String rawArgs) {
+        final List<String> args = new ArrayList<>(INITIAL_CAPACITY);
+
+        int i = 0;
+        while (i < rawArgs.length()) {
+            if (rawArgs.charAt(i) != ':') {
+                i++;
+                continue;
+            }
+            i++; // skip ':'
+            if (i >= rawArgs.length()) break;
+
+            char delimiter = rawArgs.charAt(i);
+            int end;
+
+            if (delimiter == '"' || delimiter == '\'' || delimiter == '`') {
+                i++; // skip opening quote
+                end = rawArgs.indexOf(delimiter, i);
+                if (end == -1) break;
+                args.add(rawArgs.substring(i, end));
+                i = end + 1;
+            } else {
+                end = i;
+                while (end < rawArgs.length()) {
+                    char c = rawArgs.charAt(end);
+                    if (c == ':' || c == '>' || Character.isWhitespace(c)) break;
+                    end++;
                 }
+                args.add(rawArgs.substring(i, end));
+                i = end;
             }
         }
 
-        if (INITIAL_CAPACITY < args.size()) {
-            INITIAL_CAPACITY = args.size();
-        }
-
-        return args;
+        return args.toArray(new String[0]);
     }
 
 }
