@@ -15,7 +15,7 @@ repositories {
     }
     maven {
         name = "libby-repo"
-        url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+        url = "https://repo.alessiodp.com/snapshots"
     }
     maven {
         name = "protocollib-repo"
