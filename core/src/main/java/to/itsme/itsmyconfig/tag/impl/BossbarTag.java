@@ -55,8 +55,8 @@ public class BossbarTag extends ArgumentsTag implements Cancellable {
             final Player player,
             final String[] arguments
     ) {
-        final BossBar.Color color = BossBar.Color.NAMES.value(arguments[2]);
-        final BossBar.Overlay overlay = BossBar.Overlay.NAMES.value(arguments[3]);
+        final BossBar.Color color = BossBar.Color.NAMES.value(arguments[2].toLowerCase());
+        final BossBar.Overlay overlay = BossBar.Overlay.NAMES.value(arguments[3].toLowerCase());
 
         long delay;
         if (arguments.length > 4) {
