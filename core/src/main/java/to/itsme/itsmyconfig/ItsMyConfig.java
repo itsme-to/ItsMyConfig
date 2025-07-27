@@ -103,10 +103,10 @@ public final class ItsMyConfig extends JavaPlugin {
         this.getLogger().info("Using packet listener: " + listener.name());
         this.processorManager.load();
 
-        if (Versions.IS_PAPER && Versions.isOrOver(1, 17, 2) && Versions.isBelow(1, 21, 6)) {
-            this.getLogger().info("Registering Kick Listener");
-            this.getServer().getPluginManager().registerEvents(new PlayerListener(),this);
-        }
+        //if (Versions.IS_PAPER && Versions.isOrOver(1, 17, 2) && Versions.isBelow(1, 21, 6)) {
+            //this.getLogger().info("Registering Kick Listener");
+            //this.getServer().getPluginManager().registerEvents(new PlayerListener(),this);
+        //}
 
         this.getLogger().info("ItsMyConfig loaded in " + (System.currentTimeMillis() - start) + "ms");
     }
