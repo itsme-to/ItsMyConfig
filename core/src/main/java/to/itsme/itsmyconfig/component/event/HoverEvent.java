@@ -71,12 +71,14 @@ public class HoverEvent {
 
         public ShowItem(net.kyori.adventure.text.event.HoverEvent.ShowItem value) {
             this.id = value.item().value();
-            this.tag = value.nbt().string();
             this.count = value.count();
+            if (value.nbt() != null) {
+                this.tag = value.nbt().string();
+            }
         }
 
         public String toMMArg() {
-            return this.id + ":" + this.count + ":\"" + this.tag + "\"";
+            return this.id + ":" + this.count + (this.tag == null ? "" : (":\"" + this.tag + "\""));
         }
     }
 
