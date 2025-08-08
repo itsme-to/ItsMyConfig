@@ -48,7 +48,7 @@ public abstract class AbstractComponent {
         try {
             return parse(JsonParser.parseString(json));
         } catch (final Throwable throwable) {
-            Utilities.debug(() -> "Couldn't parse json: " + json + " so returning PsedoComponent", throwable);
+            Utilities.debug(() -> "Couldn't parse json: " + json + " so returning PseudoComponent", throwable);
             return new PseudoComponent(json);
         }
     }
