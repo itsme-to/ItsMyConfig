@@ -34,7 +34,7 @@ public enum LibraryLoader {
     // Adventure Bukkit Platfrom //
     @SuppressWarnings("ConstantConditions")
     ADVENTURE_PLATFORM(
-            "net.kyori",
+            "net{}kyori",
             "adventure-platform-bukkit",
             BuildParameters.ADVENTURE_PLATFORM_VERSION,
             () -> !Reflections.findClass("net{}kyori{}adventure{}platform.bukkit.BukkitComponentSerializer")
