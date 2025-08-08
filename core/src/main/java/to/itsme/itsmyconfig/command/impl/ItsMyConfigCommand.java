@@ -109,10 +109,7 @@ public final class ItsMyConfigCommand {
             final @Named("message") @Greedy String message
     ) {
         for (final Player player : players) {
-            final String[] strings = message.split("\\\\r?\\\\n|\\\\r");
-            for (final String string : strings) {
-                player.sendMessage(this.plugin.getSymbolPrefix() + string);
-            }
+            player.sendMessage(this.plugin.getSymbolPrefix() + message);
         }
 
         if (!source.isConsole()) {
