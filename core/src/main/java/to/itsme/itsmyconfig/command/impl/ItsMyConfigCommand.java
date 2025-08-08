@@ -100,10 +100,10 @@ public final class ItsMyConfigCommand {
         Message.RELOAD.send(source);
     }
 
-    @SubCommand("message")
+    @SubCommand("messagedirectly")
     @Permission("itsmyconfig.message")
     @Description("Sends messages to players")
-    public void message(
+    public void messageDirectly(
             final BukkitSource source,
             final @Named("target") PlayerSelector players,
             final @Named("message") @Greedy String message
@@ -117,10 +117,10 @@ public final class ItsMyConfigCommand {
         }
     }
 
-    @SubCommand("parse")
-    @Permission("itsmyconfig.parse")
-    @Description("Parses messages to players")
-    public void parse(
+    @SubCommand("message")
+    @Permission("itsmyconfig.message")
+    @Description("Sends messages to players")
+    public void message(
             final BukkitSource source,
             final @Named("target") PlayerSelector players,
             final @Named("message") @Greedy String message
@@ -129,6 +129,27 @@ public final class ItsMyConfigCommand {
             final Component component = Utilities.translate(message, player);
             if (!Component.empty().equals(component)) {
                 AudienceResolver.resolve(player).sendMessage(component);
+            }
+        }
+
+        if (!source.isConsole()) {
+            Message.MESSAGE_SENT.send(source);
+        }
+    }
+
+
+    @SubCommand("parse")
+    @Permission("itsmyconfig.parse")
+    @Description("Parse messages as players")
+    public void parse(
+            final BukkitSource source,
+            final @Named("target") PlayerSelector players,
+            final @Named("message") @Greedy String message
+    ) {
+        for (final Player player : players) {
+            final Component component = Utilities.translate(message, player);
+            if (!Component.empty().equals(component)) {
+                AudienceResolver.resolve(source.origin()).sendMessage(component);
             }
         }
 
