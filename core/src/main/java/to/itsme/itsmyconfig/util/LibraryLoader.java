@@ -22,16 +22,6 @@ public enum LibraryLoader {
             new Relocation("net.kyori", BuildParameters.SHADE_PATH + "kyori")
     ),
     // ========================================================= //
-    // Adventure Bukkit Platfrom //
-    @SuppressWarnings("ConstantConditions")
-    ADVENTURE_PLATFORM(
-            "net.kyori",
-            "adventure-platform-bukkit",
-            BuildParameters.ADVENTURE_PLATFORM_VERSION,
-            () -> true,
-            new Relocation("net.kyori", BuildParameters.SHADE_PATH + "kyori")
-    ),
-    // ========================================================= //
     // Adventure Serializers //
     ADVENTURE_BUNGEE_SERIALIZER(
             "net.kyori",
@@ -41,6 +31,14 @@ public enum LibraryLoader {
             new Relocation("net.kyori", BuildParameters.SHADE_PATH + "kyori")
     )
     // ========================================================= */
+    // Adventure Bukkit Platfrom //
+    @SuppressWarnings("ConstantConditions")
+    ADVENTURE_PLATFORM(
+            "net.kyori",
+            "adventure-platform-bukkit",
+            BuildParameters.ADVENTURE_PLATFORM_VERSION,
+            () -> !Reflections.findClass("net{}kyori{}adventure{}platform.bukkit.BukkitComponentSerializer")
+    ),
     ADVENTURE_GSON_SERIALIZER(
             "net{}kyori",
             "adventure-text-serializer-gson",
