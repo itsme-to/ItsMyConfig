@@ -19,11 +19,12 @@ public final class AdventureUtil {
 
         try {
             componentClass = Class.forName("net{}kyori{}adventure{}text{}Component".replace("{}", "."));
-            Class<?> gsonComponentSerializerClass = Class.forName("net{}kyori{}adventure{}text{}serializer{}gson{}GsonComponentSerializer".replace("{}", "."));
-            Method gsonMethod = gsonComponentSerializerClass.getMethod("gson");
+            Class<?> bukkitSerializers = Class.forName("net{}kyori{}adventure{}platform{}bukkit{}BukkitComponentSerializer".replace("{}", "."));
+            Method gsonMethod = bukkitSerializers.getMethod("gson");
             gsonSerializer = gsonMethod.invoke(null);
-            serialize = gsonComponentSerializerClass.getMethod("serialize", componentClass);
+            serialize = gsonSerializer.getClass().getMethod("serialize", componentClass);
             deserialize = gsonSerializer.getClass().getMethod("deserialize", String.class);
+            serialize.setAccessible(true);
             deserialize.setAccessible(true);
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
