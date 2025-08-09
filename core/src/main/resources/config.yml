@@ -32,11 +32,11 @@ messages:
     - "<red><bold>ERROR</bold></red> <white>┃ Invalid use"
     - "  <yellow>/<usage>"
   reload:
-    - "<green><bold>SUCCES</bold></green> <white>┃ ItsmyConfig reloaded !"
+    - "<green><bold>SUCCESS</bold></green> <white>┃ ItsmyConfig reloaded !"
   no-permission:
     - "<red><bold>ERROR</bold></red> <white>┃ You don't have permission"
   message-sent:
-    - "<green><bold>SUCCES</bold></green> <white>┃ Message Sent !"
+    - "<green><bold>SUCCESS</bold></green> <white>┃ Message Sent !"
 
 formatting:
   thousands: k
