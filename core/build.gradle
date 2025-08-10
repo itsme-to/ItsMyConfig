@@ -10,6 +10,10 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven {
+        name = "codemc"
+        url = "https://repo.codemc.io/repository/maven-releases/"
+    }
+    maven {
         name = "papermc-repo"
         url = "https://repo.papermc.io/repository/maven-public/"
     }
@@ -32,10 +36,6 @@ repositories {
     maven {
         name = "jitpack"
         url = "https://jitpack.io"
-    }
-    maven {
-        name = "codemc"
-        url = "https://repo.codemc.io/repository/maven-releases/"
     }
 }
 
@@ -62,7 +62,7 @@ dependencies {
     implementation "com.alessiodp.libby:libby-bukkit:2.0.0-SNAPSHOT"
 
     compileOnly "io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT"
-    compileOnly "com.github.retrooper:packetevents-spigot:2.6.0"
+    compileOnly "com.github.retrooper:packetevents-spigot:2.9.4"
     compileOnly "com.comphenix.protocol:ProtocolLib:5.3.0"
     compileOnly "me.clip:placeholderapi:2.11.6"
     
