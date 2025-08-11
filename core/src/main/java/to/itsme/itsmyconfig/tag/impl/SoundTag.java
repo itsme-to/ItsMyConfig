@@ -49,7 +49,7 @@ public class SoundTag extends ArgumentsTag {
             final Sound sound = Sound.valueOf(input);
             return sound.key().value();
         } catch (final Throwable ignored) {
-            return input.replace("_", ".");
+            return input.replace("/", ".");
         }
     }
 
