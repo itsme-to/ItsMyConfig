@@ -70,8 +70,9 @@ dependencies {
     testImplementation("${kyori(KyoriModule.MINI_MESSAGE)}")
     testImplementation("${kyoriPlatform(KyoriModule.BUKKIT)}")
 
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
+    testImplementation(platform('org.junit:junit-bom:5.13.4'))
+	testImplementation('org.junit.jupiter:junit-jupiter')
+	testRuntimeOnly('org.junit.platform:junit-platform-launcher')
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -85,8 +86,11 @@ tasks.named('shadowJar') {
     dependsOn tasks.named('test')
 }
 
-tasks.test {
+test {
     useJUnitPlatform()
+    testLogging {
+		events "passed", "skipped", "failed"
+	}
 }
 
 processResources {
