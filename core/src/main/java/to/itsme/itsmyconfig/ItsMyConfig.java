@@ -5,6 +5,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.github.retrooper.packetevents.PacketEvents;
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import to.itsme.itsmyconfig.api.ItsMyConfigAPI;
 import to.itsme.itsmyconfig.command.CommandManager;
 import to.itsme.itsmyconfig.listener.PlayerListener;
@@ -65,6 +67,16 @@ public final class ItsMyConfig extends JavaPlugin {
     }
 
     @Override
+    public void onLoad() {
+        instance = this;
+        LibraryLoader.loadLibraries();
+        if (LibraryLoader.PACKET_EVENTS.shouldLoad()) {
+            PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
+            PacketEvents.getAPI().load();
+        }
+    }
+
+    @Override
     public void onEnable() {
         this.getLogger().info("Loading ItsMyConfig...");
         if (Versions.isBelow(1, 16, 5)) {
@@ -74,7 +86,6 @@ public final class ItsMyConfig extends JavaPlugin {
         }
 
         final long start = System.currentTimeMillis();
-        instance = this;
         api = new DefaultIMCAPI(this);
         this.getServer().getServicesManager().register(
                 ItsMyConfigAPI.class,
@@ -82,7 +93,6 @@ public final class ItsMyConfig extends JavaPlugin {
                 this,
                 org.bukkit.plugin.ServicePriority.Normal
         );
-        LibraryLoader.loadLibraries();
         AudienceResolver.load(this);
         List.of("imc", "itsmyconfig").forEach(alias -> new PAPIHook(this, alias).register());
         new CommandManager(this);
