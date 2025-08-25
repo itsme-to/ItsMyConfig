@@ -9,4 +9,3 @@ depend:
   - PlaceholderAPI
 softdepend:
   - ProtocolLib
-  - PacketEvents

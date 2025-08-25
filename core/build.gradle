@@ -110,6 +110,7 @@ shadowJar {
     relocate("org.bstats", "${shadePath}bstats")
     relocate("net.kyori", "${shadePath}kyori")
     relocate("com.alessiodp.libby", "${shadePath}libby")
+    relocate("com.github.retrooper.packetevents", "${shadePath}packetevents")
     archiveFileName = "itsmyconfig-${project.version}.jar"
 }
 
